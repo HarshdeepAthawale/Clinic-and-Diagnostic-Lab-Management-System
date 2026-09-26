@@ -1,7 +1,7 @@
-import { PatientShell } from '@/components/shell/PatientShell';
+import { WorkspaceShell } from '@/components/shell/WorkspaceShell';
 
 export const metadata = { title: 'Home' };
 
 export default function PatientLayout({ children }) {
-  return <PatientShell>{children}</PatientShell>;
+  return <WorkspaceShell role="PATIENT">{children}</WorkspaceShell>;
 }

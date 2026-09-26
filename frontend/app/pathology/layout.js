@@ -1,7 +1,7 @@
-import { StaffShell } from '@/components/shell/StaffShell';
+import { WorkspaceShell } from '@/components/shell/WorkspaceShell';
 
 export const metadata = { title: 'Today' };
 
 export default function PathologyLayout({ children }) {
-  return <StaffShell role="PATHOLOGIST">{children}</StaffShell>;
+  return <WorkspaceShell role="PATHOLOGIST">{children}</WorkspaceShell>;
 }

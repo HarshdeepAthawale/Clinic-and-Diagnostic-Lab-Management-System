@@ -1,7 +1,7 @@
-import { StaffShell } from '@/components/shell/StaffShell';
+import { WorkspaceShell } from '@/components/shell/WorkspaceShell';
 
 export const metadata = { title: 'Today' };
 
 export default function ReceptionLayout({ children }) {
-  return <StaffShell role="RECEPTIONIST">{children}</StaffShell>;
+  return <WorkspaceShell role="RECEPTIONIST">{children}</WorkspaceShell>;
 }

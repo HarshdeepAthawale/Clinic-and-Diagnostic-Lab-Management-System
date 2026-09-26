@@ -1,0 +1,223 @@
+/* Top navbar after login (Design.md §3.1) — sticky, frosted, underline marks the active link. */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  background: rgb(255 255 255 / 0.92);
+  backdrop-filter: saturate(160%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 64px;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  align-self: stretch;
+  align-items: stretch;
+  gap: 4px;
+  min-width: 0;
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  color: var(--text-muted);
+  font-size: 14.5px;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--text);
+}
+
+.link[data-active] {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.link[data-disabled] {
+  color: var(--text-subtle);
+  cursor: default;
+}
+
+.underline {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.soon {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 5px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  color: var(--text-subtle);
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 240px;
+  height: 38px;
+  padding: 0 8px 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text-subtle);
+  font-size: 14px;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.search:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.iconBtn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.page {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ---------- Mobile ---------- */
+
+.drawerLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 48px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.drawerLink[data-active] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.drawerLink[data-disabled] {
+  color: var(--text-subtle);
+}
+
+.bottomBar {
+  display: none;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .links,
+  .search {
+    display: none;
+  }
+
+  .inner {
+    height: 56px;
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .page {
+    padding: 20px 16px 48px;
+  }
+}
+
+@media (max-width: $mantine-breakpoint-sm) {
+  .withBottomBar .page {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  .bottomBar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 70;
+    display: grid;
+    grid-template-columns: repeat(var(--tabs), 1fr);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    background: rgb(255 255 255 / 0.94);
+    backdrop-filter: saturate(160%) blur(12px);
+    border-top: 1px solid var(--border);
+  }
+
+  .bottomTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 52px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  .bottomTab[data-active] {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .bottomTab[data-disabled] {
+    color: var(--text-subtle);
+  }
+}

@@ -1,7 +1,7 @@
-import { StaffShell } from '@/components/shell/StaffShell';
+import { WorkspaceShell } from '@/components/shell/WorkspaceShell';
 
 export const metadata = { title: 'Insights' };
 
 export default function AdminLayout({ children }) {
-  return <StaffShell role="ADMIN">{children}</StaffShell>;
+  return <WorkspaceShell role="ADMIN">{children}</WorkspaceShell>;
 }
