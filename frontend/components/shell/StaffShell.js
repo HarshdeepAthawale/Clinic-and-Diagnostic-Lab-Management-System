@@ -66,6 +66,7 @@ export function StaffShell({ role, children }) {
 
   return (
     <AppShell
+      layout="alt"
       header={{ height: 64 }}
       navbar={{ width: collapsed ? 76 : 256, breakpoint: 'sm', collapsed: { mobile: !mobileOpened } }}
       style={{ '--accent': config.accentVar }}
