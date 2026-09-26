@@ -1,15 +1,14 @@
 'use client';
 
-import { Burger, Drawer, Kbd, Skeleton, Stack, Tooltip, UnstyledButton } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { Skeleton, Tooltip, UnstyledButton } from '@mantine/core';
+import { useDisclosure, useHotkeys, useWindowScroll } from '@mantine/hooks';
 import { spotlight } from '@mantine/spotlight';
-import { IconSearch } from '@tabler/icons-react';
-import { motion } from 'motion/react';
+import { IconArrowRight, IconMenu2, IconSearch, IconX } from '@tabler/icons-react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { roleConfig } from '@/lib/roles';
-import { BrandMark } from '@/components/ui/BrandMark';
 import { CommandPalette } from './CommandPalette';
 import { NotificationsBell } from './NotificationsBell';
 import { ShortcutsModal } from './ShortcutsModal';
@@ -18,120 +17,222 @@ import { useSession } from './useSession';
 import { useShellShortcuts } from './useShellShortcuts';
 import classes from './AppNav.module.css';
 
-const phaseLabel = (phase) => `P${String(phase).padStart(2, '0')}`;
+const phaseLabel = (phase) => `Phase ${String(phase).padStart(2, '0')}`;
 
-function NavLink({ item, active, className, children }) {
+function isActive(item, pathname, home) {
+  if (item.phase) return false;
+  return item.href === home ? pathname === home : pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+/** Clock store: ticks every 15s; the server snapshot is null so SSR renders nothing. */
+function subscribeClock(onChange) {
+  const timer = setInterval(onChange, 15_000);
+  return () => clearInterval(timer);
+}
+const minuteNow = () => Math.floor(Date.now() / 60_000) * 60_000;
+
+/** Live clinic clock (Design.md §3.1). */
+function ClinicClock() {
+  const minute = useSyncExternalStore(subscribeClock, minuteNow, () => null);
+  if (minute == null) return null;
+  const now = new Date(minute);
+  return (
+    <div className={classes.clock} aria-label="Current time">
+      <span className={classes.clockTime}>{now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+      <span className={classes.clockDate}>{now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+    </div>
+  );
+}
+
+function NavItem({ item, active, reduceMotion }) {
+  const Icon = item.icon;
+  const content = (
+    <span className={classes.linkInner}>
+      <Icon size={17} stroke={1.8} />
+      <span className={classes.linkText}>{item.label}</span>
+    </span>
+  );
   if (item.phase) {
     return (
-      <Tooltip label={`${item.label} — coming in Phase ${String(item.phase).padStart(2, '0')}`}>
-        <span className={className} data-disabled aria-disabled="true">
-          {children}
+      <Tooltip label={`${item.label} — coming in ${phaseLabel(item.phase)}`}>
+        <span className={classes.link} data-disabled aria-disabled="true" tabIndex={0}>
+          {content}
         </span>
       </Tooltip>
     );
   }
   return (
-    <Link href={item.href} className={className} data-active={active || undefined} aria-current={active ? 'page' : undefined}>
-      {children}
-    </Link>
+    <Tooltip label={item.label} openDelay={400}>
+      <Link href={item.href} className={classes.link} data-active={active || undefined} aria-current={active ? 'page' : undefined} aria-label={item.label}>
+        {active && (
+          <motion.span
+            layoutId="nav-pill"
+            className={classes.pill}
+            transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
+          />
+        )}
+        {content}
+      </Link>
+    </Tooltip>
   );
 }
 
 /**
- * The workspace shell for every role after login (Design.md §3): a sticky top navbar with the
- * role's links, Ctrl+K search, notifications and account menu. Patients also get a bottom tab bar
- * on phones; staff get a drawer.
+ * Clinical command bar for every role after login (Design.md §3.1): wordmark + role, labelled
+ * links with a sliding ink pill, search (the primary tool), live clinic clock, notifications, one
+ * accent call-to-action, account menu. Below 900px the links move into a menu sheet.
  */
 export function WorkspaceShell({ role, children }) {
   const config = roleConfig(role);
   const pathname = usePathname();
   const { data: me } = useSession(role);
-  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+  const reduceMotion = useReducedMotion();
+  const [{ y }] = useWindowScroll();
+  const [menuOpened, { toggle: toggleMenu, close: closeMenu }] = useDisclosure(false);
   const [shortcutsOpened, { open: openShortcuts, close: closeShortcuts }] = useDisclosure(false);
   const isPatient = role === 'PATIENT';
+  const cta = config.cta;
 
   const shortcuts = useMemo(() => ({ '?': openShortcuts }), [openShortcuts]);
   useShellShortcuts(shortcuts);
+  useHotkeys([['Escape', closeMenu]]);
+  useEffect(closeMenu, [pathname, closeMenu]);
 
   return (
-    <div className={isPatient ? classes.withBottomBar : undefined}>
-      <header className={classes.nav}>
-        <div className={classes.inner}>
-          {!isPatient && (
-            <Burger opened={drawerOpened} onClick={toggleDrawer} hiddenFrom="md" size="sm" aria-label="Open navigation" />
-          )}
-          <Link href={config.home} className={classes.brand} aria-label="Home">
-            <BrandMark subtitle={isPatient ? 'Patient portal' : `${config.label} workspace`} />
+    <>
+      <div className={`${classes.bar} ${y > 8 ? classes.scrolled : ''}`}>
+        <motion.header
+          className={classes.nav}
+          initial={reduceMotion ? false : { y: -12, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Link href={config.home} className={classes.brand} aria-label={`${config.label} home`}>
+            <span className={classes.wordmark}>CDLMS</span>
+            <span className={classes.roleChip}>{config.label}</span>
           </Link>
 
           <nav className={classes.links} aria-label="Main">
-            {config.nav.map((item) => {
-              const active = !item.phase && pathname === item.href;
-              return (
-                <NavLink key={item.href} item={item} active={active} className={classes.link}>
-                  {item.label}
-                  {item.phase && <span className={classes.soon}>{phaseLabel(item.phase)}</span>}
-                  {active && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      className={classes.underline}
-                      transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-                    />
-                  )}
-                </NavLink>
-              );
-            })}
+            {config.nav.map((item) => (
+              <NavItem key={item.href} item={item} active={isActive(item, pathname, config.home)} reduceMotion={reduceMotion} />
+            ))}
           </nav>
 
           <div className={classes.actions}>
             {!isPatient && (
-              <>
-                <UnstyledButton className={classes.search} onClick={() => spotlight.open()} aria-label="Open command palette">
-                  <IconSearch size={16} stroke={1.8} />
-                  <span style={{ flex: 1 }}>Search…</span>
-                  <Kbd size="xs">Ctrl K</Kbd>
-                </UnstyledButton>
-                <UnstyledButton className={classes.iconBtn} onClick={() => spotlight.open()} hiddenFrom="md" aria-label="Search">
-                  <IconSearch size={19} stroke={1.7} />
-                </UnstyledButton>
-              </>
+              <UnstyledButton className={classes.search} onClick={() => spotlight.open()} aria-label="Search patients and samples (Ctrl K)">
+                <IconSearch size={16} stroke={1.8} />
+                <span className={classes.searchText}>Search patients, samples…</span>
+                <span className={classes.kbd}>Ctrl K</span>
+              </UnstyledButton>
             )}
-            <NotificationsBell />
-            {me ? <UserMenu me={me} onShowShortcuts={isPatient ? undefined : openShortcuts} /> : <Skeleton circle height={34} />}
+            <ClinicClock />
+            <NotificationsBell buttonClassName={classes.iconBtn} />
+            {cta && (
+              <Link href={cta.href} className={classes.cta}>
+                {cta.label}
+              </Link>
+            )}
+            {me ? (
+              <UserMenu me={me} compact onShowShortcuts={isPatient ? undefined : openShortcuts} />
+            ) : (
+              <Skeleton circle height={34} />
+            )}
+            <UnstyledButton
+              className={`${classes.iconBtn} ${classes.menuBtn}`}
+              onClick={toggleMenu}
+              aria-label={menuOpened ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpened}
+            >
+              {menuOpened ? <IconX size={20} /> : <IconMenu2 size={20} />}
+            </UnstyledButton>
           </div>
-        </div>
-      </header>
+
+          <AnimatePresence>
+            {menuOpened && (
+              <motion.div
+                className={classes.sheet}
+                initial={reduceMotion ? false : { opacity: 0, y: -6, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <nav className={classes.sheetLinks} aria-label="Main">
+                  {config.nav.map((item, i) => {
+                    const Icon = item.icon;
+                    const active = isActive(item, pathname, config.home);
+                    return (
+                      <motion.div
+                        key={item.href}
+                        initial={reduceMotion ? false : { opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.28, delay: 0.035 * i, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        {item.phase ? (
+                          <span className={classes.sheetLink} data-disabled aria-disabled="true">
+                            <Icon size={22} stroke={1.6} />
+                            {item.label}
+                            <span className={classes.sheetSoon}>{phaseLabel(item.phase)}</span>
+                          </span>
+                        ) : (
+                          <Link href={item.href} className={classes.sheetLink} data-active={active || undefined}>
+                            <Icon size={22} stroke={1.6} />
+                            {item.label}
+                          </Link>
+                        )}
+                      </motion.div>
+                    );
+                  })}
+                </nav>
+                <div className={classes.sheetActions}>
+                  {!isPatient && (
+                    <UnstyledButton
+                      className={classes.sheetButton}
+                      onClick={() => {
+                        closeMenu();
+                        spotlight.open();
+                      }}
+                    >
+                      <IconSearch size={18} />
+                      Search
+                    </UnstyledButton>
+                  )}
+                  {cta && (
+                    <Link href={cta.href} className={`${classes.sheetButton} ${classes.sheetPrimary}`}>
+                      {cta.label}
+                      <IconArrowRight size={18} />
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.header>
+      </div>
+
+      <AnimatePresence>
+        {menuOpened && (
+          <motion.div
+            className={classes.backdrop}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeMenu}
+            aria-hidden="true"
+          />
+        )}
+      </AnimatePresence>
 
       <main id="main" className={classes.page}>
         {children}
       </main>
 
-      {isPatient ? (
-        <nav className={classes.bottomBar} style={{ '--tabs': config.nav.length }} aria-label="Main">
-          {config.nav.map((item) => (
-            <NavLink key={item.href} item={item} active={!item.phase && pathname === item.href} className={classes.bottomTab}>
-              <item.icon size={22} stroke={1.6} />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
-      ) : (
+      {!isPatient && (
         <>
-          <Drawer opened={drawerOpened} onClose={closeDrawer} size={300} title={<BrandMark subtitle={`${config.label} workspace`} />}>
-            <Stack gap={4} onClick={closeDrawer}>
-              {config.nav.map((item) => (
-                <NavLink key={item.href} item={item} active={!item.phase && pathname === item.href} className={classes.drawerLink}>
-                  <item.icon size={20} stroke={1.6} />
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {item.phase && <span className={classes.soon}>{phaseLabel(item.phase)}</span>}
-                </NavLink>
-              ))}
-            </Stack>
-          </Drawer>
           <CommandPalette config={config} onShowShortcuts={openShortcuts} />
           <ShortcutsModal opened={shortcutsOpened} onClose={closeShortcuts} />
         </>
       )}
-    </div>
+    </>
   );
 }

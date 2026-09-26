@@ -12,7 +12,8 @@ export function initials(name = '') {
 }
 
 /** Initials avatar; menu with identity, role, shortcuts and sign-out. */
-export function UserMenu({ me, onShowShortcuts, compact = false }) {
+/** `inverted` renders a white avatar for dark backgrounds such as the navbar. */
+export function UserMenu({ me, onShowShortcuts, compact = false, inverted = false }) {
   const queryClient = useQueryClient();
 
   return (
@@ -23,7 +24,11 @@ export function UserMenu({ me, onShowShortcuts, compact = false }) {
             <Avatar
               radius="xl"
               size={34}
-              styles={{ placeholder: { background: 'var(--ink)', color: 'var(--on-ink)', fontWeight: 600, fontSize: 13 } }}
+              styles={{
+                placeholder: inverted
+                  ? { background: '#fff', color: 'var(--ink)', fontWeight: 600, fontSize: 13 }
+                  : { background: 'var(--ink)', color: 'var(--on-ink)', fontWeight: 600, fontSize: 13 },
+              }}
             >
               {initials(me.name)}
             </Avatar>
