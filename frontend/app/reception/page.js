@@ -1,5 +1,5 @@
-import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
+import { ReceptionDashboard } from '@/components/dashboard/roles/ReceptionDashboard';
 
 export default function ReceptionHomePage() {
-  return <StaffDashboard role="RECEPTIONIST" />;
+  return <ReceptionDashboard />;
 }
