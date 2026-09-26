@@ -30,6 +30,10 @@ Java (Spring Boot) REST backend, a Next.js frontend written in JavaScript, and P
 | **Language** | JavaScript (ES2022+, `.js` / `.jsx`) — **not** TypeScript | Project requirement. Use JSDoc comments where a shape needs documenting |
 | **UI components** | Mantine (core, form, dates, notifications) | Ready-made tables, forms with validation, date pickers, modals and toasts — avoids bare/templated screens (see [[Design]]) |
 | **Charts** | Mantine Charts (built on Recharts) | Admin dashboard revenue/TAT/test-volume charts |
+| **Command palette** | `@mantine/spotlight` | Staff `Ctrl/⌘+K` search-and-act palette (see [[Design]] §3.3) |
+| **Animation** | `motion` (Framer Motion) | Sample-journey progress, queue reordering, panel transitions; respects reduced motion (see [[Design]] §2.5) |
+| **Icons** | `@tabler/icons-react` | One consistent 1.5px-stroke icon set |
+| **Fonts** | `next/font` — Inter, JetBrains Mono, Instrument Serif | Self-hosted, no layout shift (see [[Design]] §2.2) |
 | **Data fetching** | TanStack Query | Caching, loading/error states, refetch-after-mutation for API calls |
 | **HTTP client** | Native `fetch` wrapped in one `lib/api.js` module | Single place for base URL, `credentials: 'include'`, the `X-CSRF-Protection` header on mutations (ADR-014), and error-shape handling |
 | **Route protection (UX only)** | Next.js `middleware.js` | Redirects unauthenticated users to `/login` and users to their own role's area. **Not a security boundary** — the backend enforces all access |

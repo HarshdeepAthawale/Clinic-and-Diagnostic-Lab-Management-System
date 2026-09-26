@@ -14,3 +14,4 @@ Project is in planning/pre-implementation stage. See [[ImplementationPlan]] and 
 - Lab technicians can reject a sample during testing if it is used up or degraded (ADR-013).
 - CSRF protection via a required custom header (ADR-014).
 - Doctors see basic details for all patients, the full record only with a care relationship; all record opens are logged (ADR-015).
+- Full design spec "Calm Precision" in Design.md (ADR-016).

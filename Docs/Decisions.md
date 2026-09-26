@@ -146,3 +146,13 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 **Alternatives considered:** All doctors see everything (simplest, but no need-to-know limit); own patients only with no search (blocks walk-ins); break-glass emergency override (useful in hospitals, unnecessary for a booked/queued clinic — can be added later as a new ADR).
 **Consequence:** The relationship check depends on `Appointment`/`Consultation`, so it's fully testable from Phase 03. Access logging adds one insert per record view.
 
+---
+
+## ADR-016: Design language — "Calm Precision"
+
+**Status:** Accepted
+**Context:** Frontend quality carries significant evaluation weight, and the team wants a distinctive, polished UI rather than a template admin panel — without compromising clinical clarity.
+**Decision:** Adopt the design system in [[Design]]: neutral canvas + one teal brand color, strictly reserved semantic status colors, per-role accent colors for wayfinding, Inter / JetBrains Mono / Instrument Serif, full dark mode, keyboard-first staff workflows with a command palette, and a set of signature experiences (sample journey, pathologist focus mode, lab bench mode, live reception queue, doctor consult workspace). Built on Mantine + `@mantine/spotlight` + `motion` + Tabler icons.
+**Alternatives considered:** Plain Mantine defaults (fast but generic); Tailwind + shadcn/ui (great look, but shadcn is TypeScript-first and we'd hand-build tables, forms and date pickers Mantine already provides).
+**Consequence:** Every UI PR follows the review checklist in [[Design]] §12. Signature experiences are scheduled with their phases rather than all up front.
+
