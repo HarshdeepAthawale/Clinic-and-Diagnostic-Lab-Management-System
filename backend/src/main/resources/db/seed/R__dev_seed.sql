@@ -36,3 +36,11 @@ INSERT INTO staff (user_id, full_name, staff_type) VALUES
     ('00000000-0000-4000-8000-000000000005', 'Priya Nair', 'LAB_TECHNICIAN'),
     ('00000000-0000-4000-8000-000000000006', 'Anil Kapoor', 'ADMIN')
 ON CONFLICT DO NOTHING;
+
+-- One appointment so the demo doctor has a care relationship with the demo patient (ADR-015).
+INSERT INTO appointments (patient_id, doctor_id, scheduled_at, status)
+SELECT p.id, d.id, date_trunc('hour', now()) + interval '1 hour', 'BOOKED'
+FROM patients p, doctors d
+WHERE p.user_id = '00000000-0000-4000-8000-000000000001'
+  AND d.user_id = '00000000-0000-4000-8000-000000000002'
+  AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.doctor_id = d.id);
