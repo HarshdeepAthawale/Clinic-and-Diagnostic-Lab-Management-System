@@ -69,7 +69,7 @@ function Schedule({ widget, role }) {
               key={row.appointmentId}
               href={patientHref(role, row.patient.id)}
               leading={
-                <Text className="mono" size="sm" fw={500} w={52} c="var(--text-muted)">
+                <Text className="mono" size="sm" fw={500} w={72} c="var(--text-muted)" style={{ whiteSpace: 'nowrap' }}>
                   {formatTime(row.scheduledAt)}
                 </Text>
               }
