@@ -1,5 +1,6 @@
 package com.cdlms.auth;
 
+import com.cdlms.auth.AuthDtos.ClaimAccountRequest;
 import com.cdlms.auth.AuthDtos.LoginRequest;
 import com.cdlms.auth.AuthDtos.MeResponse;
 import com.cdlms.auth.AuthDtos.RegisterRequest;
@@ -32,6 +33,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<MeResponse> register(@Valid @RequestBody RegisterRequest request) {
         User user = authService.registerPatient(request);
+        return withLoginCookie(ResponseEntity.status(HttpStatus.CREATED), user);
+    }
+
+    /** Patient signup that links to an existing front-desk record via its registration code. */
+    @PostMapping("/register/claim")
+    public ResponseEntity<MeResponse> claim(@Valid @RequestBody ClaimAccountRequest request) {
+        User user = authService.claimAccount(request);
         return withLoginCookie(ResponseEntity.status(HttpStatus.CREATED), user);
     }
 

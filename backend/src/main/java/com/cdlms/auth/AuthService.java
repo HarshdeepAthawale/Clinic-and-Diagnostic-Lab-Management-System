@@ -1,9 +1,11 @@
 package com.cdlms.auth;
 
+import com.cdlms.auth.AuthDtos.ClaimAccountRequest;
 import com.cdlms.auth.AuthDtos.LoginRequest;
 import com.cdlms.auth.AuthDtos.MeResponse;
 import com.cdlms.auth.AuthDtos.RegisterRequest;
 import com.cdlms.common.ApiException;
+import com.cdlms.patient.ClaimCodes;
 import com.cdlms.patient.Patient;
 import com.cdlms.patient.PatientRepository;
 import com.cdlms.user.Doctor;
@@ -20,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -31,17 +34,20 @@ public class AuthService {
     private final PathologistRepository pathologists;
     private final StaffRepository staff;
     private final PasswordEncoder passwordEncoder;
+    private final ClaimCodes claimCodes;
     /** Compared against when the email is unknown, so both failure paths take the same time. */
     private final String dummyHash;
 
     public AuthService(UserRepository users, PatientRepository patients, DoctorRepository doctors,
-                       PathologistRepository pathologists, StaffRepository staff, PasswordEncoder passwordEncoder) {
+                       PathologistRepository pathologists, StaffRepository staff, PasswordEncoder passwordEncoder,
+                       ClaimCodes claimCodes) {
         this.users = users;
         this.patients = patients;
         this.doctors = doctors;
         this.pathologists = pathologists;
         this.staff = staff;
         this.passwordEncoder = passwordEncoder;
+        this.claimCodes = claimCodes;
         this.dummyHash = passwordEncoder.encode("timing-equalizer-not-a-real-password");
     }
 
@@ -54,6 +60,29 @@ public class AuthService {
         User user = users.save(new User(email, passwordEncoder.encode(request.password()), Role.PATIENT));
         patients.save(new Patient(user.getId(), request.fullName().trim(), request.dob(), request.gender(),
                 request.phone().trim()));
+        return user;
+    }
+
+    /**
+     * Links a new login to a record the front desk registered (ADR-018). Unknown, expired and
+     * already-used codes all get the same error, so codes can't be probed.
+     */
+    @Transactional
+    public User claimAccount(ClaimAccountRequest request) {
+        ApiException invalid = new ApiException(HttpStatus.BAD_REQUEST, "INVALID_REGISTRATION_CODE",
+                "That registration code isn't valid. Ask the front desk for a new one.");
+        Patient patient = patients.findByClaimCodeHash(claimCodes.hash(request.registrationCode()))
+                .filter(p -> p.getUserId() == null)
+                .filter(p -> p.getClaimCodeExpiresAt() != null && p.getClaimCodeExpiresAt().isAfter(Instant.now()))
+                .orElseThrow(() -> invalid);
+
+        String email = User.normalizeEmail(request.email());
+        if (users.existsByEmail(email)) {
+            throw new ApiException(HttpStatus.CONFLICT, "EMAIL_TAKEN", "An account with this email already exists");
+        }
+        User user = users.save(new User(email, passwordEncoder.encode(request.password()), Role.PATIENT));
+        patient.linkToUser(user.getId());
+        patients.save(patient);
         return user;
     }
 

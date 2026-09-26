@@ -34,6 +34,16 @@ public final class AuthDtos {
             @NotBlank @Pattern(regexp = "^\\+?[0-9 ()-]{7,20}$", message = "must be a valid phone number") String phone) {
     }
 
+    /**
+     * Creates a login for a patient the front desk already registered, using the one-time
+     * registration code from their slip (ADR-018). Name, date of birth etc. come from the record.
+     */
+    public record ClaimAccountRequest(
+            @NotBlank @Email @Size(max = 254) String email,
+            @NotBlank @Size(min = 8, max = 72, message = "must be 8 to 72 characters") String password,
+            @NotBlank @Size(max = 20) String registrationCode) {
+    }
+
     /** The logged-in user, as returned by login, register and {@code GET /api/auth/me}. */
     public record MeResponse(UUID id, String email, Role role, String name) {
     }
