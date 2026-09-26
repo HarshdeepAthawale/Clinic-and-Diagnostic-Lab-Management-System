@@ -51,7 +51,7 @@ export function PatientHome() {
         <Card style={{ background: 'var(--surface)' }} padding="xl">
           <Group justify="space-between" mb="lg" wrap="nowrap" align="flex-start">
             <Group gap="sm" wrap="nowrap">
-              <IconTimeline size={22} color="var(--brand)" stroke={1.7} />
+              <IconTimeline size={22} color="var(--brand)" stroke={1.7} style={{ flex: 'none' }} />
               <div>
                 <Text fw={600}>Your lab tests, tracked live</Text>
                 <Text size="sm" c="var(--text-muted)">

@@ -87,7 +87,7 @@ export function StaffDashboard({ role }) {
           <Title order={2} fz={18}>
             Coming to your workspace
           </Title>
-          <Text size="sm" c="var(--text-muted)">
+          <Text size="sm" c="var(--text-muted)" visibleFrom="sm">
             Press <kbd style={{ fontFamily: 'var(--font-mono)' }}>Ctrl K</kbd> to search anywhere
           </Text>
         </Group>
