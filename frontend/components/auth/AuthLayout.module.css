@@ -5,16 +5,6 @@
   background: var(--bg);
 }
 
-@media (max-width: $mantine-breakpoint-md) {
-  .page {
-    grid-template-columns: 1fr;
-  }
-
-  .panel {
-    display: none;
-  }
-}
-
 /* ---------- Brand panel ---------- */
 
 .panel {
@@ -178,7 +168,16 @@
   margin-bottom: 32px;
 }
 
+/* Tablets and phones: form only. Kept last so it overrides the base rules above. */
 @media (max-width: $mantine-breakpoint-md) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    display: none;
+  }
+
   .mobileBrand {
     display: block;
   }
