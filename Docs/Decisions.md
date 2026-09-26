@@ -160,7 +160,7 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 
 ## ADR-017: Visual refresh — warm light palette, Outfit, top navbar, light mode only
 
-**Status:** Accepted (supersedes the palette, typography, dark-mode and sidebar parts of ADR-016; the principles, signature experiences and component patterns of ADR-016 stand)
+**Status:** Accepted; demo-data dashboards and the top-navbar description superseded by ADR-019 (supersedes the palette, typography, dark-mode and sidebar parts of ADR-016; the principles, signature experiences and component patterns of ADR-016 stand)
 **Context:** The team wants a cleaner look with fewer colors, richer animation, a top navbar after login, and no dark mode. Reference sites: Thapar Nexus (palette, fonts, navbar) and ObsidianUI (motion ideas).
 **Decision:**
 - Palette: warm neutral canvas (`#f5f4f1`), white surfaces, one deep-red accent (`#b42318`); status colors only for status. No per-role accent colors.
@@ -171,3 +171,31 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - Role dashboards are fully designed now and run on a labelled demo dataset (`lib/demo`), each panel tagged "Demo data" with the phase that makes it live.
 **Consequence:** Because the accent and "critical" share a red, critical states must always use the octagon icon + explicit word + tinted banner/badge ([[Design]] §2.1). Demo data must be removed panel by panel as phases connect real APIs.
 
+
+---
+
+## ADR-018: One-time registration codes for front-desk-registered patients
+
+**Status:** Accepted
+**Context:** Most patients are first registered by the front desk (walk-ins, phone bookings) and have no login. Later they want to see their own record and reports. Matching them by name/phone/date of birth at sign-up is guessable and would let anyone who knows those details take over a record.
+**Decision:**
+- On registration the front desk gets a one-time **registration code** printed on the patient's slip: 10 characters from an alphabet without look-alikes (no `0/O`, `1/I/L`), shown as `ABCDE-FGH23` (~49 bits of randomness).
+- Only a **SHA-256 hash** is stored (`patients.claim_code_hash`); the plain code is returned exactly once. Case, spaces and dashes are ignored when the patient types it.
+- Valid for **30 days**, **single use**, and only while the record has no login. The front desk can issue a fresh code (`POST /patients/{id}/registration-code`), which replaces the old one.
+- `POST /auth/register/claim` (email + password + code) creates the `PATIENT` user and links it. Unknown, expired and already-used codes all return the same `400 INVALID_REGISTRATION_CODE`, so codes can't be probed.
+- The `appointments` table is created in Phase 02 (not Phase 03) because the doctor care-relationship check (ADR-015) depends on it.
+**Alternatives considered:** Match on phone + date of birth (guessable); email/SMS invite link (needs a mail/SMS provider — ADR-007 still open); front desk sets a temporary password (staff would know patient passwords).
+**Consequence:** A lost slip means a trip to (or call with) the front desk. Login attempts on the claim endpoint share the auth rate limit.
+
+---
+
+## ADR-019: Server-driven widget dashboards, real data only; navbar as a clinical command bar
+
+**Status:** Accepted (supersedes the demo-data dashboards and the top-navbar description of ADR-017)
+**Context:** The Phase 01 dashboards ran on a labelled demo dataset. The team decided that no mock data should ship anywhere — every number on screen must be real — and that dashboards must scale as each phase adds modules without rewriting each role's page.
+**Decision:**
+- `GET /dashboard/{role}` returns `{ role, widgets: [{ type, title, span, data }] }`. The frontend keeps a **widget registry** (one component per `type`); unknown types are skipped, so a phase can add a widget server-side and ship its component independently.
+- Widgets query real tables only. A module that isn't built yet appears as an honest `upcoming` widget (module name, phase, description) — never fake numbers. `lib/demo` and all "Demo data" tags are removed.
+- `span` (`full`, `wide`, `narrow`) is a layout hint; the grid collapses to one column on small screens.
+- Navigation becomes a **clinical command bar**: a white floating bar with the wordmark on the left, centred labelled links with a sliding ink pill for the active page, and on the right patient search (Ctrl+K), a live clock and one red primary action for the role (e.g. "Register patient").
+**Consequence:** New roles' dashboards look sparse until their phases land — accepted, since an empty state is honest. Every phase that adds a module also adds or upgrades its widgets.
