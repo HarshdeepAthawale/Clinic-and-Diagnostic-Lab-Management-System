@@ -1,0 +1,68 @@
+'use client';
+
+import { Avatar, Group, Menu, Stack, Text, UnstyledButton } from '@mantine/core';
+import { IconChevronDown, IconKeyboard, IconLogout } from '@tabler/icons-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { logout } from '@/lib/auth';
+import { roleConfig } from '@/lib/roles';
+import { RoleBadge } from '@/components/ui/RoleBadge';
+
+export function initials(name = '') {
+  const parts = name.replace(/^Dr\.?\s+/i, '').trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() || '?';
+}
+
+/** Avatar with the role-accent ring; menu with identity, shortcuts and sign-out. */
+export function UserMenu({ me, onShowShortcuts, compact = false }) {
+  const queryClient = useQueryClient();
+  const accent = roleConfig(me.role)?.accentVar;
+
+  return (
+    <Menu position="bottom-end" width={260} shadow="md" radius="lg" withinPortal>
+      <Menu.Target>
+        <UnstyledButton aria-label="Account menu" style={{ borderRadius: 999, padding: 2 }}>
+          <Group gap={8} wrap="nowrap">
+            <Avatar
+              radius="xl"
+              size={34}
+              style={{ boxShadow: `0 0 0 2px var(--surface), 0 0 0 4px ${accent}` }}
+              styles={{ placeholder: { background: `color-mix(in srgb, ${accent} 16%, var(--surface))`, color: accent, fontWeight: 700 } }}
+            >
+              {initials(me.name)}
+            </Avatar>
+            {!compact && (
+              <>
+                <Text size="sm" fw={600} visibleFrom="md" maw={140} truncate>
+                  {me.name}
+                </Text>
+                <IconChevronDown size={14} color="var(--text-muted)" />
+              </>
+            )}
+          </Group>
+        </UnstyledButton>
+      </Menu.Target>
+      <Menu.Dropdown>
+        <Stack gap={4} p="sm">
+          <Text fw={600} size="sm" truncate>
+            {me.name}
+          </Text>
+          <Text size="xs" c="var(--text-muted)" truncate>
+            {me.email}
+          </Text>
+          <div>
+            <RoleBadge role={me.role} size="sm" />
+          </div>
+        </Stack>
+        <Menu.Divider />
+        {onShowShortcuts && (
+          <Menu.Item leftSection={<IconKeyboard size={16} />} rightSection={<Text size="xs" c="dimmed">?</Text>} onClick={onShowShortcuts}>
+            Keyboard shortcuts
+          </Menu.Item>
+        )}
+        <Menu.Item color="red" leftSection={<IconLogout size={16} />} onClick={() => logout(queryClient)}>
+          Sign out
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
+  );
+}
