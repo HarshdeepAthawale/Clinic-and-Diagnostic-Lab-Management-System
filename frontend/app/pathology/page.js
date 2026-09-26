@@ -1,5 +1,5 @@
-import { PathologistDashboard } from '@/components/dashboard/roles/PathologistDashboard';
+import { RoleDashboard } from '@/components/dashboard/RoleDashboard';
 
 export default function PathologistHomePage() {
-  return <PathologistDashboard />;
+  return <RoleDashboard role="PATHOLOGIST" />;
 }

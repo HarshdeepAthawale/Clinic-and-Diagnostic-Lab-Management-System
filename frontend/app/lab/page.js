@@ -1,5 +1,5 @@
-import { LabDashboard } from '@/components/dashboard/roles/LabDashboard';
+import { RoleDashboard } from '@/components/dashboard/RoleDashboard';
 
 export default function LabHomePage() {
-  return <LabDashboard />;
+  return <RoleDashboard role="LAB_TECHNICIAN" />;
 }

@@ -29,6 +29,7 @@ export function KpiTile({
   suffix,
   delta,
   deltaLabel = 'vs last week',
+  caption,
   goodWhenUp = true,
   trend,
   icon: Icon,
@@ -58,6 +59,11 @@ export function KpiTile({
               </Text>
             )}
           </Text>
+          {caption && delta == null && (
+            <Text size="xs" c="var(--text-subtle)" mt={6}>
+              {caption}
+            </Text>
+          )}
           {delta != null && (
             <Group gap={4} mt={6} wrap="nowrap">
               {up ? (
