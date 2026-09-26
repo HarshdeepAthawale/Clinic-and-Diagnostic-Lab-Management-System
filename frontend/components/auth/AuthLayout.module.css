@@ -14,8 +14,8 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 48px 56px;
-  color: #e9fbf7;
-  background: #041714;
+  color: #f5f4f1;
+  background: #1c1b19;
   isolation: isolate;
 }
 
@@ -34,33 +34,23 @@
 }
 
 .blob:nth-child(1) {
-  width: 55%;
-  height: 55%;
-  left: 5%;
-  top: 10%;
-  background: radial-gradient(circle, #0e9384 0%, transparent 70%);
+  width: 70%;
+  height: 70%;
+  right: -10%;
+  top: -15%;
+  background: radial-gradient(circle, rgb(180 35 24 / 0.55) 0%, transparent 65%);
 }
 
 .blob:nth-child(2) {
-  width: 45%;
-  height: 45%;
-  right: 5%;
-  top: 30%;
-  background: radial-gradient(circle, #1570ef 0%, transparent 70%);
-  animation-duration: 28s;
-  animation-delay: -6s;
+  width: 55%;
+  height: 55%;
+  left: -10%;
+  bottom: -10%;
+  background: radial-gradient(circle, rgb(245 244 241 / 0.1) 0%, transparent 65%);
+  animation-duration: 30s;
+  animation-delay: -8s;
 }
 
-.blob:nth-child(3) {
-  width: 50%;
-  height: 50%;
-  left: 25%;
-  bottom: 0;
-  background: radial-gradient(circle, #7a5af8 0%, transparent 70%);
-  opacity: 0.45;
-  animation-duration: 34s;
-  animation-delay: -12s;
-}
 
 .grain {
   position: absolute;
@@ -84,28 +74,37 @@
 }
 
 .headline {
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: clamp(40px, 4.2vw, 64px);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
+  font-size: clamp(40px, 4.2vw, 60px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
   margin: 0 0 16px;
   max-width: 12ch;
 }
 
-.headline em {
-  color: #5fe9d0;
+.reel {
+  position: relative;
+  display: inline-block;
+  height: 1.08em;
+  overflow: hidden;
+  vertical-align: bottom;
+  color: #fda29b;
+}
+
+.reel span {
+  display: inline-block;
 }
 
 .lede {
   font-size: 16px;
   line-height: 1.6;
-  color: rgb(233 251 247 / 0.72);
+  color: rgb(245 244 241 / 0.68);
   max-width: 44ch;
   margin: 0;
 }
 
 .pulse {
-  color: #5fe9d0;
+  color: #fda29b;
   margin: 28px 0 8px;
 }
 
@@ -122,7 +121,7 @@
   gap: 12px;
   align-items: flex-start;
   font-size: 14px;
-  color: rgb(233 251 247 / 0.86);
+  color: rgb(245 244 241 / 0.82);
 }
 
 .featureIcon {
@@ -132,9 +131,9 @@
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background: rgb(255 255 255 / 0.08);
-  border: 1px solid rgb(255 255 255 / 0.12);
-  color: #5fe9d0;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  color: #f5f4f1;
 }
 
 .features strong {
@@ -145,7 +144,7 @@
 
 .footer {
   font-size: 12px;
-  color: rgb(233 251 247 / 0.5);
+  color: rgb(245 244 241 / 0.45);
 }
 
 /* ---------- Form side ---------- */
@@ -161,6 +160,18 @@
 .formInner {
   width: 100%;
   max-width: 400px;
+  animation: auth-enter 500ms var(--ease-out) both;
+}
+
+@keyframes auth-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .mobileBrand {
@@ -184,9 +195,9 @@
 }
 
 .title {
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: 36px;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin: 0 0 6px;
 }

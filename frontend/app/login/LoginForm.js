@@ -97,8 +97,9 @@ export function LoginForm() {
                       fontWeight: 600,
                       padding: '5px 10px',
                       borderRadius: 999,
-                      color: config.accentVar,
-                      background: `color-mix(in srgb, ${config.accentVar} 12%, transparent)`,
+                      color: 'var(--text)',
+                      background: 'var(--surface)',
+                      border: '1px solid var(--border-strong)',
                     }}
                   >
                     {config.label}

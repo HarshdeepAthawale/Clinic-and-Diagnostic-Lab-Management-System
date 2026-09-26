@@ -1,6 +1,7 @@
 import { IconShieldCheck, IconTimeline, IconUsersGroup } from '@tabler/icons-react';
 import { BrandMark } from '@/components/ui/BrandMark';
 import { PulseLine } from '@/components/ui/PulseLine';
+import { TextReel } from '@/components/ui/TextReel';
 import classes from './AuthLayout.module.css';
 
 const FEATURES = [
@@ -29,15 +30,16 @@ export function AuthLayout({ title, subtitle, children }) {
         <div className={classes.mesh}>
           <span className={classes.blob} />
           <span className={classes.blob} />
-          <span className={classes.blob} />
         </div>
         <div className={classes.grain} />
 
-        <BrandMark color="#ffffff" subtitle={<span style={{ color: 'rgb(233 251 247 / 0.6)' }}>Clinic &amp; Diagnostic Lab</span>} />
+        <BrandMark color="#ffffff" subtitle={<span style={{ color: 'rgb(245 244 241 / 0.55)' }}>Clinic &amp; Diagnostic Lab</span>} />
 
         <div>
           <h2 className={classes.headline}>
-            Care, measured <em>precisely.</em>
+            Care, measured
+            <br />
+            <TextReel className={classes.reel} words={['precisely.', 'clearly.', 'safely.', 'together.']} />
           </h2>
           <p className={classes.lede}>
             Appointments, consultations, lab samples and verified reports — one calm, connected
