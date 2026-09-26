@@ -17,7 +17,7 @@ export function Providers({ children }) {
   );
 
   return (
-    <MantineProvider theme={theme} defaultColorScheme="auto">
+    <MantineProvider theme={theme} forceColorScheme="light">
       <Notifications position="bottom-right" limit={4} />
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </MantineProvider>

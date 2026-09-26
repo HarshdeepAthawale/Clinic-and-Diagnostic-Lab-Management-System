@@ -1,19 +1,18 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/spotlight/styles.css';
+import '@mantine/charts/styles.css';
 import '@/styles/tokens.css';
 
 import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
-import { Instrument_Serif, Inter, JetBrains_Mono } from 'next/font/google';
+import { IBM_Plex_Mono, Outfit } from 'next/font/google';
 import { Providers } from './providers';
 
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
-const serif = Instrument_Serif({
+const sans = Outfit({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const mono = IBM_Plex_Mono({
   subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
-  variable: '--font-serif',
+  weight: ['400', '500', '600'],
+  variable: '--font-mono',
   display: 'swap',
 });
 
@@ -22,22 +21,13 @@ export const metadata = {
   description: 'One record from consultation to verified lab report.',
 };
 
-export const viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f7f8fa' },
-    { media: '(prefers-color-scheme: dark)', color: '#0b0f14' },
-  ],
-};
+export const viewport = { themeColor: '#f5f4f1', colorScheme: 'light' };
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      {...mantineHtmlProps}
-      className={`${sans.variable} ${mono.variable} ${serif.variable}`}
-    >
+    <html lang="en" {...mantineHtmlProps} className={`${sans.variable} ${mono.variable}`}>
       <head>
-        <ColorSchemeScript defaultColorScheme="auto" />
+        <ColorSchemeScript forceColorScheme="light" />
       </head>
       <body>
         <a className="skip-link" href="#main">
