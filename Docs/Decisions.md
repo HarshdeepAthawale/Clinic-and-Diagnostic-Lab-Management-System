@@ -185,7 +185,7 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - `POST /auth/register/claim` (email + password + code) creates the `PATIENT` user and links it. Unknown, expired and already-used codes all return the same `400 INVALID_REGISTRATION_CODE`, so codes can't be probed.
 - The `appointments` table is created in Phase 02 (not Phase 03) because the doctor care-relationship check (ADR-015) depends on it.
 **Alternatives considered:** Match on phone + date of birth (guessable); email/SMS invite link (needs a mail/SMS provider — ADR-007 still open); front desk sets a temporary password (staff would know patient passwords).
-**Consequence:** A lost slip means a trip to (or call with) the front desk. Login attempts on the claim endpoint share the auth rate limit.
+**Consequence:** A lost slip means a trip to (or call with) the front desk. The claim endpoint should get the same rate limit as login once one is added (see [[Security]]).
 
 ---
 
