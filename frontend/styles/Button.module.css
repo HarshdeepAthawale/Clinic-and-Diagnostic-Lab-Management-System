@@ -1,0 +1,33 @@
+/* Button feel (Design.md §4): a small lift on hover, a press on click, a soft glow on the primary. */
+
+.root {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition:
+    transform var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.root:where(:not(:disabled, [data-disabled], [data-loading])):hover {
+  transform: translateY(-1px);
+}
+
+.root:where(:not(:disabled, [data-disabled], [data-loading])):active {
+  transform: translateY(0) scale(0.98);
+}
+
+.root:where([data-variant='filled']):where(:not(:disabled, [data-disabled])):hover {
+  box-shadow: 0 6px 18px -6px var(--accent-ring);
+}
+
+.root:where([data-variant='default']) {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.root:where([data-variant='default']):hover {
+  background: var(--surface-alt);
+}
