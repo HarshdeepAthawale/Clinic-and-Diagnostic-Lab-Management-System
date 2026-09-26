@@ -24,59 +24,51 @@ Five principles, in priority order:
 
 ### 2.1 Color
 
-A neutral, slightly cool canvas with one brand color and strictly reserved semantic colors. All colors are CSS variables (Mantine theme + custom tokens) with light and dark values.
+Light mode only (ADR-017). A warm neutral canvas, white surfaces, and **one** accent, adapted from the Thapar Nexus reference. All values are CSS variables in `frontend/styles/tokens.css`.
 
-| Token | Light | Dark | Use |
-|---|---|---|---|
-| `--bg` | `#F7F8FA` | `#0B0F14` | App background |
-| `--surface` | `#FFFFFF` | `#11161D` | Cards, panels, tables |
-| `--surface-raised` | `#FFFFFF` + shadow | `#161C24` | Popovers, modals, command palette |
-| `--border` | `#E4E7EC` | `#232B36` | Hairline 1px borders (preferred over shadows) |
-| `--text` | `#0E1726` | `#E6EAF0` | Primary text |
-| `--text-muted` | `#5B6576` | `#98A2B3` | Secondary text, labels |
-| `--brand` | `#0E9384` (teal) | `#2ED3B7` | Primary actions, focus, links, brand moments |
-| `--brand-soft` | `#E6F6F4` | `#0F2E2B` | Selected rows, active nav, soft badges |
+| Token | Value | Use |
+|---|---|---|
+| `--bg` | `#f5f4f1` | App background (warm off-white) |
+| `--surface` | `#ffffff` | Cards, panels, tables, navbar |
+| `--surface-alt` | `#faf9f7` | Inset areas, input backgrounds |
+| `--surface-2` | `#efede8` | Icon tiles, neutral chips, hover fills |
+| `--border` / `--border-strong` | `#e4e2dd` / `#d2d0cb` | Hairline borders (preferred over shadows) |
+| `--text` / `--ink` | `#1c1b19` | Primary text; ink avatars and chart series |
+| `--text-muted` | `#6a6762` | Secondary text, labels |
+| `--text-subtle` | `#9a968f` | Tertiary text, disabled |
+| `--accent` | `#b42318` (hover `#9c1d13`, press `#84180f`) | Primary buttons, active nav, links, focus ring — the one highlight per view |
+| `--accent-soft` | `rgb(180 35 24 / 0.08)` | Selected/active backgrounds |
 
-**Semantic colors — reserved, never decorative:**
+**Status colors — reserved for status, never decoration, always with an icon and a word:**
 
 | Token | Meaning | Examples |
 |---|---|---|
-| `--critical` (red `#D92D20`) | Clinical danger / blocked | Critical lab value, allergy, sample rejected, destructive confirm |
-| `--warning` (amber `#DC6803`) | Needs attention | Out-of-range (non-critical) value, low stock, returned for retest, tube-type mismatch |
-| `--success` (green `#079455`) | Done / safe | Verified, within range, paid, report dispatched |
-| `--info` (blue `#1570EF`) | Neutral progress | In testing, scheduled, informational notices |
+| `--critical` (`#b42318`) | Clinical danger / blocked | Critical value, allergy, rejected sample |
+| `--warning` (`#b7791f`) | Needs attention | Out-of-range value, long wait, retest, tube mismatch, low stock |
+| `--success` (`#0f766e`) | Done / safe | Verified, within range, paid, session verified |
+| `--info` (`#1d4ed8`) | Neutral progress | Booked, in testing, prep instructions |
 
-**Role accents.** Each role's shell has a thin accent (top bar stripe, avatar ring, active-nav tint) so a person on a shared computer always knows which workspace they're in:
+**Accent vs. critical.** The accent and "critical" share a red, so critical states are always distinguished by *form*: an octagon alert icon, an explicit word ("Critical", "Rejected", "Allergy"), and a tinted banner or badge. A plain accent-red element (a button, the active nav link) never looks like an alert.
 
-| Role | Accent |
-|---|---|
-| Patient | Teal (brand) |
-| Doctor | Indigo `#444CE7` |
-| Pathologist | Violet `#7A5AF8` |
-| Receptionist | Sky `#0086C9` |
-| Lab Technician | Cyan `#0E7090` |
-| Admin | Slate `#475467` |
+**No role colors.** Every role uses the same accent; roles are identified by name (role badge, "<Role> workspace" under the logo).
 
-Accents are only used for wayfinding, never for status.
-
-**Tube-cap colors** (lab screens) match real vacutainer caps so technicians recognise them instantly: Lavender (EDTA), Red (plain/serum), Gold (SST), Light blue (citrate), Grey (fluoride), Green (heparin). Always shown as a cap chip **plus** the tube name.
+**Tube-cap colors** (lab screens only) match real vacutainer caps: Lavender (EDTA), Red (plain), Gold (SST), Light blue (citrate), Grey (fluoride), Green (heparin). They appear only on the small cap icon inside a neutral chip, always with the tube name.
 
 ### 2.2 Typography
 
 | Role | Font | Notes |
 |---|---|---|
-| UI text | **Inter** (variable, via `next/font`) | 14px base for staff, 16px base for patient screens |
-| Numbers, IDs, codes | **JetBrains Mono** | Sample codes (`LAB-20260927-0042`), lab values, tokens; `tabular-nums` everywhere numbers line up |
-| Patient-facing headlines | **Instrument Serif** | A touch of editorial warmth on the patient portal and login only ("Good morning, Asha") |
+| Everything (UI + headings) | **Outfit** (via `next/font`) | Headings semibold (600) with tight tracking (-0.02 to -0.03em); body 14–16px |
+| Numbers, IDs, codes | **IBM Plex Mono** | Sample codes, tokens, lab values, times; `tabular-nums` |
 
-Scale (rem): 0.75 / 0.8125 / 0.875 / 1 / 1.125 / 1.375 / 1.75 / 2.25 / 3. Headings are semibold (600), never bold 700 walls. Line length for reading text max ~70ch.
+Scale (px): 12 / 13 / 14 / 16 / 18 / 22 / 30 / 40 / 60 (login headline). Line length for reading text max ~70ch.
 
 ### 2.3 Space, shape, depth
 
 - **4px grid.** Common steps: 4, 8, 12, 16, 24, 32, 48.
-- **Radius:** 8px inputs/buttons, 12px cards, 16px modals/sheets, full for pills and avatars.
-- **Depth:** borders first, shadows only for things that float (menus, modals, toasts, command palette). One soft shadow token.
-- **Density:** *Comfortable* (patient, 44px min touch targets) and *Compact* (staff tables, 36px rows). Lab bench screens use *Touch* (56px targets — gloved hands on a tablet).
+- **Radius:** 10px buttons and inputs, 14px inner boxes, 18px cards and panels, full for pills and avatars.
+- **Depth:** borders first; `--shadow-sm` on resting cards, `--shadow-md` on hover and popovers, `--shadow-lg` for modals.
+- **Density:** *Comfortable* (patient, 44px touch targets), *Compact* (staff tables), *Touch* (lab bench, 56px targets).
 
 ### 2.4 Iconography & imagery
 
@@ -84,52 +76,48 @@ Scale (rem): 0.75 / 0.8125 / 0.875 / 1 / 1.125 / 1.375 / 1.75 / 2.25 / 3. Headin
 - Empty states use a single line-art icon composition in the brand tint + one sentence + one action — no stock photos, no cartoon mascots.
 - The only "art" is the login/brand panel: an animated, slow-moving gradient mesh with a faint ECG/pulse line — calm, not busy.
 
-### 2.5 Motion
+### 2.5 Motion & effects
 
-Motion explains change; it never decorates. Built with the `motion` library (Framer Motion).
+Motion explains change and adds polish; it never blocks work. Built with `motion` (Framer Motion) and CSS. Effect ideas are adapted from ObsidianUI (text reel, cursor light, scroll reveal) and rebuilt in our stack.
 
-| Pattern | Spec |
-|---|---|
-| Micro (hover, press, toggles) | 120–150ms, ease-out |
-| Panels, drawers, modals | 200–250ms, spring (stiff, no bounce) |
-| Sample-journey progress | Line "fills" to the current stage, current dot breathes (2s loop) |
-| List changes (queues) | Items animate in/out and reorder with layout animation |
-| Number changes (KPI tiles) | Count-up on first load only |
-| Page transitions | Fade + 4px rise, 180ms |
+| Effect | Where | Spec |
+|---|---|---|
+| **Scroll reveal** | Dashboard sections | Fade + 18px rise the first time a block scrolls into view, 500ms, staggered 50ms |
+| **Cursor light** (`GlowCard`) | Cards and panels | A faint accent radial glow follows the pointer inside the card |
+| **Hover lift** | Clickable cards, buttons | `translateY(-1..-2px)` + `--shadow-md`; buttons press to `scale(0.98)` |
+| **Sliding nav underline** | Top navbar | Active-link underline animates between links (shared layout) |
+| **Text reel** | Login headline | Words roll up with a slight blur ("precisely. / clearly. / safely. / together.") |
+| **Count-up** | KPI tiles | Numbers count up on first load only |
+| **Live dot** | "Session verified", "Tracking live", live queue | A dot with a soft expanding ring |
+| **Journey fill** | Sample journey | Rail fills to the current stop; current stop breathes |
+| **Shimmer** | Loading placeholders | Warm neutral shimmer |
 
-`prefers-reduced-motion` disables all non-essential motion (breathing, count-up, mesh), leaving instant state changes.
+`prefers-reduced-motion` turns all of these into instant state changes.
 
-### 2.6 Dark mode
+### 2.6 Light mode only
 
-Full dark theme from day one (labs often run in dim light; staff work night shifts). Follows the OS by default, with a toggle in the user menu, remembered per browser. Charts, tube chips and status colors all have tuned dark variants — not just inverted.
-
----
+The platform runs in light mode only (ADR-017): Mantine is forced to light, `color-scheme: light` is set, and there is no theme toggle.
 
 ## 3. Layout & Navigation
 
-### 3.1 Staff shell (Doctor, Pathologist, Receptionist, Lab Technician, Admin)
+### 3.1 Top navbar (all roles)
 
 ```
-┌────────────┬─────────────────────────────────────────────────────┐
-│  ◉ CDLMS   │  Breadcrumbs            [⌘K Search…]   🔔  ◐  (Avatar)│  ← role-accent stripe on top edge
-│            ├─────────────────────────────────────────────────────┤
-│  Today     │                                                     │
-│  Queue     │                 Page content                        │
-│  Patients  │                                                     │
-│  …         │                                                     │
-│            │                                                     │
-│  ──────    │                                                     │
-│  ? Help    │                                                     │
-└────────────┴─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ ◉ CDLMS          Today   Schedule P03   Patients P02  …   [⌕ Search…  Ctrl K]  🔔  (KM) │  sticky, frosted white
+│   Doctor workspace ─────                                                       │  accent underline = active
+└──────────────────────────────────────────────────────────────────────────────┘
+                     page content, max 1200px, centered
 ```
 
-- **Left sidebar**, collapsible to icons (remembered). Max ~6 items per role; the first item is always that role's "Today"/home view.
-- **Top bar:** breadcrumbs, command palette trigger, notifications, theme toggle, user menu (name, role badge, logout).
-- **Content width:** fluid for tables/boards, max 1200px for forms and reading views.
+- Sticky, `rgb(255 255 255 / 0.92)` with backdrop blur and a hairline bottom border; 64px tall (56px on phones).
+- Brand + "<Role> workspace" on the left, the role's links in the middle, search / notifications / account on the right.
+- The active link turns accent with a 2px underline that slides between links. Links for later phases are shown muted with a small `P0x` tag and a tooltip.
+- **Below 992px:** staff get a menu button that opens a drawer with the same links; the search box becomes an icon.
 
 ### 3.2 Patient shell
 
-Mobile-first. On phones: a **bottom tab bar** (Home, Appointments, Reports, Bills, Profile). On desktop: a simple top nav with the same five items and a centered 960px column. Larger type, more whitespace, warmer copy.
+Same top navbar (without search). On phones, a **bottom tab bar** (Home, Appointments, Reports, Bills, Profile) replaces the middle links. Warmer copy and larger type.
 
 ### 3.3 Command palette (staff) — `Ctrl/⌘ + K`
 
@@ -160,7 +148,11 @@ One box to go anywhere and do anything:
 | **Safety banner** | Allergies (doctor/pharmacy contexts) and critical values: pinned at the top of the relevant view, red, cannot be collapsed. |
 | **Toasts** | Bottom-right, auto-dismiss 5s, "Undo" only for reversible actions. Clinical sign-offs (verify, reject, return for retest) never get undo — they get a confirm step instead. |
 | **Confirm dialogs** | Only for irreversible/clinical actions. Title states the consequence ("Reject sample LAB-…? The patient will need a redraw."), the confirm button repeats the verb, reasons required inline. |
-| **Skeletons** | Shaped like the real content (rows, cards, tracker). Never a full-page spinner. |
+| **Skeletons** | Shaped like the real content (rows, cards, tracker), with the warm shimmer. Never a full-page spinner. |
+| **Glow card / panel** | Every card and panel uses `GlowCard` (cursor light); `Panel` adds a title, subtitle and a right-side slot. |
+| **KPI tile** | Label, big mono number (count-up), change vs. last period (green when good, amber when bad — "good" can mean *down*, e.g. turnaround), optional sparkline. Icons sit in a neutral tile. |
+| **Demo data tag** | Any panel fed by `lib/demo` shows a dashed "Demo data" tag whose tooltip names the phase that makes it live. Removed when that phase connects the panel to the API. |
+| **Phase button** | An action whose feature isn't built yet looks and clicks like a real button, then explains exactly what it will do and in which phase — never a silent no-op. |
 | **Empty states** | Icon + one sentence explaining why it's empty + one action. E.g. "No samples waiting. New orders appear here automatically." |
 | **Errors** | Plain language + what to do next + a "Try again" button. API error codes map to friendly copy (e.g. `NO_CARE_RELATIONSHIP` → "You don't have an appointment with this patient. Ask the front desk to book them in."). |
 | **Notifications** | Bell with unread count; items are actionable (click → the sample/patient). Rejections and critical values also raise a toast. |
@@ -237,7 +229,7 @@ Card-first, answers "what do I need to know right now?":
 
 ### 5.8 Login
 
-Split screen: left, the animated brand panel (gradient mesh + pulse line + one line of product copy); right, a focused sign-in card. After login the user lands directly in their role's workspace — nobody picks a role. Registration is a short two-step form for patients. In local dev only, a row of demo-account chips fills the form for quick testing.
+Split screen: left, a warm ink panel with one slow accent glow, a rolling text-reel headline, a pulse line and three product points; right, a focused sign-in form that eases in. The panel hides below 992px. After login the user lands directly in their role's workspace — nobody picks a role. Registration is a short two-step form for patients. In local dev only, a row of demo-account chips fills the form for quick testing.
 
 ---
 
@@ -308,13 +300,13 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 
 ## 8. Accessibility (target: WCAG 2.2 AA)
 
-- Contrast ≥ 4.5:1 for text, ≥ 3:1 for UI components and chart marks, in both themes.
+- Contrast ≥ 4.5:1 for text, ≥ 3:1 for UI components and chart marks.
 - Visible focus ring (2px brand outline + offset) on every interactive element; logical tab order; skip-to-content link.
 - Everything usable by keyboard, including drag-and-drop alternatives on the queue board.
 - Status never conveyed by color alone (icon + text).
 - Live regions announce queue changes, toasts and form errors to screen readers.
 - Touch targets ≥ 44px (patient), ≥ 56px (lab bench).
-- Respect `prefers-reduced-motion` and `prefers-color-scheme`; support 200% zoom without horizontal scroll.
+- Respect `prefers-reduced-motion`; support 200% zoom without horizontal scroll.
 
 ---
 
@@ -323,8 +315,8 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 | Breakpoint | Primary users | Notes |
 |---|---|---|
 | < 640px (phone) | Patients | Bottom tab bar, single column, sheets instead of modals |
-| 640–1024px (tablet) | Lab technicians, reception | Bench mode, collapsible sidebar |
-| ≥ 1024px (desktop) | Doctors, pathologists, admin, reception | Full sidebar, split views, dense tables |
+| 640–992px (tablet) | Lab technicians, reception | Bench mode, navbar links move into a drawer |
+| ≥ 992px (desktop) | Doctors, pathologists, admin, reception | Full top navbar, split views, dense tables |
 
 ---
 
@@ -339,14 +331,15 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 
 ## 11. Implementation Notes
 
-- **Stack:** Mantine (theme tokens mapped to the variables in §2.1), `@mantine/spotlight` for the command palette, Mantine Charts for dashboards, `motion` for animation, `@tabler/icons-react` for icons, `next/font` for Inter / JetBrains Mono / Instrument Serif. See [[TechSpecifications]].
-- **Structure:** `components/ui/` (design-system primitives: StatusBadge, RangeBar, TubeChip, SafetyBanner, EmptyState, KpiTile…), `components/shell/` (role shells, sidebar, top bar, palette), and feature folders per role.
-- **Build order:** Phase 01 delivers the theme and tokens, light/dark mode, login/register (§5.8), all six role shells with navigation and the command palette skeleton, and polished empty dashboards. Each later phase builds its screens on these primitives; the signature experiences land with their phases (sample journey in 07/08, focus mode in 08, admin insights in 09).
+- **Stack:** Mantine 9 (theme tokens mapped to the variables in §2.1), `@mantine/spotlight` for the command palette, Mantine Charts (Recharts) for dashboards, `motion` for animation, `@tabler/icons-react` for icons, `next/font` for Outfit / IBM Plex Mono. See [[TechSpecifications]].
+- **Structure:** `components/ui/` (primitives: GlowCard, Panel, Reveal, TextReel, StatusBadge, RangeBar, TubeChip, SafetyBanner, Sparkline, KpiTile, DemoBadge, PhaseButton, EmptyState, SampleJourney), `components/shell/` (WorkspaceShell top navbar, command palette, menus), `components/dashboard/roles/` (one dashboard per role), `lib/demo/` (labelled demo data).
+- **Charts:** series use `--ink` and `--accent` only; heatmaps use a single accent intensity scale.
+- **Build order:** Phase 01 delivers the theme and tokens, login/register (§5.8), the top-navbar shell for all six roles with the command palette, and each role's fully designed dashboard running on labelled demo data. Each later phase swaps its panels' demo data for real API calls and builds the remaining screens on the same primitives.
 
 ## 12. Design Review Checklist (every UI PR)
 
 - [ ] Uses tokens — no hard-coded colors, spacing or font sizes
-- [ ] Works in light and dark mode
+- [ ] Uses only the canvas, text, one accent and status colors (no new hues)
 - [ ] Loading (skeleton), empty and error states designed
 - [ ] Keyboard-accessible, visible focus, no color-only status
 - [ ] Responsive at phone / tablet / desktop widths for its users
