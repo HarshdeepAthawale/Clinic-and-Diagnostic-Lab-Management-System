@@ -31,6 +31,15 @@ export function useRegister() {
   });
 }
 
+/** Patient signup that links to a front-desk record using the registration code (ADR-018). */
+export function useClaimAccount() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (details) => api('/auth/register/claim', { method: 'POST', body: details }),
+    onSuccess: (me) => queryClient.setQueryData(ME_KEY, me),
+  });
+}
+
 /** Clears the cookie server-side, drops all cached data, and does a full reload to /login. */
 export async function logout(queryClient) {
   try {
