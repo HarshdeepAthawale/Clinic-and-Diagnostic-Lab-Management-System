@@ -1,0 +1,44 @@
+.slip {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  max-width: 520px;
+}
+
+.codeBox {
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--border-strong);
+  background: var(--surface-alt);
+}
+
+.code {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin: 4px 0;
+}
+
+/* Print only the slip */
+@media print {
+  :global(body *) {
+    visibility: hidden;
+  }
+
+  .slip,
+  .slip * {
+    visibility: visible;
+  }
+
+  .slip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: none;
+  }
+
+  .noPrint {
+    display: none;
+  }
+}
