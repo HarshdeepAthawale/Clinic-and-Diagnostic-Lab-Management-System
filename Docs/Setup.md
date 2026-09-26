@@ -1,61 +1,74 @@
 # Setup
 
-Local development setup, from a clean clone. Update this file as soon as the actual project scaffolding exists — the commands below are the expected shape given the stack in [[TechSpecifications]], not yet verified against a real repo.
+Local development setup, from a clean clone. Verified on Windows 11 with the versions below (Phase 01).
 
 ## Prerequisites
 
-- **JDK** — version TBD, likely 17+ (Spring Boot 3.x baseline). Pin an exact version once the project is scaffolded.
-- **Maven** — for build/dependency management.
-- **Node.js (LTS, 20+) + npm** — runs the Next.js frontend. See ADR-008 in [[Decisions]].
-- **Supabase account/project** — hosts the PostgreSQL database.
-- **Git**
+| Tool | Version | Notes |
+|---|---|---|
+| **JDK** | 21 (e.g. Eclipse Temurin 21) | Spring Boot 4.1 baseline is 17; the project targets 21 |
+| **Maven** | none to install | The repo ships the Maven Wrapper (`backend/mvnw`, `mvnw.cmd`), which downloads Maven 3.9.11 on first use |
+| **Node.js + npm** | Node 20+ (tested on 24) | Runs the Next.js frontend (ADR-008) |
+| **Docker Desktop** | any recent | Local Postgres (`docker-compose.yml`) and Testcontainers for backend tests |
+| **Git** | any | |
+
+A **Supabase** project is used for shared/deployed environments; local development uses the Docker Postgres.
 
 ## Environment Variables
 
 | Variable | Purpose | Notes |
 |---|---|---|
-| `DATABASE_URL` | Postgres JDBC connection string (Supabase) | backend; used by Spring's datasource for both Flyway and JPA. Use Supabase's direct or session-pooler connection, not the transaction pooler (port 6543), which breaks migrations |
-| `JWT_SECRET` | Signing key for auth tokens | backend; never commit a real value |
-| `SPRING_PROFILES_ACTIVE` | e.g. `dev`, `prod` | |
-| `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | JavaMailSender config for email reminders/notifications | |
-| `SMS_PROVIDER_API_KEY` | For SMS notifications, if implemented | provider not yet chosen — see [[OpenQuestions]] |
-| `BACKEND_URL` | Where Next.js forwards `/api/*` (e.g. `http://localhost:8080`) | frontend, in `frontend/.env.local`; server-side only, not `NEXT_PUBLIC_` |
+| `DATABASE_URL` | Postgres JDBC URL | backend. Defaults to the Docker database in the `dev` profile. For Supabase use the direct or session-pooler connection, not the transaction pooler (port 6543), which breaks migrations |
+| `DATABASE_USERNAME` / `DATABASE_PASSWORD` | Database credentials | backend. Default to `cdlms` / `cdlms` in the `dev` profile |
+| `JWT_SECRET` | Signing key for auth tokens, ≥ 32 bytes | backend. Has an insecure fallback **only** in the `dev` profile; required everywhere else. Generate with `openssl rand -base64 48` |
+| `SPRING_PROFILES_ACTIVE` | `dev` locally | `dev` also loads the demo seed data |
+| `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | JavaMailSender config for email reminders/notifications | later phases |
+| `SMS_PROVIDER_API_KEY` | SMS notifications, if implemented | provider not yet chosen — see [[OpenQuestions]] |
+| `BACKEND_URL` | Where Next.js forwards `/api/*` | frontend, in `frontend/.env.local`; defaults to `http://localhost:8080`; server-side only, never `NEXT_PUBLIC_` |
 
-Keep backend values in a git-ignored `.env` / `application-local.yml` and frontend values in a git-ignored `frontend/.env.local`. Never commit secrets (see [[Contributing]] PR checklist).
+Templates: `.env.example` (backend) and `frontend/.env.example`. Real values go in git-ignored `.env` / `frontend/.env.local`. Never commit secrets (see [[Contributing]]).
 
 ## First-Time Setup
 
 ```bash
-git clone <repo-url>
-cd clinic-lab-management-system
+git clone https://github.com/HarshdeepAthawale/Clinic-and-Diagnostic-Lab-Management-System.git
+cd Clinic-and-Diagnostic-Lab-Management-System
 
-# 1. Configure environment
-cp .env.example .env   # fill in DATABASE_URL, JWT_SECRET, etc.
+# 1. Start the local database
+docker compose up -d
 
-# 2. Run the Java backend (http://localhost:8080)
-#    Flyway applies any pending migrations automatically on startup.
+# 2. Run the backend (http://localhost:8080). Flyway migrates the schema and loads demo data.
 cd backend
-mvn spring-boot:run -Dspring-boot.run.profiles=dev   # dev profile also loads seed data
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
-# 3. In a second terminal, run the Next.js frontend (http://localhost:3000)
+# 3. In a second terminal, run the frontend (http://localhost:3000)
 cd frontend
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000. API docs (Swagger UI) are at http://localhost:8080/swagger-ui.html.
+Open http://localhost:3000. API docs (Swagger UI): http://localhost:8080/swagger-ui.html.
+
+### Demo accounts (dev profile only)
+
+One account per role is seeded by `backend/src/main/resources/db/seed/R__dev_seed.sql` — see that file for the emails and the shared demo password. In development the login page shows a chip per role that fills the form.
 
 ## Running Tests
 
 ```bash
-cd backend && mvn test               # backend unit + integration tests
-cd frontend && npm test              # Vitest component tests
-cd frontend && npx playwright test   # end-to-end (needs both apps running)
+cd backend && ./mvnw test        # unit + integration tests (needs Docker running for Testcontainers)
+cd frontend && npm test          # Vitest unit/component tests
+cd frontend && npm run lint      # ESLint (next/core-web-vitals)
+cd frontend && npm run build     # production build check
 ```
+
+Playwright end-to-end tests are added in a later phase (see [[TestPlan]]).
 
 ## Notes
 
-- Schema changes = a new `V<n>__<description>.sql` file in `backend/src/main/resources/db/migration/`; restart the backend to apply it (see [[Contributing]]).
-- To reset a local/dev database: `mvn flyway:clean flyway:migrate` (Flyway Maven plugin). `clean` drops everything — never run it against a shared or demo database; keep `spring.flyway.clean-disabled=true` outside local dev.
-- Integration tests run migrations against a throwaway Postgres (Testcontainers), so tests always use the real schema.
-- Actual commands above should be verified and corrected once `backend/pom.xml` and `frontend/package.json` exist in the repo — this doc currently describes the intended setup, not a confirmed one.
+- **Schema changes** = a new `V<n>__<description>.sql` in `backend/src/main/resources/db/migration/`; restart the backend to apply it (see [[Contributing]]).
+- **Reset the local database:** `docker compose down -v && docker compose up -d` (deletes all local data). Never reset a shared or demo database; `spring.flyway.clean-disabled` stays `true`.
+- Integration tests share one throwaway Postgres container per test run, so they always use the real migrations.
+- **Windows: "Unable to establish loopback connection" on backend start.** Some Windows setups can't create the JDK's temporary Unix-domain socket. Point it at a writable folder:
+  `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev "-Dspring-boot.run.jvmArguments=-Djdk.net.unixdomain.tmpdir=C:\Temp"` (create `C:\Temp` first).
+- ESLint is pinned to 9.x because `eslint-config-next` doesn't support ESLint 10 yet.
