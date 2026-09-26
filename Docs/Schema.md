@@ -18,14 +18,24 @@ Initial draft schema derived from the domain described in [[PRD]] and [[Appflow]
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| user_id | UUID (FK → User) | nullable if a patient record can be created without login (e.g., receptionist registers walk-in first) |
+| patient_code | string, unique | human-readable ID `PID-000123`, from a sequence (V2) |
+| user_id | UUID (FK → User), nullable | null until the patient links a login (front desk registers walk-ins first) |
 | full_name | string | |
 | dob | date | |
 | gender | string | |
 | phone | string | |
+| phone_digits | string, generated | digits of `phone`, indexed for search (V2) |
 | address | string | |
+| emergency_contact_name | string, nullable | (V2) |
+| emergency_contact_phone | string, nullable | (V2) |
+| blood_group | string, nullable | `A+` … `O-` (V2) |
 | known_allergies | text | |
+| medical_history | text, nullable | (V2) |
+| claim_code_hash | string(64), unique, nullable | SHA-256 of the one-time registration code; cleared once used (ADR-018, V2) |
+| claim_code_expires_at | timestamp, nullable | 30 days after issue (V2) |
+| registered_by_user_id | UUID (FK → User), nullable | front-desk user who registered the record (V2) |
 | created_at | timestamp | |
+| updated_at | timestamp | (V2) |
 
 ### `Doctor`
 | Field | Type | Notes |
@@ -56,6 +66,8 @@ Initial draft schema derived from the domain described in [[PRD]] and [[Appflow]
 ## 2. Clinic Side
 
 ### `Appointment`
+Created in V2 (Phase 02) because the doctor care-relationship check depends on it (ADR-015, ADR-018); booking flows arrive in Phase 03.
+
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
@@ -221,7 +233,7 @@ A sample can have several results over time: each return for retest keeps the ol
 ## 6. Audit
 
 ### `PatientAccessLog`
-Append-only — inserted on every full-record read by a Doctor or Pathologist (see [[Rules]] §1, [[Security]] §6). Never updated or deleted.
+Append-only — inserted on every full-record read by a Doctor or Pathologist (see [[Rules]] §1, [[Security]] §6). Never updated or deleted: a `BEFORE UPDATE OR DELETE` trigger (`forbid_modification()`) raises an error (V2).
 
 | Field | Type | Notes |
 |---|---|---|
