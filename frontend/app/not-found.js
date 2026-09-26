@@ -7,8 +7,8 @@ import Link from 'next/link';
 export default function NotFound() {
   return (
     <Stack component="main" id="main" align="center" justify="center" mih="100dvh" gap="md" p="xl" ta="center">
-      <IconCompass size={44} stroke={1.3} color="var(--brand)" />
-      <Title order={1} className="serif" fz={40} fw={400}>
+      <IconCompass size={44} stroke={1.3} color="var(--accent)" />
+      <Title order={1} fz={36} fw={600} style={{ letterSpacing: '-0.02em' }}>
         This page doesn&apos;t exist
       </Title>
       <Text c="var(--text-muted)" maw={420}>

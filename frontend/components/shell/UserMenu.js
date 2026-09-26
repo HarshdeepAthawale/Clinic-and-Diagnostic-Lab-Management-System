@@ -4,7 +4,6 @@ import { Avatar, Group, Menu, Stack, Text, UnstyledButton } from '@mantine/core'
 import { IconChevronDown, IconKeyboard, IconLogout } from '@tabler/icons-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { logout } from '@/lib/auth';
-import { roleConfig } from '@/lib/roles';
 import { RoleBadge } from '@/components/ui/RoleBadge';
 
 export function initials(name = '') {
@@ -12,10 +11,9 @@ export function initials(name = '') {
   return ((parts[0]?.[0] ?? '') + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase() || '?';
 }
 
-/** Avatar with the role-accent ring; menu with identity, shortcuts and sign-out. */
+/** Initials avatar; menu with identity, role, shortcuts and sign-out. */
 export function UserMenu({ me, onShowShortcuts, compact = false }) {
   const queryClient = useQueryClient();
-  const accent = roleConfig(me.role)?.accentVar;
 
   return (
     <Menu position="bottom-end" width={260} shadow="md" radius="lg" withinPortal>
@@ -25,8 +23,7 @@ export function UserMenu({ me, onShowShortcuts, compact = false }) {
             <Avatar
               radius="xl"
               size={34}
-              style={{ boxShadow: `0 0 0 2px var(--surface), 0 0 0 4px ${accent}` }}
-              styles={{ placeholder: { background: `color-mix(in srgb, ${accent} 16%, var(--surface))`, color: accent, fontWeight: 700 } }}
+              styles={{ placeholder: { background: 'var(--ink)', color: 'var(--on-ink)', fontWeight: 600, fontSize: 13 } }}
             >
               {initials(me.name)}
             </Avatar>

@@ -25,7 +25,7 @@
 
 .fill {
   width: 0;
-  background: linear-gradient(90deg, var(--brand), color-mix(in srgb, var(--brand) 70%, var(--info)));
+  background: var(--accent);
   transition: width 900ms var(--ease-out);
 }
 
@@ -65,13 +65,13 @@
 }
 
 .done .dot {
-  background: var(--brand);
-  border-color: var(--brand);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .current .dot {
   background: var(--surface);
-  border: 4px solid var(--brand);
+  border: 4px solid var(--accent);
 }
 
 .current .dot::after {
@@ -79,7 +79,7 @@
   position: absolute;
   inset: -8px;
   border-radius: 50%;
-  border: 2px solid var(--brand);
+  border: 2px solid var(--accent);
   opacity: 0;
   animation: breathe 2s var(--ease-out) infinite;
 }
@@ -104,7 +104,7 @@
 }
 
 .current .time {
-  color: var(--brand);
+  color: var(--accent);
   font-family: inherit;
   font-weight: 600;
 }

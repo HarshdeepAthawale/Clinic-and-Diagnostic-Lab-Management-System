@@ -8,11 +8,11 @@ export function BrandMark({ size = 32, withWordmark = true, subtitle, color }) {
   return (
     <Group gap={10} wrap="nowrap">
       <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="9" fill="var(--brand)" />
+        <rect width="32" height="32" rx="9" fill="var(--accent)" />
         <path
           d="M5 17h5l2.5-6 4 11 3-8 1.8 3H27"
           fill="none"
-          stroke="var(--brand-contrast)"
+          stroke="var(--on-ink)"
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"

@@ -1,7 +1,7 @@
 import { Badge } from '@mantine/core';
 import { roleConfig } from '@/lib/roles';
 
-/** Role pill tinted with the role's wayfinding accent. */
+/** Neutral role pill — one accent in the whole UI, so roles are told apart by name, not color. */
 export function RoleBadge({ role, size = 'sm' }) {
   const config = roleConfig(role);
   if (!config) return null;
@@ -9,11 +9,11 @@ export function RoleBadge({ role, size = 'sm' }) {
     <Badge
       size={size}
       radius="xl"
-      variant="light"
       styles={{
         root: {
-          color: config.accentVar,
-          background: `color-mix(in srgb, ${config.accentVar} 12%, transparent)`,
+          color: 'var(--text)',
+          background: 'var(--surface-2)',
+          border: '1px solid var(--border)',
           textTransform: 'none',
           fontWeight: 600,
         },

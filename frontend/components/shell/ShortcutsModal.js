@@ -4,7 +4,6 @@ import { Group, Kbd, Modal, Stack, Text } from '@mantine/core';
 
 const SHORTCUTS = [
   { keys: ['Ctrl', 'K'], label: 'Open command palette' },
-  { keys: ['['], label: 'Collapse or expand the sidebar' },
   { keys: ['?'], label: 'Show this list' },
   { keys: ['Esc'], label: 'Close dialogs and menus' },
 ];

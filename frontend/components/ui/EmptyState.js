@@ -9,7 +9,7 @@ export function EmptyState({ icon: Icon, title, children, action, compact = fals
           size={compact ? 40 : 52}
           radius="xl"
           variant="light"
-          style={{ background: 'var(--brand-soft)', color: 'var(--brand)' }}
+          style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}
         >
           <Icon size={compact ? 20 : 26} stroke={1.5} />
         </ThemeIcon>
