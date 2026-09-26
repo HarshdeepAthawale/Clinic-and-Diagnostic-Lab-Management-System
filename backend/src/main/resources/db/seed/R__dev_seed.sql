@@ -4,6 +4,7 @@
 -- Demo accounts — all use the password: Demo@12345
 --   patient@demo.cdlms.dev        Patient
 --   doctor@demo.cdlms.dev         Doctor
+--   doctor2@demo.cdlms.dev        Doctor (second doctor, so queue boards show more than one column)
 --   pathologist@demo.cdlms.dev    Pathologist
 --   reception@demo.cdlms.dev      Receptionist
 --   lab@demo.cdlms.dev            Lab Technician
@@ -15,7 +16,8 @@ INSERT INTO users (id, email, password_hash, role) VALUES
     ('00000000-0000-4000-8000-000000000003', 'pathologist@demo.cdlms.dev', '$2a$10$bJNIt9Z3Julm3zPeOD3hYuob.FUDjAcALLW.C3q.L5B7dxObxbY.m', 'PATHOLOGIST'),
     ('00000000-0000-4000-8000-000000000004', 'reception@demo.cdlms.dev',   '$2a$10$bJNIt9Z3Julm3zPeOD3hYuob.FUDjAcALLW.C3q.L5B7dxObxbY.m', 'RECEPTIONIST'),
     ('00000000-0000-4000-8000-000000000005', 'lab@demo.cdlms.dev',         '$2a$10$bJNIt9Z3Julm3zPeOD3hYuob.FUDjAcALLW.C3q.L5B7dxObxbY.m', 'LAB_TECHNICIAN'),
-    ('00000000-0000-4000-8000-000000000006', 'admin@demo.cdlms.dev',       '$2a$10$bJNIt9Z3Julm3zPeOD3hYuob.FUDjAcALLW.C3q.L5B7dxObxbY.m', 'ADMIN')
+    ('00000000-0000-4000-8000-000000000006', 'admin@demo.cdlms.dev',       '$2a$10$bJNIt9Z3Julm3zPeOD3hYuob.FUDjAcALLW.C3q.L5B7dxObxbY.m', 'ADMIN'),
+    ('00000000-0000-4000-8000-000000000007', 'doctor2@demo.cdlms.dev',     '$2a$10$bJNIt9Z3Julm3zPeOD3hYuob.FUDjAcALLW.C3q.L5B7dxObxbY.m', 'DOCTOR')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO patients (user_id, full_name, dob, gender, phone, address, known_allergies) VALUES
@@ -24,7 +26,8 @@ INSERT INTO patients (user_id, full_name, dob, gender, phone, address, known_all
 ON CONFLICT DO NOTHING;
 
 INSERT INTO doctors (user_id, full_name, specialization) VALUES
-    ('00000000-0000-4000-8000-000000000002', 'Dr. Kabir Mehta', 'General Medicine')
+    ('00000000-0000-4000-8000-000000000002', 'Dr. Kabir Mehta', 'General Medicine'),
+    ('00000000-0000-4000-8000-000000000007', 'Dr. Sana Qureshi', 'Paediatrics')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO pathologists (user_id, full_name, qualification, registration_number) VALUES
@@ -44,3 +47,12 @@ FROM patients p, doctors d
 WHERE p.user_id = '00000000-0000-4000-8000-000000000001'
   AND d.user_id = '00000000-0000-4000-8000-000000000002'
   AND NOT EXISTS (SELECT 1 FROM appointments a WHERE a.patient_id = p.id AND a.doctor_id = d.id);
+
+-- Working hours for the demo doctors (Phase 03): Mon–Sat, morning and evening clinics, 15-minute slots.
+INSERT INTO doctor_schedules (doctor_id, day_of_week, start_time, end_time, slot_minutes)
+SELECT d.id, dow, t.start_time, t.end_time, 15
+FROM doctors d
+CROSS JOIN generate_series(1, 6) AS dow
+CROSS JOIN (VALUES (time '09:00', time '13:00'), (time '16:00', time '19:00')) AS t (start_time, end_time)
+WHERE d.user_id IN ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000007')
+ON CONFLICT DO NOTHING;
