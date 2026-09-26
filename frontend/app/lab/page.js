@@ -1,5 +1,5 @@
-import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
+import { LabDashboard } from '@/components/dashboard/roles/LabDashboard';
 
 export default function LabHomePage() {
-  return <StaffDashboard role="LAB_TECHNICIAN" />;
+  return <LabDashboard />;
 }
