@@ -1,83 +1,57 @@
-/* Design tokens — Docs/Design.md §2. Use these variables; never hard-code colors in components. */
+/*
+ * Design tokens — Docs/Design.md §2. Light mode only (ADR-017).
+ * Warm neutral canvas + one deep-red accent. Use these variables; never hard-code colors.
+ */
 
 :root {
-  --bg: #f7f8fa;
+  color-scheme: light;
+
+  /* Canvas */
+  --bg: #f5f4f1;
   --surface: #ffffff;
-  --surface-raised: #ffffff;
-  --surface-sunken: #f1f3f6;
-  --border: #e4e7ec;
-  --border-strong: #d0d5dd;
-  --text: #0e1726;
-  --text-muted: #5b6576;
-  --text-subtle: #8a94a6;
+  --surface-alt: #faf9f7;
+  --surface-2: #efede8;
+  --border: #e4e2dd;
+  --border-strong: #d2d0cb;
 
-  --brand: #0e9384;
-  --brand-hover: #107569;
-  --brand-soft: #e6f6f4;
-  --brand-contrast: #ffffff;
+  /* Text */
+  --text: #1c1b19;
+  --text-muted: #6a6762;
+  --text-subtle: #9a968f;
+  --ink: #1c1b19;
+  --on-ink: #ffffff;
 
-  /* Semantic — reserved for status, never decoration */
-  --critical: #d92d20;
-  --critical-soft: #fef3f2;
-  --warning: #dc6803;
-  --warning-soft: #fffaeb;
-  --success: #079455;
-  --success-soft: #ecfdf3;
-  --info: #1570ef;
-  --info-soft: #eff8ff;
+  /* The one accent */
+  --accent: #b42318;
+  --accent-hover: #9c1d13;
+  --accent-press: #84180f;
+  --accent-soft: rgb(180 35 24 / 0.08);
+  --accent-glow: rgb(180 35 24 / 0.05);
+  --accent-ring: rgb(180 35 24 / 0.35);
 
-  /* Role accents — wayfinding only */
-  --role-patient: #0e9384;
-  --role-doctor: #444ce7;
-  --role-pathologist: #7a5af8;
-  --role-receptionist: #0086c9;
-  --role-lab-technician: #0e7090;
-  --role-admin: #475467;
+  /* Status — only for status, always paired with an icon and a word */
+  --success: #0f766e;
+  --success-soft: rgb(15 118 110 / 0.09);
+  --warning: #b7791f;
+  --warning-soft: rgb(183 121 31 / 0.1);
+  --info: #1d4ed8;
+  --info-soft: rgb(29 78 216 / 0.08);
+  --critical: #b42318;
+  --critical-soft: rgb(180 35 24 / 0.08);
 
-  --shadow-float: 0 1px 2px rgb(16 24 40 / 0.04), 0 8px 24px -4px rgb(16 24 40 / 0.1);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--brand);
+  /* Shape & depth */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 2px rgb(28 27 25 / 0.06);
+  --shadow-md: 0 8px 24px -8px rgb(28 27 25 / 0.14);
+  --shadow-lg: 0 24px 60px -20px rgb(28 27 25 / 0.22);
+  --maxw: 1200px;
 
+  /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --duration-fast: 140ms;
+  --duration-fast: 150ms;
   --duration-base: 220ms;
-}
-
-[data-mantine-color-scheme='dark'] {
-  --bg: #0b0f14;
-  --surface: #11161d;
-  --surface-raised: #161c24;
-  --surface-sunken: #0d1218;
-  --border: #232b36;
-  --border-strong: #2f3a48;
-  --text: #e6eaf0;
-  --text-muted: #98a2b3;
-  --text-subtle: #6b7686;
-
-  --brand: #2ed3b7;
-  --brand-hover: #5fe9d0;
-  --brand-soft: #0f2e2b;
-  --brand-contrast: #06201c;
-
-  --critical: #f97066;
-  --critical-soft: #2d1414;
-  --warning: #fdb022;
-  --warning-soft: #2b1f0a;
-  --success: #32d583;
-  --success-soft: #0d2419;
-  --info: #53b1fd;
-  --info-soft: #0c1f33;
-
-  --role-patient: #2ed3b7;
-  --role-doctor: #8098f9;
-  --role-pathologist: #9b8afb;
-  --role-receptionist: #36bffa;
-  --role-lab-technician: #22ccee;
-  --role-admin: #98a2b3;
-
-  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -4px rgb(0 0 0 / 0.5);
 }
 
 html,
@@ -89,23 +63,21 @@ body {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv11', 'ss01';
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 :focus-visible {
-  outline: 2px solid var(--brand);
+  outline: 2px solid var(--accent-ring);
   outline-offset: 2px;
 }
 
 .mono {
-  font-family: var(--font-mono), ui-monospace, monospace;
+  font-family: var(--font-mono), 'SF Mono', Consolas, monospace;
   font-variant-numeric: tabular-nums;
-}
-
-.serif {
-  font-family: var(--font-serif), Georgia, serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
 }
 
 .visually-hidden {
@@ -127,8 +99,8 @@ body {
   z-index: 1000;
   padding: 8px 14px;
   border-radius: var(--radius-sm);
-  background: var(--brand);
-  color: var(--brand-contrast);
+  background: var(--ink);
+  color: var(--on-ink);
   font-weight: 600;
   text-decoration: none;
   transition: top var(--duration-fast) var(--ease-out);
@@ -136,6 +108,70 @@ body {
 
 .skip-link:focus {
   top: 12px;
+}
+
+/* ---------- Shared effects ---------- */
+
+/* Cards that respond to hover: a soft lift */
+.lift {
+  transition:
+    transform var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out);
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* Loading placeholder shimmer */
+.shimmer {
+  background: linear-gradient(90deg, var(--surface-2), var(--surface-alt), var(--surface-2));
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* "Live" dot: a status dot with a soft expanding ring */
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot, var(--success));
+}
+
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: live-ring 1.8s var(--ease-out) infinite;
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--dot, var(--success)) 55%, transparent);
+}
+
+@keyframes live-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--dot, var(--success)) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
