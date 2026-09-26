@@ -1,0 +1,12 @@
+# Test profile. The datasource is provided by Testcontainers (@ServiceConnection);
+# these values only stop the placeholders in application.yml from failing to resolve.
+spring:
+  datasource:
+    url: jdbc:postgresql://replaced-by-testcontainers/test
+    username: test
+    password: test
+
+app:
+  auth:
+    jwt-secret: test-only-jwt-secret-that-is-long-enough-0123456789
+    cookie-secure: true
