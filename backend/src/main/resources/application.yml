@@ -20,6 +20,9 @@ server:
   port: 8080
 
 app:
+  clinic:
+    # "Today" on dashboards is computed in the clinic's time zone, not the server's.
+    zone: Asia/Kolkata
   auth:
     jwt-secret: ${JWT_SECRET}
     token-ttl: 8h
