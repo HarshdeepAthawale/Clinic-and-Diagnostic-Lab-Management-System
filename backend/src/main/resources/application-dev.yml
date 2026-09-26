@@ -1,0 +1,17 @@
+# Local development profile. Defaults match docker-compose.yml at the repo root;
+# any value can still be overridden with the environment variables in .env.example.
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/cdlms}
+    username: ${DATABASE_USERNAME:cdlms}
+    password: ${DATABASE_PASSWORD:cdlms}
+  flyway:
+    # Dev/demo seed data (demo accounts) is loaded only in this profile.
+    locations: classpath:db/migration,classpath:db/seed
+
+app:
+  auth:
+    # Dev-only fallback so the app starts without setup. Never use this value outside local dev.
+    jwt-secret: ${JWT_SECRET:dev-only-insecure-jwt-secret-change-me-0123456789}
+    # Browsers accept Secure cookies on http://localhost, but some tools don't; keep dev simple.
+    cookie-secure: false

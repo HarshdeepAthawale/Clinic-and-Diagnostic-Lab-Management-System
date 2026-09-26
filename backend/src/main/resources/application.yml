@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: cdlms-backend
+  datasource:
+    # JDBC URL, e.g. jdbc:postgresql://<host>:5432/postgres?sslmode=require
+    # For Supabase use the direct or session-pooler connection, not the transaction pooler (port 6543).
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # Flyway owns the schema (ADR-010). Hibernate only checks that entities match it.
+      ddl-auto: validate
+  flyway:
+    locations: classpath:db/migration
+    clean-disabled: true
+
+server:
+  port: 8080
+
+app:
+  auth:
+    jwt-secret: ${JWT_SECRET}
+    token-ttl: 8h
+    cookie-name: cdlms_token
+    cookie-secure: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
