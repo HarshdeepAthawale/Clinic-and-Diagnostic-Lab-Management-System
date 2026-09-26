@@ -4,6 +4,9 @@ import { createTheme } from '@mantine/core';
 export const theme = createTheme({
   primaryColor: 'brand',
   primaryShade: { light: 6, dark: 4 },
+  // Dark mode uses a bright teal; pick dark text on it so buttons keep WCAG contrast.
+  autoContrast: true,
+  luminanceThreshold: 0.4,
   colors: {
     brand: [
       '#e6f6f4',
