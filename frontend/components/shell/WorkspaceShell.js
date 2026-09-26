@@ -123,7 +123,7 @@ export function WorkspaceShell({ role, children }) {
               <UnstyledButton className={classes.search} onClick={() => spotlight.open()} aria-label="Search patients and samples (Ctrl K)">
                 <IconSearch size={16} stroke={1.8} />
                 <span className={classes.searchText}>Search patients, samples…</span>
-                <span className={classes.kbd}>Ctrl K</span>
+                <kbd className={classes.kbd}>Ctrl&nbsp;K</kbd>
               </UnstyledButton>
             )}
             <ClinicClock />

@@ -172,12 +172,16 @@
 }
 
 .kbd {
+  /* A fixed-size pill that can never wrap or outgrow the search box */
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 6px;
   white-space: nowrap;
-  line-height: 1.4;
   font-family: var(--font-mono), monospace;
   font-size: 11px;
-  padding: 2px 6px;
+  line-height: 1;
   border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--surface-alt);
