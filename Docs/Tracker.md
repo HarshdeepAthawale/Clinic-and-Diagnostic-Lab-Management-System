@@ -19,11 +19,11 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P2-1 | Patient registration form (Receptionist) | Not Started | |
-| P2-2 | Patient self-registration | Not Started | If in scope |
-| P2-3 | EMR fields (demographics, allergies, history) | Not Started | |
-| P2-4 | EMR read views (Doctor full with care relationship, Patient self) | Not Started | ADR-015 |
-| P2-5 | Patient search (summary, masked phone) + `PatientAccessLog` | Not Started | ADR-015 |
+| P2-1 | Patient registration form (Receptionist) | Done | Printable slip with one-time registration code (ADR-018) |
+| P2-2 | Patient self-registration | Done | New sign-up, or link an existing record with the registration code |
+| P2-3 | EMR fields (demographics, allergies, history) | Done | `V2__patient_records.sql`; blood group, emergency contact |
+| P2-4 | EMR read views (Doctor full with care relationship, Patient self) | Done | ADR-015; locked view without a care relationship |
+| P2-5 | Patient search (summary, masked phone) + `PatientAccessLog` | Done | Ctrl+K search; append-only log with DB trigger; admin log view |
 
 ## Phase 03 — Appointments & Queue Management
 

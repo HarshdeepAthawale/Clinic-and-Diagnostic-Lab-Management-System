@@ -9,13 +9,13 @@ Build the single shared patient record that both the clinic side and the lab sid
 
 ## Scope
 
-- [ ] Patient registration form (Receptionist-facing)
-- [ ] Patient self-registration (optional patient-facing signup, if in scope)
-- [ ] EMR fields: demographics, known allergies, history (see `Schema.md` §1 `Patient`)
-- [ ] Patient search (Doctor, Receptionist) returning summary fields only, phone masked
-- [ ] EMR read view for Doctor (full history, **care relationship required** — see `Rules.md` §1) and Patient (self, read-only)
-- [ ] `PatientAccessLog` written on every full-record read by a Doctor/Pathologist (see `Schema.md` §6)
-- [ ] RBAC enforcement: a patient can only ever see their own record (see `Rules.md` §1)
+- [x] Patient registration form (Receptionist-facing)
+- [x] Patient self-registration (optional patient-facing signup, if in scope)
+- [x] EMR fields: demographics, known allergies, history (see `Schema.md` §1 `Patient`)
+- [x] Patient search (Doctor, Receptionist) returning summary fields only, phone masked
+- [x] EMR read view for Doctor (full history, **care relationship required** — see `Rules.md` §1) and Patient (self, read-only)
+- [x] `PatientAccessLog` written on every full-record read by a Doctor/Pathologist (see `Schema.md` §6)
+- [x] RBAC enforcement: a patient can only ever see their own record (see `Rules.md` §1)
 
 ## Exit Criteria
 
