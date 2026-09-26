@@ -1,5 +1,5 @@
-import { StaffDashboard } from '@/components/dashboard/StaffDashboard';
+import { DoctorDashboard } from '@/components/dashboard/roles/DoctorDashboard';
 
 export default function DoctorHomePage() {
-  return <StaffDashboard role="DOCTOR" />;
+  return <DoctorDashboard />;
 }
