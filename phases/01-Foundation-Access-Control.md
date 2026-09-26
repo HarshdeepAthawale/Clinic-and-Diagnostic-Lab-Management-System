@@ -9,18 +9,18 @@ Stand up the project skeleton and the security spine everything else sits on. No
 
 ## Scope
 
-- [ ] Spring Boot + Maven project scaffolding in `backend/` (REST controllers under `/api`, springdoc Swagger UI)
-- [ ] Next.js (App Router, JavaScript) scaffolding in `frontend/` with Mantine, TanStack Query, ESLint/Prettier
-- [ ] `next.config.js` rewrite of `/api/*` to `BACKEND_URL`; shared `lib/api.js` fetch wrapper
-- [ ] Supabase Postgres project created
-- [ ] Flyway added to the backend (`flyway-core` + `flyway-database-postgresql`), `ddl-auto=validate`, `dev` profile seed data — see ADR-010 in `Decisions.md`
-- [ ] `V1__identity_and_roles.sql`: `User`, `Patient`, `Doctor`, `Pathologist`, `Staff` (see `Schema.md` §1) + matching JPA entities
-- [ ] Testcontainers Postgres for integration tests
-- [ ] Spring Security + JWT: login, role claim, protected endpoints; JWT in httpOnly cookie (ADR-009); `/auth/me`, `/auth/logout`
-- [ ] CSRF: backend filter requiring `X-CSRF-Protection: 1` on all mutating `/api` requests, Spring's token CSRF disabled, CORS left closed; `lib/api.js` adds the header (ADR-014)
-- [ ] Password hashing (BCrypt or equivalent)
-- [ ] Login/register pages and `middleware.js` redirects in Next.js
-- [ ] Role-based navigation shell in Next.js — one `layout.js` + empty dashboard per role (Patient, Doctor, Pathologist, Receptionist, Lab Technician, Admin)
+- [x] Spring Boot + Maven project scaffolding in `backend/` (REST controllers under `/api`, springdoc Swagger UI)
+- [x] Next.js (App Router, JavaScript) scaffolding in `frontend/` with Mantine, TanStack Query, ESLint/Prettier
+- [x] `next.config.js` rewrite of `/api/*` to `BACKEND_URL`; shared `lib/api.js` fetch wrapper
+- [ ] Supabase Postgres project created (local Docker Postgres used for now)
+- [x] Flyway added to the backend (`flyway-core` + `flyway-database-postgresql`), `ddl-auto=validate`, `dev` profile seed data — see ADR-010 in `Decisions.md`
+- [x] `V1__identity_and_roles.sql`: `User`, `Patient`, `Doctor`, `Pathologist`, `Staff` (see `Schema.md` §1) + matching JPA entities
+- [x] Testcontainers Postgres for integration tests
+- [x] Spring Security + JWT: login, role claim, protected endpoints; JWT in httpOnly cookie (ADR-009); `/auth/me`, `/auth/logout`
+- [x] CSRF: backend filter requiring `X-CSRF-Protection: 1` on all mutating `/api` requests, Spring's token CSRF disabled, CORS left closed; `lib/api.js` adds the header (ADR-014)
+- [x] Password hashing (BCrypt or equivalent)
+- [x] Login/register pages and `proxy.js` redirects in Next.js (Next 16 renamed middleware to proxy)
+- [x] Role-based navigation shell in Next.js — one `layout.js` + empty dashboard per role (Patient, Doctor, Pathologist, Receptionist, Lab Technician, Admin)
 
 ## Exit Criteria
 

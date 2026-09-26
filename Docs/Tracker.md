@@ -8,12 +8,12 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P1-1 | Spring Boot + Maven scaffolding (`backend/`, `/api`, Swagger) | Not Started | |
-| P1-1b | Next.js (JavaScript) scaffolding (`frontend/`, Mantine, TanStack Query, `/api` rewrite) | Not Started | ADR-008 |
-| P1-2 | Supabase Postgres project + Flyway config (`ddl-auto=validate`, dev seed profile) | Not Started | ADR-010 |
-| P1-3 | `V1__identity_and_roles.sql` (User, Patient, Doctor, Pathologist, Staff) + JPA entities | Not Started | Depends on [[Schema]] being finalized |
-| P1-4 | Spring Security + JWT auth end-to-end (httpOnly cookie, `/auth/me`, CSRF header filter) | Not Started | ADR-009, ADR-014 |
-| P1-5 | Login/register pages, `middleware.js`, per-role layouts (empty dashboards) | Not Started | |
+| P1-1 | Spring Boot + Maven scaffolding (`backend/`, `/api`, Swagger) | Done | Spring Boot 4.1, Java 21, Maven Wrapper |
+| P1-1b | Next.js (JavaScript) scaffolding (`frontend/`, Mantine, TanStack Query, `/api` rewrite) | Done | Next 16, Mantine 9, design system per ADR-016 |
+| P1-2 | Supabase Postgres project + Flyway config (`ddl-auto=validate`, dev seed profile) | In Progress | Flyway + local Docker Postgres done; Supabase project still to be created by the team |
+| P1-3 | `V1__identity_and_roles.sql` (User, Patient, Doctor, Pathologist, Staff) + JPA entities | Done | Composite FKs keep profile role = account role |
+| P1-4 | Spring Security + JWT auth end-to-end (httpOnly cookie, `/auth/me`, CSRF header filter) | Done | 33 backend tests |
+| P1-5 | Login/register pages, `proxy.js`, per-role layouts (empty dashboards) | Done | 16 frontend tests; verified in browser |
 
 ## Phase 02 — Patient Registration & EMR
 
