@@ -150,9 +150,24 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 
 ## ADR-016: Design language — "Calm Precision"
 
-**Status:** Accepted
+**Status:** Accepted; palette, fonts, dark mode and navigation superseded by ADR-017
 **Context:** Frontend quality carries significant evaluation weight, and the team wants a distinctive, polished UI rather than a template admin panel — without compromising clinical clarity.
 **Decision:** Adopt the design system in [[Design]]: neutral canvas + one teal brand color, strictly reserved semantic status colors, per-role accent colors for wayfinding, Inter / JetBrains Mono / Instrument Serif, full dark mode, keyboard-first staff workflows with a command palette, and a set of signature experiences (sample journey, pathologist focus mode, lab bench mode, live reception queue, doctor consult workspace). Built on Mantine + `@mantine/spotlight` + `motion` + Tabler icons.
 **Alternatives considered:** Plain Mantine defaults (fast but generic); Tailwind + shadcn/ui (great look, but shadcn is TypeScript-first and we'd hand-build tables, forms and date pickers Mantine already provides).
 **Consequence:** Every UI PR follows the review checklist in [[Design]] §12. Signature experiences are scheduled with their phases rather than all up front.
+
+---
+
+## ADR-017: Visual refresh — warm light palette, Outfit, top navbar, light mode only
+
+**Status:** Accepted (supersedes the palette, typography, dark-mode and sidebar parts of ADR-016; the principles, signature experiences and component patterns of ADR-016 stand)
+**Context:** The team wants a cleaner look with fewer colors, richer animation, a top navbar after login, and no dark mode. Reference sites: Thapar Nexus (palette, fonts, navbar) and ObsidianUI (motion ideas).
+**Decision:**
+- Palette: warm neutral canvas (`#f5f4f1`), white surfaces, one deep-red accent (`#b42318`); status colors only for status. No per-role accent colors.
+- Fonts: Outfit for all UI and headings, IBM Plex Mono for codes and numbers.
+- Light mode only; no theme toggle.
+- Navigation: one sticky top navbar for every role (drawer on tablets/phones for staff, bottom tabs for patients), replacing the staff sidebar.
+- Motion: scroll reveal, cursor-follow card light, hover lift, sliding nav underline, login text reel, KPI count-up — all disabled under reduced motion.
+- Role dashboards are fully designed now and run on a labelled demo dataset (`lib/demo`), each panel tagged "Demo data" with the phase that makes it live.
+**Consequence:** Because the accent and "critical" share a red, critical states must always use the octagon icon + explicit word + tinted banner/badge ([[Design]] §2.1). Demo data must be removed panel by panel as phases connect real APIs.
 

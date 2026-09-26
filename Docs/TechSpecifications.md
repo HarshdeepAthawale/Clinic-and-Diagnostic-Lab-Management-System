@@ -28,12 +28,12 @@ Java (Spring Boot) REST backend, a Next.js frontend written in JavaScript, and P
 |---|---|---|
 | **Framework** | Next.js 16 (App Router) + React 19 | File-based routing, layouts per role, production build/optimization built in |
 | **Language** | JavaScript (ES2022+, `.js` / `.jsx`) — **not** TypeScript | Project requirement. Use JSDoc comments where a shape needs documenting |
-| **UI components** | Mantine 9 (core, form, notifications) | Ready-made tables, forms with validation, date pickers, modals and toasts — avoids bare/templated screens (see [[Design]]) |
+| **UI components** | Mantine 9 (core, form, notifications), light mode only | Ready-made tables, forms with validation, date pickers, modals and toasts — avoids bare/templated screens (see [[Design]]) |
 | **Charts** | Mantine Charts (built on Recharts) | Admin dashboard revenue/TAT/test-volume charts |
 | **Command palette** | `@mantine/spotlight` | Staff `Ctrl/⌘+K` search-and-act palette (see [[Design]] §3.3) |
 | **Animation** | `motion` (Framer Motion) | Sample-journey progress, queue reordering, panel transitions; respects reduced motion (see [[Design]] §2.5) |
 | **Icons** | `@tabler/icons-react` | One consistent 1.5px-stroke icon set |
-| **Fonts** | `next/font` — Inter, JetBrains Mono, Instrument Serif | Self-hosted, no layout shift (see [[Design]] §2.2) |
+| **Fonts** | `next/font` — Outfit, IBM Plex Mono | Self-hosted, no layout shift (see [[Design]] §2.2) |
 | **Data fetching** | TanStack Query | Caching, loading/error states, refetch-after-mutation for API calls |
 | **HTTP client** | Native `fetch` wrapped in one `lib/api.js` module | Single place for base URL, `credentials: 'include'`, the `X-CSRF-Protection` header on mutations (ADR-014), and error-shape handling |
 | **Route protection (UX only)** | Next.js `proxy.js` (Next 16's name for middleware) | Redirects unauthenticated users to `/login` and users to their own role's area. **Not a security boundary** — the backend enforces all access |
@@ -106,7 +106,7 @@ app/
 └── admin/                    Admin area
 ```
 
-Each role folder has its own `layout.js` with that role's navigation, so every role gets a purpose-built shell (see [[Design]] §1). Screens listed in [[Design]] §2 map to pages under these folders.
+Each role folder has its own `layout.js` that wraps its pages in the shared top-navbar `WorkspaceShell` with that role's links, so every role gets a purpose-built shell (see [[Design]] §1). Screens listed in [[Design]] §2 map to pages under these folders.
 
 ## 4. Why Next.js (JavaScript) instead of Vaadin
 

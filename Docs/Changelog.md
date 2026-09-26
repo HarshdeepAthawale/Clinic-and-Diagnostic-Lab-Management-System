@@ -11,6 +11,11 @@ Phase 01 is complete except creating the shared Supabase project. See [[Tracker]
 - Frontend: Next.js 16 + Mantine 9 "Calm Precision" design system (tokens, light/dark, fonts); split-screen login and two-step patient registration; staff shell with Ctrl+K palette, shortcuts and collapsible sidebar; mobile-first patient shell; per-role dashboards; animated sample journey preview.
 - Tests: 33 backend (Testcontainers Postgres) and 16 frontend (Vitest).
 
+### Changed — visual refresh (ADR-017)
+- Warm light-only palette with one deep-red accent, Outfit + IBM Plex Mono, sticky top navbar for all roles.
+- Motion: scroll reveal, cursor-follow card light, button lift/press, sliding nav underline, login text reel, KPI count-up.
+- Fully designed dashboards for all six roles on a labelled demo dataset: doctor schedule and current patient, pathologist critical-first queue, reception live token board, lab scan bench, admin revenue / TAT heatmap / access log, patient live journey.
+
 ### Changed (planning)
 - Frontend switched from Vaadin (Java) to Next.js (JavaScript); backend stays Java Spring Boot and now exposes a REST API. See ADR-008 and ADR-009 in [[Decisions]].
 - Database migrations switched from Prisma Migrate to Flyway (ADR-010).
