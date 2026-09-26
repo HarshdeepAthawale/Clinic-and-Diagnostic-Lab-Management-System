@@ -37,6 +37,8 @@ export async function logout(queryClient) {
     await api('/auth/logout', { method: 'POST' });
   } finally {
     queryClient?.clear();
+    // A full page load (not router.push) guarantees no cached patient data survives sign-out.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.assign('/login');
   }
 }
