@@ -8,7 +8,7 @@ Java (Spring Boot) REST backend, a Next.js frontend written in JavaScript, and P
 
 | Layer | Technology | Why |
 |---|---|---|
-| **Framework** | Java Spring Boot 3.x | Industry-standard Java framework for REST APIs; handles routing, dependency injection, security |
+| **Framework** | Java 21 + Spring Boot 4.1 | Industry-standard Java framework for REST APIs; handles routing, dependency injection, security |
 | **API style** | REST + JSON under `/api` | The single contract between frontend and backend — see [[API]] |
 | **Database** | PostgreSQL (hosted on Supabase) | Relational — fits the domain, since patients, appointments, tests, and results are naturally connected via foreign keys. Supabase gives a managed Postgres instance with a dashboard, no local DB server setup needed |
 | **DB Migrations** | Flyway | Versioned plain-SQL migration files inside the backend; applied automatically on application startup. The single source of truth for the schema — see ADR-010 in [[Decisions]] |
@@ -26,9 +26,9 @@ Java (Spring Boot) REST backend, a Next.js frontend written in JavaScript, and P
 
 | Layer | Technology | Why |
 |---|---|---|
-| **Framework** | Next.js (App Router) | File-based routing, layouts per role, production build/optimization built in |
+| **Framework** | Next.js 16 (App Router) + React 19 | File-based routing, layouts per role, production build/optimization built in |
 | **Language** | JavaScript (ES2022+, `.js` / `.jsx`) — **not** TypeScript | Project requirement. Use JSDoc comments where a shape needs documenting |
-| **UI components** | Mantine (core, form, dates, notifications) | Ready-made tables, forms with validation, date pickers, modals and toasts — avoids bare/templated screens (see [[Design]]) |
+| **UI components** | Mantine 9 (core, form, notifications) | Ready-made tables, forms with validation, date pickers, modals and toasts — avoids bare/templated screens (see [[Design]]) |
 | **Charts** | Mantine Charts (built on Recharts) | Admin dashboard revenue/TAT/test-volume charts |
 | **Command palette** | `@mantine/spotlight` | Staff `Ctrl/⌘+K` search-and-act palette (see [[Design]] §3.3) |
 | **Animation** | `motion` (Framer Motion) | Sample-journey progress, queue reordering, panel transitions; respects reduced motion (see [[Design]] §2.5) |
@@ -36,7 +36,7 @@ Java (Spring Boot) REST backend, a Next.js frontend written in JavaScript, and P
 | **Fonts** | `next/font` — Inter, JetBrains Mono, Instrument Serif | Self-hosted, no layout shift (see [[Design]] §2.2) |
 | **Data fetching** | TanStack Query | Caching, loading/error states, refetch-after-mutation for API calls |
 | **HTTP client** | Native `fetch` wrapped in one `lib/api.js` module | Single place for base URL, `credentials: 'include'`, the `X-CSRF-Protection` header on mutations (ADR-014), and error-shape handling |
-| **Route protection (UX only)** | Next.js `middleware.js` | Redirects unauthenticated users to `/login` and users to their own role's area. **Not a security boundary** — the backend enforces all access |
+| **Route protection (UX only)** | Next.js `proxy.js` (Next 16's name for middleware) | Redirects unauthenticated users to `/login` and users to their own role's area. **Not a security boundary** — the backend enforces all access |
 | **Testing** | Vitest + React Testing Library; Playwright for end-to-end flows | Component tests and full browser walkthroughs |
 | **Lint/format** | ESLint (`next/core-web-vitals`) + Prettier | Consistent code style |
 
@@ -54,7 +54,7 @@ Two deployables sharing one database-backed API:
 │  Next.js app (frontend/)  │         │
 │  - App Router pages,      │         │
 │    one area per role      │  rewrite /api/* ──────────┐
-│  - middleware.js redirects│                             │
+│  - proxy.js redirects     │                             │
 └──────────────────────────┘                             ▼
                                    ┌─────────────────────────────────────┐
                                    │     Spring Boot REST API (backend/)  │

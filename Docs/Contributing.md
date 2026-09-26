@@ -30,7 +30,7 @@ Sample rejection was previously a dead-end state with no follow-up.
 
 Before requesting review:
 
-- [ ] Tests pass locally (`mvn test` in `backend/`, `npm test` and `npm run lint` in `frontend/`)
+- [ ] Tests pass locally (`./mvnw test` in `backend/`, `npm test` and `npm run lint` in `frontend/`)
 - [ ] If an endpoint was added/changed: [[API]] updated
 - [ ] Linked to the relevant item in [[Tracker]]
 - [ ] If the DB schema changed: a new Flyway migration (`V<n>__<description>.sql`) is included, matching JPA entities are updated, and [[Schema]] is updated to match

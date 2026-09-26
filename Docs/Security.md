@@ -13,7 +13,7 @@ Patient medical data is sensitive by nature (diagnoses, allergies, test results)
 
 - Spring Security + JWT (see ADR-005 in [[Decisions]]).
 - Passwords stored hashed (BCrypt or equivalent) — never plaintext, never reversibly encrypted.
-- JWT carries the user's role claim; every protected endpoint checks role server-side, not just hides UI elements client-side. **A hidden button — or a Next.js middleware redirect — is not access control.**
+- JWT carries the user's role claim; every protected endpoint checks role server-side, not just hides UI elements client-side. **A hidden button — or a Next.js `proxy.js` redirect — is not access control.**
 - JWT is stored in an `httpOnly`, `Secure`, `SameSite=Lax` cookie set by the backend, never in `localStorage` or anywhere JS can read it (ADR-009 in [[Decisions]]). Short expiry (e.g. 8h for staff shifts); logout clears the cookie.
 - CSRF (ADR-014 in [[Decisions]]): every `POST`/`PUT`/`PATCH`/`DELETE` to `/api` — including `/auth/login` — must carry the header `X-CSRF-Protection: 1`; the backend returns 403 without it. This works because browsers only let another site send a custom header after a CORS preflight, and the backend allows **no** cross-origin requests. Rules that keep it working:
   - CORS stays disabled on the backend (no allowed origins). Enabling CORS for any origin would break this protection.

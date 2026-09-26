@@ -11,7 +11,7 @@ Not finalized. Given this is likely an academic/evaluation project rather than a
 Two independent builds (see [[TechSpecifications]] §2):
 
 ```bash
-cd backend && mvn clean package            # Spring Boot fat JAR
+cd backend && ./mvnw clean package          # Spring Boot fat JAR
 cd frontend && npm ci && npm run build     # Next.js production build (run with `npm start`)
 ```
 
