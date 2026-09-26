@@ -9,24 +9,28 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Base for HTTP-level integration tests: the full app against a throwaway Postgres with the real
  * Flyway migrations applied. Tables are emptied before each test.
+ *
+ * <p>One container is shared by every test class (started once, stopped when the JVM exits).
+ * A per-class {@code @Container} would restart Postgres on a new port while Spring keeps reusing
+ * its cached context pointing at the old one.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Testcontainers
 @Import(TestUsers.class)
 public abstract class IntegrationTest {
 
-    @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:17-alpine");
+
+    static {
+        POSTGRES.start();
+    }
 
     @Autowired
     protected MockMvc mvc;
