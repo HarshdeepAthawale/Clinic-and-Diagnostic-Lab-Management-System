@@ -1,0 +1,20 @@
+# Local development database. Supabase is used for shared/deployed environments.
+# Start with: docker compose up -d
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: cdlms
+      POSTGRES_USER: cdlms
+      POSTGRES_PASSWORD: cdlms
+    ports:
+      - "5432:5432"
+    volumes:
+      - cdlms-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cdlms -d cdlms"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  cdlms-db:
