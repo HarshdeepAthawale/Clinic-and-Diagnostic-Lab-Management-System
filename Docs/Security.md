@@ -21,6 +21,7 @@ Patient medical data is sensitive by nature (diagnoses, allergies, test results)
   - The frontend sends every mutation through `lib/api.js`, which adds the header; never submit a plain HTML `<form>` directly to `/api`.
   - The `SameSite=Lax` cookie is a second layer, not the main defence.
 - `JWT_SECRET` is an environment variable, never committed (see [[Setup]]).
+- Registration codes (ADR-018): patients registered by the front desk link their own login with a one-time code from their slip. 10 random characters (~49 bits), only a SHA-256 hash stored, valid 30 days, single use, and only for records without a login. Unknown, expired and used codes return the same error so codes can't be probed. A rate limit on `/auth/login` and `/auth/register/claim` is still to do (see [[Tracker]]).
 
 ## 3. Authorization (RBAC)
 
@@ -41,7 +42,7 @@ Every query that returns patient-scoped data must filter by the requesting user'
 
 - No plaintext secrets in source control or docs (see [[Contributing]] checklist).
 - Database connection uses TLS (Supabase default).
-- `SampleStatusEvent` and (if built) `AuditLog` rows are append-only — no update/delete path should exist in the application layer, even for admins. If a correction is needed, insert a new event; don't rewrite history.
+- `SampleStatusEvent`, `PatientAccessLog` and (if built) `AuditLog` rows are append-only — no update/delete path should exist in the application layer, even for admins. `patient_access_log` also has a database trigger that rejects `UPDATE`/`DELETE`. If a correction is needed, insert a new event; don't rewrite history.
 - Report PDFs and other exported documents should only be servable to a caller who is authorized to view the underlying record — a guessable/sequential URL to a PDF is a data leak even if the "screen" is protected.
 
 ## 5. Input Validation
