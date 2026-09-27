@@ -1,5 +1,9 @@
 package com.cdlms.dashboard;
 
+import com.cdlms.appointment.AppointmentDtos.AppointmentView;
+import com.cdlms.appointment.AppointmentQueries;
+import com.cdlms.appointment.AppointmentService;
+import com.cdlms.appointment.AppointmentStatus;
 import com.cdlms.auth.AuthUser;
 import com.cdlms.common.ApiException;
 import com.cdlms.dashboard.DashboardQueries.Window;
@@ -19,8 +23,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -34,13 +40,18 @@ public class DashboardService {
     private final DashboardQueries queries;
     private final DoctorRepository doctors;
     private final PatientRepository patients;
+    private final AppointmentService appointments;
+    private final AppointmentQueries appointmentQueries;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
+                            AppointmentService appointments, AppointmentQueries appointmentQueries,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
         this.patients = patients;
+        this.appointments = appointments;
+        this.appointmentQueries = appointmentQueries;
         this.zone = ZoneId.of(zone);
     }
 
@@ -51,8 +62,8 @@ public class DashboardService {
     public DashboardResponse forUser(AuthUser user) {
         List<Widget> widgets = switch (user.role()) {
             case DOCTOR -> doctor(user);
-            case RECEPTIONIST -> reception();
-            case ADMIN -> admin();
+            case RECEPTIONIST -> reception(user);
+            case ADMIN -> admin(user);
             case PATIENT -> patient(user);
             case PATHOLOGIST -> List.of(Widget.upcoming("Your workspace", List.of(
                     new Upcoming("Verification queue", 8, "Results waiting for your sign-off, critical values first."),
@@ -79,48 +90,55 @@ public class DashboardService {
                         new Stat("seenToday", "Seen today", queries.appointmentsWithStatus(today, doctorId, "COMPLETED"), null),
                         new Stat("waiting", "Checked in, waiting", queries.appointmentsWithStatus(today, doctorId, "CHECKED_IN"), null),
                         new Stat("underCare", "Patients under your care", queries.patientsUnderCare(doctorId), null))),
-                new Widget("schedule", "Today's schedule", "wide",
-                        queries.schedule(today, doctorId).stream().map(e -> scheduleRow(e, date)).toList()),
-                new Widget("recentRecords", "Records you opened", "narrow", queries.recentAccess(user.id(), 6)));
+                new Widget("liveQueue", "Your queue", "wide", appointments.queue(user)),
+                new Widget("recentRecords", "Records you opened", "narrow", queries.recentAccess(user.id(), 6)),
+                new Widget("schedule", "Today's schedule", "full",
+                        queries.schedule(today, doctorId).stream().map(e -> scheduleRow(e, date)).toList()));
     }
 
-    private List<Widget> reception() {
+    private List<Widget> reception(AuthUser user) {
         Window today = today();
         LocalDate date = LocalDate.now(zone);
         return List.of(
                 Widget.stats(List.of(
+                        new Stat("appointmentsToday", "Appointments today", queries.appointmentsBetween(today, null), null),
+                        new Stat("waiting", "Waiting now", queries.appointmentsWithStatus(today, null, "CHECKED_IN"),
+                                "Checked in, not yet called"),
                         new Stat("registeredToday", "Registered today", queries.patientsRegisteredBetween(today), null),
-                        new Stat("totalPatients", "Patients on record", queries.totalPatients(), null),
                         new Stat("pendingCodes", "Waiting to link their login", queries.pendingRegistrationCodes(Instant.now()),
-                                "Registration codes not used yet"),
-                        new Stat("appointmentsToday", "Appointments today", queries.appointmentsBetween(today, null), null))),
-                new Widget("schedule", "Today's appointments", "wide",
-                        queries.schedule(today, null).stream().map(e -> scheduleRow(e, date)).toList()),
+                                "Registration codes not used yet"))),
+                new Widget("liveQueue", "Live queue", "wide", appointments.queue(user)),
                 new Widget("recentPatients", "Recently registered", "narrow",
                         queries.recentPatients(8).stream().map(p -> Map.of(
                                 "id", p.id(), "patientCode", p.patientCode(), "fullName", p.fullName(),
                                 "age", Period.between(p.dob(), date).getYears(), "gender", p.gender(),
-                                "hasLogin", p.hasLogin(), "registeredAt", p.registeredAt())).toList()));
+                                "hasLogin", p.hasLogin(), "registeredAt", p.registeredAt())).toList()),
+                new Widget("schedule", "Today's appointments", "full",
+                        queries.schedule(today, null).stream().map(e -> scheduleRow(e, date)).toList()));
     }
 
-    private List<Widget> admin() {
+    /** Clinic-wide overview: patients, today's visits by status, the live queue, record access, accounts. */
+    private List<Widget> admin(AuthUser user) {
         Window today = today();
-        Map<String, Long> byRole = queries.activeUsersByRole();
-        long staff = byRole.entrySet().stream().filter(e -> !"PATIENT".equals(e.getKey())).mapToLong(Map.Entry::getValue).sum();
         return List.of(
                 Widget.stats(List.of(
                         new Stat("totalPatients", "Patients on record", queries.totalPatients(), null),
+                        new Stat("appointmentsToday", "Appointments today", queries.appointmentsBetween(today, null), null),
                         new Stat("registeredToday", "Registered today", queries.patientsRegisteredBetween(today), null),
-                        new Stat("recordOpensToday", "Record opens today", queries.recordOpensBetween(today, null), null),
-                        new Stat("activeStaff", "Active staff accounts", staff, null))),
+                        new Stat("recordOpensToday", "Record opens today", queries.recordOpensBetween(today, null), null))),
+                new Widget("liveQueue", "Live queue", "wide", appointments.queue(user)),
+                new Widget("visitsByStatus", "Today's visits", "narrow",
+                        appointmentQueries.statusCounts(today.from(), today.to())),
                 new Widget("accessLog", "Record access log", "wide", queries.recentAccess(null, 8)),
-                new Widget("team", "Accounts by role", "narrow", byRole));
+                new Widget("team", "Accounts by role", "narrow", queries.activeUsersByRole()));
     }
 
     private List<Widget> patient(AuthUser user) {
         Patient patient = patients.findByUserId(user.id())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "NOT_FOUND", "No patient record for this account"));
-        return List.of(
+        List<Widget> widgets = new ArrayList<>();
+        myQueueSpot(patient.getId()).ifPresent(spot -> widgets.add(new Widget("myQueue", "You're checked in", "full", spot)));
+        widgets.addAll(List.of(
                 new Widget("myRecord", "Your record", "narrow", Map.of(
                         "patientCode", patient.getPatientCode(),
                         "bloodGroup", nullable(patient.getBloodGroup()),
@@ -128,7 +146,32 @@ public class DashboardService {
                         "hasHistory", patient.getMedicalHistory() != null,
                         "updatedAt", patient.getUpdatedAt())),
                 new Widget("upcomingAppointments", "Upcoming appointments", "wide",
-                        queries.upcomingForPatient(patient.getId(), Instant.now(), 5)));
+                        queries.upcomingForPatient(patient.getId(), Instant.now(), 5))));
+        return widgets;
+    }
+
+    /**
+     * The patient's live place in today's queue: their token, the token being seen now and how many
+     * are ahead. Empty unless they are checked in or with the doctor.
+     */
+    private Optional<Map<String, Object>> myQueueSpot(UUID patientId) {
+        List<AppointmentView> queue = appointmentQueries.queue(LocalDate.now(zone), null);
+        return queue.stream()
+                .filter(a -> a.patient().id().equals(patientId))
+                .filter(a -> a.status() == AppointmentStatus.CHECKED_IN || a.status() == AppointmentStatus.IN_CONSULTATION)
+                .findFirst()
+                .map(mine -> {
+                    List<AppointmentView> sameDoctor = queue.stream()
+                            .filter(a -> a.doctor().id().equals(mine.doctor().id())).toList();
+                    long ahead = sameDoctor.stream().filter(a -> a.status() == AppointmentStatus.CHECKED_IN
+                            && a.checkedInAt().isBefore(mine.checkedInAt())).count();
+                    String nowServing = sameDoctor.stream()
+                            .filter(a -> a.status() == AppointmentStatus.IN_CONSULTATION)
+                            .map(AppointmentView::queueToken).findFirst().orElse("");
+                    return Map.of("token", mine.queueToken(), "status", mine.status(), "doctorName",
+                            mine.doctor().fullName(), "specialization", mine.doctor().specialization(),
+                            "ahead", ahead, "nowServing", nowServing);
+                });
     }
 
     // ------------------------------------------------------------------ helpers
