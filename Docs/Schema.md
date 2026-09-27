@@ -44,6 +44,8 @@ Initial draft schema derived from the domain described in [[PRD]] and [[Appflow]
 | user_id | UUID (FK → User) | |
 | full_name | string | |
 | specialization | string | |
+| qualification | string, nullable | printed on prescriptions (V4) |
+| registration_number | string, unique, nullable | medical council number, printed on prescriptions (V4) |
 
 ### `Pathologist`
 | Field | Type | Notes |
@@ -111,25 +113,57 @@ Append-only status history (DB trigger rejects `UPDATE`/`DELETE`).
 | note | string, nullable | e.g. cancellation reason |
 | created_at | timestamp | |
 
-### `Consultation`
+### `Consultation` (V4)
+One per appointment. Read-only once `COMPLETED` — a trigger rejects updates and deletes (ADR-021).
+
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| appointment_id | UUID (FK → Appointment) | |
-| doctor_id | UUID (FK → Doctor) | |
+| appointment_id | UUID (FK → Appointment), unique | |
+| doctor_id | UUID (FK → Doctor) | the author |
 | patient_id | UUID (FK → Patient) | |
-| notes | text | |
-| diagnosis | text | |
+| status | enum | `DRAFT`, `COMPLETED` |
+| chief_complaint | string, nullable | |
+| notes | text, nullable | doctor's working notes — never shown to the patient |
+| diagnosis | string, nullable | required to complete (check constraint) |
+| advice | text, nullable | |
+| follow_up_date | date, nullable | |
+| bp_systolic / bp_diastolic / pulse_bpm / spo2_percent | smallint, nullable | range-checked |
+| temperature_c / weight_kg | numeric, nullable | range-checked |
+| created_at / updated_at / completed_at | timestamp | |
+
+### `Prescription` (V4)
+At most one per consultation. Numbered and read-only once issued (trigger). PDFs are generated on request, not stored.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| consultation_id | UUID (FK → Consultation), unique | |
+| prescription_code | string, unique, nullable | `RX-000123`, from `prescription_code_seq` when issued |
+| issued_at | timestamp, nullable | set together with the code |
 | created_at | timestamp | |
 
-### `Prescription`
+### `PrescriptionItem` (V4)
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| consultation_id | UUID (FK → Consultation) | |
-| medicines | text / JSON | name, dosage, duration per item |
-| pdf_url | string | |
-| created_at | timestamp | |
+| prescription_id | UUID (FK → Prescription) | |
+| position | smallint | 1, 2, 3 … unique per prescription |
+| medicine | string | |
+| dosage | string, nullable | e.g. `500 mg` |
+| frequency | string | e.g. `1-0-1`, `SOS` |
+| duration | string | e.g. `5 days` |
+| instructions | string, nullable | e.g. `After food` |
+
+### `Formulary` (V4)
+Reference list of common generic medicines for autocomplete; doctors can still type any medicine.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| name | string | unique with `form` |
+| form | string | Tablet, Syrup, Capsule, … |
+| default_strength | string, nullable | pre-fills the dose |
 
 ## 3. Lab Side
 
