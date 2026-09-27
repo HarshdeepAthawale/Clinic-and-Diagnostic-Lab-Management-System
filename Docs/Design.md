@@ -85,7 +85,7 @@ Motion explains change and adds polish; it never blocks work. Built with `motion
 | **Scroll reveal** | Dashboard sections | Fade + 18px rise the first time a block scrolls into view, 500ms, staggered 50ms |
 | **Cursor light** (`GlowCard`) | Cards and panels | A faint accent radial glow follows the pointer inside the card |
 | **Hover lift** | Clickable cards, buttons | `translateY(-1..-2px)` + `--shadow-md`; buttons press to `scale(0.98)` |
-| **Sliding nav underline** | Top navbar | Active-link underline animates between links (shared layout) |
+| **Sliding nav pill** | Command bar | Active-link ink pill animates between links (shared layout) |
 | **Text reel** | Login headline | Words roll up with a slight blur ("precisely. / clearly. / safely. / together.") |
 | **Count-up** | KPI tiles | Numbers count up on first load only |
 | **Live dot** | "Session verified", "Tracking live", live queue | A dot with a soft expanding ring |
@@ -100,24 +100,24 @@ The platform runs in light mode only (ADR-017): Mantine is forced to light, `col
 
 ## 3. Layout & Navigation
 
-### 3.1 Top navbar (all roles)
+### 3.1 Clinical command bar (all roles)
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│ ◉ CDLMS          Today   Schedule P03   Patients P02  …   [⌕ Search…  Ctrl K]  🔔  (KM) │  sticky, frosted white
-│   Doctor workspace ─────                                                       │  accent underline = active
-└──────────────────────────────────────────────────────────────────────────────┘
+      ┌────────────────────────────────────────────────────────────────────────────┐
+      │ CDLMS · Reception     Today   Patients   Register        ⌕ Ctrl K  10:42  [+ Register patient] (KM) │
+      └────────────────────────────────────────────────────────────────────────────┘
+                  ▔▔▔▔▔ ink pill slides under the active link
                      page content, max 1200px, centered
 ```
 
-- Sticky, `rgb(255 255 255 / 0.92)` with backdrop blur and a hairline bottom border; 64px tall (56px on phones).
-- Brand + "<Role> workspace" on the left, the role's links in the middle, search / notifications / account on the right.
-- The active link turns accent with a 2px underline that slides between links. Links for later phases are shown muted with a small `P0x` tag and a tooltip.
-- **Below 992px:** staff get a menu button that opens a drawer with the same links; the search box becomes an icon.
+- A white **floating** bar (rounded, hairline border, soft shadow) sitting 8px below the top edge, sticky; 64px tall, compacting to 58px once the page scrolls. Three-column layout so the links stay truly centred.
+- Left: wordmark + the role's workspace name. Middle: the role's links, labelled (no icon-only links) — only links to screens that exist. Right: patient search (opens the Ctrl+K palette; staff only), a live clock in IBM Plex Mono, notifications, **one** red primary action for the role (e.g. "Register patient"), and the account menu.
+- The active link sits on a dark **ink pill** that slides between links (shared-layout animation; instant under reduced motion).
+- **Below 992px:** staff get a menu button that opens a drawer with the same links; search becomes an icon; the clock hides.
 
 ### 3.2 Patient shell
 
-Same top navbar (without search). On phones, a **bottom tab bar** (Home, Appointments, Reports, Bills, Profile) replaces the middle links. Warmer copy and larger type.
+Same command bar (without search). On phones, a **bottom tab bar** (Home, Appointments, Reports, Bills, Profile) replaces the middle links. Warmer copy and larger type.
 
 ### 3.3 Command palette (staff) — `Ctrl/⌘ + K`
 
@@ -151,8 +151,8 @@ One box to go anywhere and do anything:
 | **Skeletons** | Shaped like the real content (rows, cards, tracker), with the warm shimmer. Never a full-page spinner. |
 | **Glow card / panel** | Every card and panel uses `GlowCard` (cursor light); `Panel` adds a title, subtitle and a right-side slot. |
 | **KPI tile** | Label, big mono number (count-up), change vs. last period (green when good, amber when bad — "good" can mean *down*, e.g. turnaround), optional sparkline. Icons sit in a neutral tile. |
-| **Demo data tag** | Any panel fed by `lib/demo` shows a dashed "Demo data" tag whose tooltip names the phase that makes it live. Removed when that phase connects the panel to the API. |
-| **Phase button** | An action whose feature isn't built yet looks and clicks like a real button, then explains exactly what it will do and in which phase — never a silent no-op. |
+| **Widget registry** | Dashboards are server-driven (ADR-019): `GET /dashboard/{role}` returns widgets `{ type, title, span, data }` and `components/dashboard/widgets/` maps each `type` to a component. Unknown types are skipped. Real data only — no mock or demo data anywhere. |
+| **Upcoming module** | A module that isn't built yet appears as an `upcoming` widget (name, phase, one-line description) — never a fake button or fake numbers. |
 | **Empty states** | Icon + one sentence explaining why it's empty + one action. E.g. "No samples waiting. New orders appear here automatically." |
 | **Errors** | Plain language + what to do next + a "Try again" button. API error codes map to friendly copy (e.g. `NO_CARE_RELATIONSHIP` → "You don't have an appointment with this patient. Ask the front desk to book them in."). |
 | **Notifications** | Bell with unread count; items are actionable (click → the sample/patient). Rejections and critical values also raise a toast. |
@@ -315,8 +315,8 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 | Breakpoint | Primary users | Notes |
 |---|---|---|
 | < 640px (phone) | Patients | Bottom tab bar, single column, sheets instead of modals |
-| 640–992px (tablet) | Lab technicians, reception | Bench mode, navbar links move into a drawer |
-| ≥ 992px (desktop) | Doctors, pathologists, admin, reception | Full top navbar, split views, dense tables |
+| 640–992px (tablet) | Lab technicians, reception | Bench mode, command-bar links move into a drawer |
+| ≥ 992px (desktop) | Doctors, pathologists, admin, reception | Full command bar, split views, dense tables |
 
 ---
 
@@ -332,9 +332,9 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 ## 11. Implementation Notes
 
 - **Stack:** Mantine 9 (theme tokens mapped to the variables in §2.1), `@mantine/spotlight` for the command palette, Mantine Charts (Recharts) for dashboards, `motion` for animation, `@tabler/icons-react` for icons, `next/font` for Outfit / IBM Plex Mono. See [[TechSpecifications]].
-- **Structure:** `components/ui/` (primitives: GlowCard, Panel, Reveal, TextReel, StatusBadge, RangeBar, TubeChip, SafetyBanner, Sparkline, KpiTile, DemoBadge, PhaseButton, EmptyState, SampleJourney), `components/shell/` (WorkspaceShell top navbar, command palette, menus), `components/dashboard/roles/` (one dashboard per role), `lib/demo/` (labelled demo data).
+- **Structure:** `components/ui/` (primitives: GlowCard, Panel, Reveal, TextReel, StatusBadge, RangeBar, TubeChip, SafetyBanner, Sparkline, KpiTile, EmptyState, SampleJourney), `components/shell/` (WorkspaceShell command bar, command palette, menus), `components/dashboard/` (`RoleDashboard` + `widgets/` registry), `components/patients/` (search, forms, record view, registration slip).
 - **Charts:** series use `--ink` and `--accent` only; heatmaps use a single accent intensity scale.
-- **Build order:** Phase 01 delivers the theme and tokens, login/register (§5.8), the top-navbar shell for all six roles with the command palette, and each role's fully designed dashboard running on labelled demo data. Each later phase swaps its panels' demo data for real API calls and builds the remaining screens on the same primitives.
+- **Build order:** Phase 01 delivered the theme and tokens, login/register (§5.8), the command-bar shell for all six roles and the Ctrl+K palette. Phase 02 added server-driven widget dashboards (real data only) and the patient screens. Each later phase adds its screens on the same primitives and registers new widget types for its dashboards.
 
 ## 12. Design Review Checklist (every UI PR)
 

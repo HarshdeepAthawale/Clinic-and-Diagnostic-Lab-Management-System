@@ -4,7 +4,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phase 02 is complete. See [[Tracker]] for current status.
+
+### Added — Phase 02 (Patient Registration & EMR)
+- Backend: Flyway `V2__patient_records.sql` — patient code (`PID-000123`), blood group, medical history, emergency contact, searchable phone digits, hashed one-time registration codes, `appointments` table, append-only `patient_access_log` (DB trigger). Patient search / register / update / clinical-edit endpoints, `GET /patients/me`, `POST /auth/register/claim` (ADR-018), admin access log, server-driven dashboards `GET /dashboard/{role}` (ADR-019).
+- Frontend: reception registration with printable slip, patient search and record pages for reception and doctors (locked view without a care relationship), clinical edit, patient "My record", "link my record" sign-up, admin access log, patient search in the Ctrl+K palette, widget-registry dashboards.
+- Tests: 48 backend, 19 frontend.
+
+### Changed — Phase 02
+- All mock/demo dashboard data removed; dashboards show real data only, unbuilt modules appear as "upcoming" (ADR-019).
+- Navbar redesigned as a floating clinical command bar with centred labelled links and a sliding ink pill (ADR-019).
 
 ### Added — Phase 01 (Foundation & Access Control)
 - Backend: Spring Boot 4.1 / Java 21 REST API; Flyway `V1__identity_and_roles.sql` (users, patients, doctors, pathologists, staff); JWT in httpOnly cookie; `X-CSRF-Protection` header filter; register / login / logout / me; role-gated dashboard endpoints; dev-only demo seed.

@@ -6,7 +6,7 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 
 - All paths below are relative to `/api` (e.g. `POST /api/auth/login`). The frontend calls them on its own origin; Next.js rewrites forward them to Spring Boot.
 - JSON request/response bodies; field names in `camelCase`; timestamps in ISO-8601 UTC.
-- Auth via the JWT `httpOnly` cookie (ADR-009). All endpoints require it except `/auth/login` and `/auth/register`.
+- Auth via the JWT `httpOnly` cookie (ADR-009). All endpoints require it except `/auth/login`, `/auth/register` and `/auth/register/claim`.
 - Every `POST`/`PUT`/`PATCH`/`DELETE` must send `X-CSRF-Protection: 1` (ADR-014), including login and register; missing header → `403` with code `CSRF_HEADER_MISSING`. `GET` requests never change data.
 - List endpoints are paginated: `?page=0&size=20`, response `{ "content": [...], "page": n, "size": n, "totalElements": n }`.
 - PDF endpoints return `application/pdf` and run the same authorization check as the record they belong to (see [[Security]] §4).
@@ -18,6 +18,7 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 | Method | Path | Notes |
 |---|---|---|
 | POST | `/auth/register` | Patient self-registration (staff accounts created by Admin, not self-registered) |
+| POST | `/auth/register/claim` | `{ email, password, registrationCode }` — creates a Patient login linked to a record the front desk registered (ADR-018). Unknown/expired/used code → `400 INVALID_REGISTRATION_CODE`; email in use → `409 EMAIL_TAKEN` |
 | POST | `/auth/login` | Sets JWT cookie; returns `{ id, name, role }` |
 | POST | `/auth/logout` | Clears the cookie |
 | GET | `/auth/me` | Current user + role — used by the frontend to pick the role area |
@@ -26,10 +27,14 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 
 | Method | Path | Role |
 |---|---|---|
-| GET | `/patients?q=` | Doctor, Receptionist — search by name/phone/patient ID; returns **summary only** (name, patient ID, age, gender, masked phone), plus `hasCareRelationship` for doctors |
-| POST | `/patients` | Receptionist |
-| GET | `/patients/{id}` | Patient (self), Receptionist, Admin — demographics/contact, no clinical fields |
-| GET | `/patients/{id}/history` | Patient (self), Doctor with care relationship — full EMR (allergies, history, consultations, prescriptions, reports). Doctor without one → `403` code `NO_CARE_RELATIONSHIP`. Logged in `PatientAccessLog` |
+| GET | `/patients?q=` | Doctor, Receptionist — search by name/phone/patient ID (`PID-000123`); returns **summary only** `{ id, patientCode, fullName, age, gender, maskedPhone }`, plus `hasCareRelationship` for doctors. Paginated |
+| POST | `/patients` | Receptionist — register; returns `{ patient, registrationCode, registrationCodeExpiresAt }`. The plain code is only ever returned here (ADR-018) |
+| GET | `/patients/me` | Patient — own full record (EMR) |
+| GET | `/patients/{id}` | Patient (self), Receptionist, Admin — demographics/contact, `hasLogin`, `registrationCodeExpiresAt`; no clinical fields |
+| PATCH | `/patients/{id}` | Receptionist — update demographics/contact (name, dob, gender, phone, address, emergency contact) |
+| POST | `/patients/{id}/registration-code` | Receptionist — issue a fresh registration code (replaces the old one). Record already has a login → `409 ALREADY_LINKED` |
+| GET | `/patients/{id}/history` | Patient (self), Doctor with care relationship — full EMR (blood group, allergies, medical history; consultations, prescriptions and reports as those phases land). Doctor without one → `403` code `NO_CARE_RELATIONSHIP`. Logged in `PatientAccessLog` |
+| PATCH | `/patients/{id}/clinical` | Doctor with care relationship — `{ knownAllergies, medicalHistory, bloodGroup }` |
 
 ## Appointments
 
@@ -106,6 +111,25 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 | GET | `/admin/analytics/tat?testId=` | Admin |
 | POST | `/admin/staff` | Admin (all staff roles, incl. Pathologist with registration details) |
 | GET | `/admin/access-log?patientId=&userId=&from=&to=` | Admin — record access log, paginated |
+
+## Dashboards
+
+| Method | Path | Role |
+|---|---|---|
+| GET | `/dashboard/{role}` | The matching role only (`patient`, `doctor`, `pathologist`, `receptionist`, `lab-technician`, `admin`) |
+
+Response (ADR-019):
+
+```json
+{ "role": "RECEPTIONIST",
+  "widgets": [
+    { "type": "stats", "title": null, "span": "full",
+      "data": [{ "key": "registeredToday", "label": "Registered today", "value": 12, "hint": "..." }] },
+    { "type": "upcoming", "title": "Coming next", "span": "full",
+      "data": [{ "module": "Billing", "phase": 6, "description": "..." }] } ] }
+```
+
+`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget.
 
 ## Status
 
