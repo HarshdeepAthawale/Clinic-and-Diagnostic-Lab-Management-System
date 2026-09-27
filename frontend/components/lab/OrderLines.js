@@ -36,7 +36,7 @@ export function TubeRow({ items }) {
  * The tests on an order, one line each: name, tube, turnaround, prep and the price it was ordered at.
  * `onRemove` (doctor, open order) shows a remove button per line.
  */
-export function OrderLines({ order, onRemove, removingId, showPrep = true }) {
+export function OrderLines({ order, onRemove, removingId, showPrep = true, showTubes = true }) {
   return (
     <Stack gap={0}>
       <AnimatePresence initial={false}>
@@ -67,7 +67,7 @@ export function OrderLines({ order, onRemove, removingId, showPrep = true }) {
                   )}
                 </Group>
               </Box>
-              <TubeChip tube={item.tubeType} />
+              {showTubes && <TubeChip tube={item.tubeType} />}
               <Text size="sm" fw={600} className="mono" w={64} ta="right">{formatMoney(item.price)}</Text>
               {onRemove && (
                 <Tooltip label="Remove from order" withArrow>
