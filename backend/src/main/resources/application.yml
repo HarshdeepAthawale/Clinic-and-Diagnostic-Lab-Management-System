@@ -30,6 +30,10 @@ app:
   clinic:
     # "Today" on dashboards is computed in the clinic's time zone, not the server's.
     zone: Asia/Kolkata
+    # Letterhead on prescriptions and reports (Phase 04+). Empty values are simply left off.
+    name: ${CLINIC_NAME:CDLMS Clinic & Diagnostic Lab}
+    address: ${CLINIC_ADDRESS:}
+    phone: ${CLINIC_PHONE:}
   auth:
     jwt-secret: ${JWT_SECRET}
     token-ttl: 8h
