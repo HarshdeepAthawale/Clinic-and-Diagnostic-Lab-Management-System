@@ -3,10 +3,9 @@
 import { ActionIcon, Button, Group, Menu, Modal, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconDots } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useChangeStatus } from '@/lib/appointments';
-import { useStartConsultation } from '@/lib/consultations';
+import { useOpenConsultation } from '@/components/consultations/useOpenConsultation';
 import { friendlyMessage } from '@/lib/errors';
 import { statusActions } from './statusActions';
 
@@ -25,8 +24,7 @@ const DONE_MESSAGES = {
  */
 export function AppointmentActions({ role, appointment, size = 'xs', exclude = [] }) {
   const change = useChangeStatus();
-  const startConsultation = useStartConsultation();
-  const router = useRouter();
+  const consultation = useOpenConsultation();
   const [asking, setAsking] = useState(null);
   const [note, setNote] = useState('');
   const actions = statusActions(role, appointment).filter((a) => !exclude.includes(a.status));
@@ -44,12 +42,7 @@ export function AppointmentActions({ role, appointment, size = 'xs', exclude = [
         onError: (error) => notifications.show({ title: "That didn't go through", message: friendlyMessage(error), color: 'red', radius: 'lg' }),
       },
     );
-  const openConsultation = () =>
-    startConsultation.mutate(appointment.id, {
-      onSuccess: (consultation) => router.push(`/doctor/consultations/${consultation.id}`),
-      onError: (error) => notifications.show({ title: "Couldn't open the consultation", message: friendlyMessage(error), color: 'red', radius: 'lg' }),
-    });
-  const choose = (action) => (action.consult ? openConsultation() : action.askReason ? setAsking(action) : run(action));
+  const choose = (action) => (action.consult ? consultation.open(appointment.id) : action.askReason ? setAsking(action) : run(action));
 
   const primary = actions.find((a) => a.primary);
   const rest = actions.filter((a) => a !== primary);
@@ -58,7 +51,7 @@ export function AppointmentActions({ role, appointment, size = 'xs', exclude = [
     <>
       <Group gap={6} wrap="nowrap" onClick={(e) => e.stopPropagation()}>
         {primary && (
-          <Button size={size} radius="md" color="dark" loading={primary.consult ? startConsultation.isPending : change.isPending && change.variables?.status === primary.status} onClick={() => choose(primary)}>
+          <Button size={size} radius="md" color="dark" loading={primary.consult ? consultation.isPending : change.isPending && change.variables?.status === primary.status} onClick={() => choose(primary)}>
             {primary.label}
           </Button>
         )}
