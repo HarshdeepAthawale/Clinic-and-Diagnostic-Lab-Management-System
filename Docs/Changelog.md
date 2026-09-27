@@ -4,7 +4,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02 and 03 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02, 03 and 04 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 04 (Consultations & E-Prescriptions)
+- Backend: Flyway `V4__consultations_prescriptions.sql` (consultations, prescriptions, medicine lines, formulary; triggers lock completed consultations and issued prescriptions; RX number sequence; doctor qualification and registration number). Start / autosave / finish workflow that issues the prescription and completes the appointment in one transaction; visit history; patient prescriptions; formulary search; prescription PDF via OpenHTMLtoPDF with the clinic letterhead (ADR-021).
+- Frontend: consult workspace (patient rail with allergies and previous visits, vitals, notes, diagnosis, prescription builder with formulary autocomplete, advice and follow-up, autosave, Ctrl+S / Ctrl+Enter, finish confirmation); read-only consultation summary with View PDF / Download; doctor Consultations list; patient Prescriptions pages; visit history in the medical record; "Resume consultation" and "Recent prescriptions" dashboard widgets. Queue and agenda actions now start or open the consultation instead of changing the status directly.
 
 ### Added — Phase 03 (Appointments & Queue)
 - Backend: Flyway `V3__appointments_queue.sql` (doctor working hours, walk-in tokens, status timestamps, append-only `appointment_events`, no-double-booking index). Booking into slots, daily tokens, role-checked status lifecycle, live queue, working-hours API, `GET /doctors/me`, reminder emails 24 h ahead (ADR-020). Malformed parameters answer 400.
