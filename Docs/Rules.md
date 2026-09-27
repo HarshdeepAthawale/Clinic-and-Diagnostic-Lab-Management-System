@@ -39,6 +39,14 @@ Full permission enforcement details belong in [[Security]].
 - Doctors see only their own appointments and queue. Front desk and admin see all; admin only watches.
 - One reminder email per booked appointment, sent once it is within 24 hours — only to patients with a login.
 
+## 1b. Consultations & Prescriptions
+
+- A consultation belongs to exactly one appointment and is written by that appointment's doctor. Starting it calls a checked-in patient in.
+- While the patient is in the room it is a **draft** the doctor can keep changing (autosaved). **Finishing** needs a diagnosis; it issues the prescription and completes the visit together.
+- After finishing, the consultation and its prescription are **read-only** — enforced by the database. Prescriptions are numbered `RX-000001`, `RX-000002`, … in issue order; a visit with no medicines gets no prescription.
+- A medicine line needs the medicine, how often and for how long; dose and instructions are optional. At most 30 lines.
+- **Who can read:** the doctor who wrote it; other doctors only once it's finished and only for patients they are treating (logged); the patient their own finished consultations, without the doctor's clinical notes. The front desk and admin can't read consultations or prescriptions.
+
 ## 2. Sample Lifecycle Rules
 
 - A sample's state must always move forward through the pipeline: `Ordered → Collected → Received at Lab → In Testing → Result Entered → Verified by Pathologist → Report Generated → Dispatched`. No skipping stages, no backward transitions except the two explicit paths below: **rejection** (new sample) and **return for retest** (same sample).
