@@ -56,3 +56,9 @@ CROSS JOIN generate_series(1, 6) AS dow
 CROSS JOIN (VALUES (time '09:00', time '13:00'), (time '16:00', time '19:00')) AS t (start_time, end_time)
 WHERE d.user_id IN ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000007')
 ON CONFLICT DO NOTHING;
+
+-- Registration details printed on prescriptions (Phase 04).
+UPDATE doctors SET qualification = 'MBBS, MD (General Medicine)', registration_number = 'MMC-2011-10452'
+WHERE user_id = '00000000-0000-4000-8000-000000000002' AND registration_number IS NULL;
+UPDATE doctors SET qualification = 'MBBS, DCH, MD (Paediatrics)', registration_number = 'MMC-2014-22871'
+WHERE user_id = '00000000-0000-4000-8000-000000000007' AND registration_number IS NULL;
