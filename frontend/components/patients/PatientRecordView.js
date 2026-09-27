@@ -1,13 +1,14 @@
 'use client';
 
 import { Avatar, Box, Grid, Group, SimpleGrid, Stack, Text } from '@mantine/core';
-import { IconCalendarEvent, IconDropletFilled, IconFileText, IconPill, IconShieldCheck } from '@tabler/icons-react';
+import { IconDropletFilled, IconFileText, IconShieldCheck } from '@tabler/icons-react';
 import { ageGender, formatDate, formatRelative } from '@/lib/format';
 import { GlowCard } from '@/components/ui/GlowCard';
 import { Panel } from '@/components/ui/Panel';
 import { Reveal } from '@/components/ui/Reveal';
 import { SafetyBanner } from '@/components/ui/SafetyBanner';
 import { initials } from '@/components/shell/UserMenu';
+import { VisitHistory } from './VisitHistory';
 
 function Field({ label, children, mono = false }) {
   return (
@@ -21,13 +22,6 @@ function Field({ label, children, mono = false }) {
     </div>
   );
 }
-
-/** Sections that fill in as later phases add their data — shown so the record's shape is clear. */
-const LATER_SECTIONS = [
-  { icon: IconCalendarEvent, title: 'Visits', phase: 3 },
-  { icon: IconPill, title: 'Prescriptions', phase: 4 },
-  { icon: IconFileText, title: 'Lab reports', phase: 8 },
-];
 
 /**
  * The full medical record (EMR) — for the patient themself and doctors with a care relationship.
@@ -105,21 +99,33 @@ export function PatientRecordView({ record, actions, audience = 'staff' }) {
         </Grid.Col>
       </Grid>
 
-      <Reveal delay={0.1}>
-        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="lg">
-          {LATER_SECTIONS.map(({ icon: Icon, title, phase }) => (
-            <Box key={title} p="md" style={{ borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-strong)' }}>
+      <Grid gutter="lg">
+        <Grid.Col span={{ base: 12, md: 8 }}>
+          <Reveal delay={0.1}>
+            <Panel title="Visits & prescriptions" subtitle="Completed consultations, newest first">
+              <VisitHistory
+                patientId={record.id}
+                hrefFor={(v) =>
+                  audience === 'patient'
+                    ? v.prescriptionId ? `/patient/prescriptions/${v.prescriptionId}` : null
+                    : `/doctor/consultations/${v.id}`
+                }
+              />
+            </Panel>
+          </Reveal>
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 4 }}>
+          <Reveal delay={0.12}>
+            <Box p="md" style={{ borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-strong)' }}>
               <Group gap="sm" mb={4}>
-                <Icon size={18} color="var(--text-muted)" stroke={1.6} />
-                <Text fw={600} size="sm">{title}</Text>
+                <IconFileText size={18} color="var(--text-muted)" stroke={1.6} />
+                <Text fw={600} size="sm">Lab reports</Text>
               </Group>
-              <Text size="xs" c="var(--text-subtle)">
-                Appears in this record from Phase {String(phase).padStart(2, '0')}.
-              </Text>
+              <Text size="xs" c="var(--text-subtle)">Appears in this record from Phase 08.</Text>
             </Box>
-          ))}
-        </SimpleGrid>
-      </Reveal>
+          </Reveal>
+        </Grid.Col>
+      </Grid>
     </Stack>
   );
 }
