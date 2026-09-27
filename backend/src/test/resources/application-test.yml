@@ -7,6 +7,9 @@ spring:
     password: test
 
 app:
+  reminders:
+    # Tests call ReminderJob.sendDue() directly instead of waiting for the schedule.
+    enabled: false
   auth:
     jwt-secret: test-only-jwt-secret-that-is-long-enough-0123456789
     cookie-secure: true

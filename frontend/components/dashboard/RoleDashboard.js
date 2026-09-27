@@ -17,7 +17,8 @@ export function useDashboard(role) {
   return useQuery({
     queryKey: ['dashboard', role],
     queryFn: ({ signal }) => api(config.dashboardEndpoint, { signal }),
-    refetchInterval: 60_000,
+    // Dashboards now carry the live queue, so refresh often enough that it feels live.
+    refetchInterval: 15_000,
   });
 }
 
@@ -43,7 +44,7 @@ function DashboardSkeleton() {
 
 /**
  * Any role's home: header + the widgets the backend returns for that role (real data only).
- * Refreshes every minute so counts stay current on screens left open at a desk.
+ * Refreshes every 15 seconds so the queue and counts stay current on screens left open at a desk.
  */
 export function RoleDashboard({ role }) {
   const dashboard = useDashboard(role);

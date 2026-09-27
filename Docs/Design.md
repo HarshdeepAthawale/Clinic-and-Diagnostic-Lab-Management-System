@@ -198,12 +198,14 @@ Designed for a tablet on the bench, gloves on:
 
 ### 5.4 Reception Live Queue
 
-A live board for the front desk:
+A live board, one column per doctor (built in Phase 03):
 
-- Columns **Waiting → With doctor → Done** per doctor, token cards with patient name, time waited (turns amber after a threshold), and appointment type.
-- Drag a card (or use keyboard) to move it; issuing a walk-in token is one palette action (`N`).
-- **"TV mode"** (stretch): a full-screen, anonymised token display for the waiting room ("Token A-17 → Room 2").
-- A sample-rejected inbox with a "Call patient" action and one-click rebooking.
+- **Now with the doctor** — an ink card with the token in large IBM Plex Mono, a pulsing live dot and one slow accent glow; the doctor's **Finish** button sits on it.
+- **Room is free** — a dashed bar; for the doctor it carries **Call T-0xx** for the next in line. "Call in" is never offered while someone is already in the room.
+- **Waiting** — token chips in check-in order; the next patient is tinted accent; minutes waited turn amber after 30. Rows slide up (layout animation) when someone is called; other moves (no-show, cancel) sit in a "…" menu.
+- Refreshes every 10 s; the same board appears as a widget on the reception, doctor and admin dashboards.
+- **Waiting-room screen** (TV mode): full screen, large tokens, **no patient names**.
+- Later (Phase 07): a sample-rejected inbox with a "Call patient" action and one-click rebooking.
 
 ### 5.5 Doctor Consult Workspace
 

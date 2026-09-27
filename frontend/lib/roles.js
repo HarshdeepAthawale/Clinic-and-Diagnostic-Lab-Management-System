@@ -33,7 +33,7 @@ export const ROLES = {
     dashboardEndpoint: '/dashboard/patient',
     nav: [
       { label: 'Home', href: '/patient', icon: IconHome },
-      { label: 'Appointments', href: '/patient/appointments', icon: IconCalendarEvent, phase: 3 },
+      { label: 'Appointments', href: '/patient/appointments', icon: IconCalendarEvent },
       { label: 'Reports', href: '/patient/reports', icon: IconFileText, phase: 8 },
       { label: 'Bills', href: '/patient/bills', icon: IconReceipt, phase: 6 },
       { label: 'My record', href: '/patient/profile', icon: IconId },
@@ -47,7 +47,7 @@ export const ROLES = {
     cta: { label: 'Find patient', href: '/doctor/patients', icon: IconUserSearch },
     nav: [
       { label: 'Today', href: '/doctor', icon: IconHome },
-      { label: 'Schedule', href: '/doctor/schedule', icon: IconCalendarEvent, phase: 3 },
+      { label: 'Schedule', href: '/doctor/schedule', icon: IconCalendarEvent },
       { label: 'Patients', href: '/doctor/patients', icon: IconUsers },
       { label: 'Consultations', href: '/doctor/consultations', icon: IconStethoscope, phase: 4 },
       { label: 'Lab reports', href: '/doctor/reports', icon: IconReportMedical, phase: 8 },
@@ -73,9 +73,9 @@ export const ROLES = {
     cta: { label: 'Register patient', href: '/reception/register', icon: IconUserPlus },
     nav: [
       { label: 'Today', href: '/reception', icon: IconHome },
-      { label: 'Live queue', href: '/reception/queue', icon: IconTicket, phase: 3 },
+      { label: 'Live queue', href: '/reception/queue', icon: IconTicket },
       { label: 'Patients', href: '/reception/patients', icon: IconUsers },
-      { label: 'Appointments', href: '/reception/appointments', icon: IconCalendarEvent, phase: 3 },
+      { label: 'Appointments', href: '/reception/appointments', icon: IconCalendarEvent },
       { label: 'Billing', href: '/reception/billing', icon: IconCash, phase: 6 },
     ],
   },
@@ -98,6 +98,7 @@ export const ROLES = {
     dashboardEndpoint: '/dashboard/admin',
     nav: [
       { label: 'Insights', href: '/admin', icon: IconChartBar },
+      { label: 'Live queue', href: '/admin/queue', icon: IconTicket },
       { label: 'Staff', href: '/admin/staff', icon: IconUsers, phase: 9 },
       { label: 'Inventory', href: '/admin/inventory', icon: IconPackage, phase: 9 },
       { label: 'Access log', href: '/admin/access-log', icon: IconShieldLock },

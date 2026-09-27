@@ -22,7 +22,8 @@ A **Supabase** project is used for shared/deployed environments; local developme
 | `DATABASE_USERNAME` / `DATABASE_PASSWORD` | Database credentials | backend. Default to `cdlms` / `cdlms` in the `dev` profile |
 | `JWT_SECRET` | Signing key for auth tokens, ≥ 32 bytes | backend. Has an insecure fallback **only** in the `dev` profile; required everywhere else. Generate with `openssl rand -base64 48` |
 | `SPRING_PROFILES_ACTIVE` | `dev` locally | `dev` also loads the demo seed data |
-| `SMTP_HOST` / `SMTP_USER` / `SMTP_PASS` | JavaMailSender config for email reminders/notifications | later phases |
+| `SPRING_MAIL_HOST` / `SPRING_MAIL_PORT` / `SPRING_MAIL_USERNAME` / `SPRING_MAIL_PASSWORD` | SMTP for appointment reminder emails | backend. The `dev` profile uses Mailpit from `docker-compose.yml` (inbox at http://localhost:8025). Without a mail host, reminders are only logged |
+| `REMINDER_FROM` / `CLINIC_NAME` | Sender and clinic name on reminder emails | backend, optional |
 | `SMS_PROVIDER_API_KEY` | SMS notifications, if implemented | provider not yet chosen — see [[OpenQuestions]] |
 | `BACKEND_URL` | Where Next.js forwards `/api/*` | frontend, in `frontend/.env.local`; defaults to `http://localhost:8080`; server-side only, never `NEXT_PUBLIC_` |
 
@@ -34,7 +35,7 @@ Templates: `.env.example` (backend) and `frontend/.env.example`. Real values go 
 git clone https://github.com/HarshdeepAthawale/Clinic-and-Diagnostic-Lab-Management-System.git
 cd Clinic-and-Diagnostic-Lab-Management-System
 
-# 1. Start the local database
+# 1. Start the local database and the Mailpit mail catcher (http://localhost:8025)
 docker compose up -d
 
 # 2. Run the backend (http://localhost:8080). Flyway migrates the schema and loads demo data.

@@ -23,6 +23,7 @@ import { RoleBadge } from '@/components/ui/RoleBadge';
 import { SafetyBanner } from '@/components/ui/SafetyBanner';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { initials } from '@/components/shell/UserMenu';
+import { QueueBoard } from '@/components/appointments/QueueBoard';
 import { ListRow } from './ListRow';
 
 /** Where a staff member opens a patient's page, if their role has one. */
@@ -217,8 +218,13 @@ function UpcomingAppointments({ widget }) {
   return (
     <Panel title={widget.title}>
       {widget.data.length === 0 ? (
-        <EmptyState icon={IconCalendarEvent} title="No upcoming appointments" compact>
-          Visits booked for you by the clinic appear here.
+        <EmptyState
+          icon={IconCalendarEvent}
+          title="No upcoming appointments"
+          compact
+          action={<Link href="/patient/appointments/book" style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>Book an appointment</Link>}
+        >
+          Book a visit online, or ask the front desk.
         </EmptyState>
       ) : (
         <Stack gap={2}>
@@ -254,6 +260,92 @@ function Upcoming({ widget }) {
   );
 }
 
+const QUEUE_PAGE = { RECEPTIONIST: '/reception/queue', ADMIN: '/admin/queue' };
+
+/** Today's queue; refreshed with the dashboard. Doctors call patients in and finish from here. */
+function LiveQueue({ widget, role }) {
+  const waiting = widget.data.doctors.reduce((n, c) => n + c.waiting.length, 0);
+  const href = QUEUE_PAGE[role];
+  return (
+    <Panel
+      title={widget.title}
+      subtitle={`${waiting} waiting · updated ${formatRelative(widget.data.generatedAt)}`}
+      right={href && <Link href={href} style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>Full board</Link>}
+    >
+      <QueueBoard board={widget.data} role={role} limit={4} />
+    </Panel>
+  );
+}
+
+const VISIT_STATUSES = [
+  ['BOOKED', 'Booked', 'var(--info)'],
+  ['CHECKED_IN', 'Waiting', 'var(--warning)'],
+  ['IN_CONSULTATION', 'With doctor', 'var(--accent)'],
+  ['COMPLETED', 'Done', 'var(--success)'],
+  ['NO_SHOW', 'No-show', 'var(--text-subtle)'],
+  ['CANCELLED', 'Cancelled', 'var(--border-strong)'],
+];
+
+/** Today's visits as one stacked bar plus a legend: where the day stands at a glance. */
+function VisitsByStatus({ widget }) {
+  const total = VISIT_STATUSES.reduce((n, [key]) => n + (widget.data[key] ?? 0), 0);
+  return (
+    <Panel title={widget.title} subtitle={`${total} visit${total === 1 ? '' : 's'} scheduled today`}>
+      {total === 0 ? (
+        <EmptyState icon={IconCalendarOff} title="No visits today" compact>Bookings and walk-ins show up here.</EmptyState>
+      ) : (
+        <Stack gap="md">
+          <Group gap={3} wrap="nowrap" h={10} style={{ borderRadius: 999, overflow: 'hidden' }} aria-hidden>
+            {VISIT_STATUSES.map(([key, , color]) =>
+              widget.data[key] ? <Box key={key} h="100%" style={{ flex: widget.data[key], background: color }} /> : null,
+            )}
+          </Group>
+          <Stack gap={8}>
+            {VISIT_STATUSES.map(([key, label, color]) => (
+              <Group key={key} justify="space-between">
+                <Group gap={8}>
+                  <Box w={8} h={8} style={{ borderRadius: 3, background: color }} />
+                  <Text size="sm">{label}</Text>
+                </Group>
+                <Text size="sm" fw={600} className="mono">{widget.data[key] ?? 0}</Text>
+              </Group>
+            ))}
+          </Stack>
+        </Stack>
+      )}
+    </Panel>
+  );
+}
+
+/** Patient's live spot in today's queue: their token, who is in now, how many are ahead. */
+function MyQueue({ widget }) {
+  const q = widget.data;
+  const withDoctor = q.status === 'IN_CONSULTATION';
+  return (
+    <Box p="lg" style={{ borderRadius: 'var(--radius-lg)', background: 'var(--ink)', color: 'var(--on-ink)', position: 'relative', overflow: 'hidden' }}>
+      <Group justify="space-between" align="center" wrap="wrap" gap="lg" style={{ position: 'relative', zIndex: 1 }}>
+        <div>
+          <Text size="xs" fw={600} tt="uppercase" style={{ letterSpacing: '0.08em', opacity: 0.65 }}>
+            {withDoctor ? "It's your turn" : widget.title}
+          </Text>
+          <Text fz={52} fw={600} className="mono" lh={1.1}>{q.token}</Text>
+          <Text size="sm" style={{ opacity: 0.8 }}>{q.doctorName} · {q.specialization}</Text>
+        </div>
+        <Group gap={40}>
+          <div>
+            <Text size="xs" style={{ opacity: 0.65 }}>Now with the doctor</Text>
+            <Text fz={28} fw={600} className="mono">{q.nowServing || '—'}</Text>
+          </div>
+          <div>
+            <Text size="xs" style={{ opacity: 0.65 }}>Ahead of you</Text>
+            <Text fz={28} fw={600} className="mono">{withDoctor ? 0 : q.ahead}</Text>
+          </div>
+        </Group>
+      </Group>
+    </Box>
+  );
+}
+
 /** Widget type → component. Unknown types are skipped, so the backend can add widgets safely. */
 export const WIDGETS = {
   stats: Stats,
@@ -265,4 +357,7 @@ export const WIDGETS = {
   myRecord: MyRecord,
   upcomingAppointments: UpcomingAppointments,
   upcoming: Upcoming,
+  liveQueue: LiveQueue,
+  visitsByStatus: VisitsByStatus,
+  myQueue: MyQueue,
 };

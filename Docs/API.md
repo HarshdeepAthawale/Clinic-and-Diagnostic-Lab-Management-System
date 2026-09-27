@@ -11,7 +11,7 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 - List endpoints are paginated: `?page=0&size=20`, response `{ "content": [...], "page": n, "size": n, "totalElements": n }`.
 - PDF endpoints return `application/pdf` and run the same authorization check as the record they belong to (see [[Security]] §4).
 - Role checks are enforced server-side per [[Security]] — an endpoint below being "reachable" does not mean every caller can use it.
-- Error responses: standard shape `{ "error": string, "code": string }` (exact code list TBD).
+- Error responses: standard shape `{ "error": string, "code": string }` (exact code list TBD). A malformed query or path parameter (e.g. `?date=tomorrow`) is `400 INVALID_PARAMETER`.
 
 ## Auth
 
@@ -40,11 +40,20 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 
 | Method | Path | Role |
 |---|---|---|
-| POST | `/appointments` | Patient, Receptionist |
-| GET | `/appointments/mine` | Patient |
-| POST | `/queue/tokens` | Receptionist (walk-in token) |
-| GET | `/appointments?doctorId=&date=` | Doctor, Receptionist |
-| PATCH | `/appointments/{id}/status` | Receptionist, Doctor |
+| GET | `/doctors` | Any signed-in role except lab/pathology — `[{ id, fullName, specialization, hasWorkingHours }]` |
+| GET | `/doctors/me` | Doctor — own profile |
+| GET | `/doctors/{id}/slots?date=YYYY-MM-DD` | Patient, Receptionist — `{ doctorId, date, working, slotMinutes, slots: [{ startsAt, available }] }` |
+| GET | `/doctors/{id}/working-hours` | Patient, Doctor, Receptionist, Admin — `[{ dayOfWeek (1 = Mon), startTime, endTime, slotMinutes }]` |
+| PUT | `/doctors/{id}/working-hours` | The doctor themself, Admin — `{ blocks: [...] }` replaces the week. Overlap → `400 OVERLAPPING_HOURS` |
+| POST | `/appointments` | Patient (for self), Receptionist (`patientId` required) — `{ doctorId, scheduledAt, patientId?, reason? }`. Errors: `SLOT_IN_PAST`, `TOO_FAR_AHEAD`, `NOT_A_SLOT` (400); `SLOT_TAKEN`, `ALREADY_BOOKED` (409) |
+| GET | `/appointments?from=&to=&doctorId=` | Doctor (always own), Receptionist, Admin — dates inclusive, default today, max 42 days. Doctors don't see cancelled ones |
+| GET | `/appointments/mine` | Patient — `{ upcoming: [...], past: [...] }` |
+| GET | `/appointments/{id}` | Patient (own), Doctor (own), Receptionist, Admin — `{ appointment, history: [{ fromStatus, toStatus, changedBy, note, at }] }`. Someone else's → `404` |
+| PATCH | `/appointments/{id}/status` | Per the table in [[Rules]] §1a — `{ status, note? }`. Wrong role → `403`; impossible move → `409 INVALID_TRANSITION`; also `NOT_TODAY`, `TOO_EARLY`, `TOO_LATE`, `ALREADY_IN_CONSULTATION` (409) |
+| POST | `/queue/tokens` | Receptionist — `{ patientId, doctorId, reason? }`; creates a checked-in walk-in with the next token |
+| GET | `/queue` | Doctor (own column), Receptionist, Admin — `{ date, generatedAt, doctors: [{ doctor, nowServing, waiting: [...], seen, noShows }] }` |
+
+An appointment is `{ id, kind (SCHEDULED/WALK_IN), status, scheduledAt, durationMinutes, reason, queueToken, patient: { id, patientCode, fullName, age, gender }, doctor: { id, fullName, specialization }, checkedInAt, startedAt, completedAt, cancelledAt, cancellationReason, createdAt }` (null fields omitted).
 
 ## Consultations & Prescriptions
 
@@ -129,7 +138,7 @@ Response (ADR-019):
       "data": [{ "module": "Billing", "phase": 6, "description": "..." }] } ] }
 ```
 
-`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget.
+`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in).
 
 ## Status
 

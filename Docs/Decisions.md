@@ -199,3 +199,20 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - `span` (`full`, `wide`, `narrow`) is a layout hint; the grid collapses to one column on small screens.
 - Navigation becomes a **clinical command bar**: a white floating bar with the wordmark on the left, centred labelled links with a sliding ink pill for the active page, and on the right patient search (Ctrl+K), a live clock and one red primary action for the role (e.g. "Register patient").
 **Consequence:** New roles' dashboards look sparse until their phases land — accepted, since an empty state is honest. Every phase that adds a module also adds or upgrades its widgets.
+
+---
+
+## ADR-020: Appointments & queue — slots from working hours, daily tokens, server-enforced lifecycle
+
+**Status:** Accepted
+**Context:** Phase 03 needs booking, walk-ins and a live queue that the front desk, doctors, patients and admin all see consistently, without double bookings or illegal status jumps.
+**Decision:**
+- **Working hours** are weekly blocks per doctor (`doctor_schedules`: day, start, end, slot length; several blocks a day allowed). Slots are cut from them on the fly; a booking must start exactly on a slot boundary, in the future, at most 60 days ahead. Doctors edit their own hours (admin can too); existing bookings are never moved.
+- **No double booking** is enforced by the database: a partial unique index on `(doctor_id, scheduled_at)` for live scheduled visits. Cancelling frees the slot. One live booking per patient per doctor per day.
+- **Tokens** (`T-001`, `T-002`, …) are numbered per clinic day across the whole clinic, assigned at check-in (walk-ins are checked in when the token is issued). Numbering is serialised with a transaction-scoped advisory lock. Queue order is check-in order.
+- **Lifecycle** `BOOKED → CHECKED_IN → IN_CONSULTATION → COMPLETED`, plus `NO_SHOW` and `CANCELLED`, with a fixed table of which role may make each move (Rules.md §1a). A doctor has at most one patient `IN_CONSULTATION`. Every change is written to the append-only `appointment_events` history (DB trigger rejects updates/deletes).
+- **Reminders:** one email per booked appointment once it is within 24 h, sent by a scheduled job that claims rows with `FOR UPDATE SKIP LOCKED` (safe with several backend instances). Patients without a login have no email and are skipped; SMS waits on ADR-007. Without a mail server the reminder is only logged. Local dev catches mail in Mailpit.
+- **Live views poll** (10–15 s via TanStack Query) instead of WebSockets.
+- **Waiting-room screen** shows tokens only, never patient names.
+**Alternatives considered:** Fixed slot table pre-generated per day (heavy to maintain when hours change); per-doctor token numbers (confusing when a patient hears "7" for two doctors); WebSocket/SSE push (more moving parts than a small clinic needs today — can replace polling later without changing the API).
+**Consequence:** Appointments created before Phase 03 have no token until checked in. Changing hours doesn't warn about bookings now outside them — a later phase can list those for the front desk.

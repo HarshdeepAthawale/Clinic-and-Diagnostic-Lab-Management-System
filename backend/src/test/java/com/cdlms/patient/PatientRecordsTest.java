@@ -257,7 +257,6 @@ class PatientRecordsTest extends IntegrationTest {
                 .andExpect(jsonPath("$.widgets[0].data[?(@.key=='pendingCodes')].value").value(1));
         mvc.perform(get("/api/dashboard/doctor").cookie(doctor))
                 .andExpect(jsonPath("$.widgets[0].data[?(@.key=='underCare')].value").value(1))
-                .andExpect(jsonPath("$.widgets[1].type").value("schedule"))
-                .andExpect(jsonPath("$.widgets[1].data[0].patient.fullName").value("Karan Malhotra"));
+                .andExpect(jsonPath("$.widgets[?(@.type=='schedule')].data[0].patient.fullName").value("Karan Malhotra"));
     }
 }

@@ -19,6 +19,26 @@ Rules the system must enforce regardless of UI. If code and this doc disagree, t
 
 Full permission enforcement details belong in [[Security]].
 
+## 1a. Appointments & Queue
+
+- Bookings go into a doctor's **working hours** only: on a slot boundary, in the future, at most 60 days ahead. A slot holds one live booking; cancelling frees it. A patient can hold one live booking per doctor per day.
+- **Tokens** (`T-001`…) restart every clinic day and are given at check-in; a walk-in gets one immediately. The queue is served in check-in order.
+- Status moves and who may make them:
+
+  | From | To | Who | Extra condition |
+  |---|---|---|---|
+  | Booked | Checked in | Receptionist | Only on the day of the appointment |
+  | Booked | Cancelled | Receptionist, the patient (own) | Patient: only before the start time |
+  | Booked | No-show | Receptionist | Only after the start time |
+  | Checked in | In consultation | Doctor (own) | The doctor has nobody else in consultation |
+  | Checked in | No-show | Receptionist, doctor (own) | Left without being seen |
+  | Checked in | Cancelled | Receptionist | |
+  | In consultation | Completed | Doctor (own) | |
+
+  Completed, No-show and Cancelled are final. Every move is recorded (who, from, to, when, note) and never edited.
+- Doctors see only their own appointments and queue. Front desk and admin see all; admin only watches.
+- One reminder email per booked appointment, sent once it is within 24 hours — only to patients with a login.
+
 ## 2. Sample Lifecycle Rules
 
 - A sample's state must always move forward through the pipeline: `Ordered → Collected → Received at Lab → In Testing → Result Entered → Verified by Pathologist → Report Generated → Dispatched`. No skipping stages, no backward transitions except the two explicit paths below: **rejection** (new sample) and **return for retest** (same sample).

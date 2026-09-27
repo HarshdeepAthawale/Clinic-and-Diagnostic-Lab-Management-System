@@ -1,0 +1,213 @@
+/* Live queue board (Design.md §5 "Live reception queue"). */
+
+.grid {
+  display: grid;
+  /* auto-fit: one doctor's column stretches to the full width instead of leaving a gap */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.doctorRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.doctorName {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.tally {
+  margin-left: auto;
+  flex: none;
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- Now serving ---------- */
+
+.serving {
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+/* One slow accent glow, the same signature as the login panel */
+.serving::after {
+  content: '';
+  position: absolute;
+  inset: auto -30% -70% auto;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(180 35 24 / 0.55), transparent 65%);
+  pointer-events: none;
+}
+
+.servingLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.6);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f97066;
+  box-shadow: 0 0 0 0 rgb(249 112 102 / 0.6);
+  animation: pulse 1.8s var(--ease-out) infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgb(249 112 102 / 0.55); }
+  70% { box-shadow: 0 0 0 9px rgb(249 112 102 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(249 112 102 / 0); }
+}
+
+.bigToken {
+  font-family: var(--font-mono), monospace;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.servingMeta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.idle {
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-strong);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ---------- Waiting line ---------- */
+
+.waitingHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0 2px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  transition: background var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+
+.row:hover {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+.next {
+  background: var(--accent-soft);
+}
+
+.chip {
+  flex: none;
+  min-width: 56px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.next .chip {
+  border-color: var(--accent-ring);
+  color: var(--accent);
+}
+
+.who {
+  flex: 1;
+  min-width: 0;
+}
+
+.wait {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.long {
+  color: var(--warning);
+}
+
+/* ---------- TV mode: a waiting-room screen. Tokens only, never names. ---------- */
+
+.tv {
+  min-height: 100vh;
+  padding: 40px;
+  background: var(--bg);
+}
+
+.tv .grid {
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.tv .bigToken {
+  font-size: 88px;
+}
+
+.tv .chip {
+  font-size: 22px;
+  min-width: 92px;
+  padding: 8px 12px;
+}
+
+.tv .doctorName {
+  font-size: 22px;
+}
