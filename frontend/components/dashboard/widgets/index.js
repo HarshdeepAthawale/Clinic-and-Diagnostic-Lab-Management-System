@@ -24,6 +24,7 @@ import { SafetyBanner } from '@/components/ui/SafetyBanner';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { initials } from '@/components/shell/UserMenu';
 import { QueueBoard } from '@/components/appointments/QueueBoard';
+import { OpenConsultation, RecentPrescriptions } from './consultationWidgets';
 import { ListRow } from './ListRow';
 
 /** Where a staff member opens a patient's page, if their role has one. */
@@ -360,4 +361,6 @@ export const WIDGETS = {
   liveQueue: LiveQueue,
   visitsByStatus: VisitsByStatus,
   myQueue: MyQueue,
+  openConsultation: OpenConsultation,
+  recentPrescriptions: RecentPrescriptions,
 };
