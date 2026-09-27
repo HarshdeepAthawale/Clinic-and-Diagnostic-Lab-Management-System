@@ -43,6 +43,8 @@ Every query that returns patient-scoped data must filter by the requesting user'
 - No plaintext secrets in source control or docs (see [[Contributing]] checklist).
 - Database connection uses TLS (Supabase default).
 - `SampleStatusEvent`, `PatientAccessLog` and (if built) `AuditLog` rows are append-only — no update/delete path should exist in the application layer, even for admins. `patient_access_log` also has a database trigger that rejects `UPDATE`/`DELETE`. If a correction is needed, insert a new event; don't rewrite history.
+- Prescription PDFs (and later reports and invoices) are generated on request behind the same checks as the record and sent with `Cache-Control: private, no-store`; nothing is stored, so there are no file URLs to leak.
+- The doctor's clinical notes are never returned to patients; completed consultations and issued prescriptions can't be edited or deleted (database triggers).
 - Report PDFs and other exported documents should only be servable to a caller who is authorized to view the underlying record — a guessable/sequential URL to a PDF is a data leak even if the "screen" is protected.
 
 ## 5. Input Validation
