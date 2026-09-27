@@ -27,4 +27,6 @@
 | **Token / queue number** | A number issued to walk-in patients to manage consultation order without a fixed appointment slot |
 | **Care relationship** | A doctor has one with a patient if there is a non-cancelled appointment/walk-in token with that doctor, or a past consultation by them; required to open the full record (see [[Rules]] §1) |
 | **Consultation** | A doctor visit event — the anchor record that appointments, prescriptions, and (often) lab orders attach to |
+| **Formulary** | The clinic's list of common medicines (name, form, usual strength) used to suggest medicines while prescribing |
+| **Prescription number** | `RX-000123` — issued in sequence when a consultation is finished; the prescription is locked from then on |
 | **Lab order** | A request for one or more tests, created either directly or automatically from a doctor's consultation notes |
