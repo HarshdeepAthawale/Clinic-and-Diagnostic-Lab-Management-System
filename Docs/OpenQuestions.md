@@ -4,7 +4,6 @@ Unresolved design/product questions. Tracked here rather than dropped — resolv
 
 ## Tech / Architecture
 
-- **PDF library:** iText7 or Apache PDFBox — not yet decided (see [[Decisions]] ADR-006).
 - **SMS provider:** "Twilio or similar" — no specific provider chosen (see [[Decisions]] ADR-007). Also unclear if SMS is in scope for the initial build at all, or email-only.
 - **Deployment target:** not yet decided — now two deployables (Next.js frontend + Spring Boot backend). See [[Deployment]].
 
