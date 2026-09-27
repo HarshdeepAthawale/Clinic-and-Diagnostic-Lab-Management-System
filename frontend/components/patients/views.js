@@ -3,7 +3,7 @@
 import { Alert, Button, Grid, Group, Modal, SimpleGrid, Skeleton, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconEdit, IconKey, IconLink, IconLock, IconUserPlus } from '@tabler/icons-react';
+import { IconAlertCircle, IconEdit, IconFlask, IconKey, IconLink, IconLock, IconUserPlus } from '@tabler/icons-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { friendlyMessage } from '@/lib/errors';
@@ -23,6 +23,7 @@ import { Panel } from '@/components/ui/Panel';
 import { Reveal } from '@/components/ui/Reveal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { FrontDeskActions } from '@/components/appointments/views';
+import { OrderTestsDrawer } from '@/components/lab/OrderTestsDrawer';
 import { ClinicalEditModal } from './ClinicalEditModal';
 import { PatientForm } from './PatientForm';
 import { PatientRecordView } from './PatientRecordView';
@@ -225,6 +226,7 @@ export function ReceptionPatientView({ id }) {
 export function DoctorPatientView({ id }) {
   const record = usePatientRecord(id);
   const [editOpened, edit] = useDisclosure(false);
+  const [ordering, order] = useDisclosure(false);
 
   if (record.isPending) return <RecordSkeleton />;
   if (record.error?.code === 'NO_CARE_RELATIONSHIP') {
@@ -251,9 +253,15 @@ export function DoctorPatientView({ id }) {
       />
       <PatientRecordView
         record={record.data}
-        actions={<Button variant="default" leftSection={<IconEdit size={16} />} onClick={edit.open}>Update clinical details</Button>}
+        actions={
+          <Group gap="sm">
+            <Button variant="default" leftSection={<IconEdit size={16} />} onClick={edit.open}>Update clinical details</Button>
+            <Button leftSection={<IconFlask size={16} />} onClick={order.open}>Order tests</Button>
+          </Group>
+        }
       />
       {editOpened && <ClinicalEditModal record={record.data} opened={editOpened} onClose={edit.close} />}
+      <OrderTestsDrawer opened={ordering} onClose={order.close} patient={record.data} />
     </Stack>
   );
 }
