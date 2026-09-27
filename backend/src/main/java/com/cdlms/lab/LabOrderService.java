@@ -190,6 +190,14 @@ public class LabOrderService {
                 .toList();
     }
 
+    /** A patient's open orders with prep, for their dashboard (the caller has already resolved the patient). */
+    @Transactional(readOnly = true)
+    public List<LabOrderView> openForPatient(UUID patientId) {
+        return orders.findTop5ByPatientIdAndStatusOrderByCreatedAtDesc(patientId, LabOrder.Status.ORDERED).stream()
+                .map(o -> view(o, false))
+                .toList();
+    }
+
     /** A patient's orders as list rows: the patient themself, or a doctor with a care relationship (logged). */
     @Transactional
     public List<LabOrderSummary> forPatient(AuthUser caller, UUID patientId) {
