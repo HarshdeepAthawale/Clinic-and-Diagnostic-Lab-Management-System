@@ -38,3 +38,12 @@ export const APPOINTMENT_STATUS = {
   NO_SHOW: 'no-show',
   CANCELLED: 'rejected',
 };
+
+const RUPEES = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+const RUPEES_PAISE = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2 });
+
+/** "₹1,250" or "₹99.50": prices come from the API as decimal numbers or strings. */
+export function formatMoney(amount) {
+  const value = Number(amount ?? 0);
+  return (Number.isInteger(value) ? RUPEES : RUPEES_PAISE).format(value);
+}

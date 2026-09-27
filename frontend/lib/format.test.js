@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ageGender, APPOINTMENT_STATUS, formatRelative } from './format';
+import { ageGender, APPOINTMENT_STATUS, formatMoney, formatRelative } from './format';
 
 describe('formatRelative', () => {
   const now = Date.parse('2026-09-27T10:00:00Z');
@@ -25,5 +25,13 @@ describe('APPOINTMENT_STATUS', () => {
     for (const status of ['BOOKED', 'CHECKED_IN', 'IN_CONSULTATION', 'COMPLETED', 'NO_SHOW', 'CANCELLED']) {
       expect(APPOINTMENT_STATUS[status]).toBeTruthy();
     }
+  });
+});
+
+describe('formatMoney', () => {
+  it('formats rupees with Indian grouping and shows paise only when there are some', () => {
+    expect(formatMoney(1250)).toBe('₹1,250');
+    expect(formatMoney('125000.00')).toBe('₹1,25,000');
+    expect(formatMoney(99.5)).toBe('₹99.50');
   });
 });
