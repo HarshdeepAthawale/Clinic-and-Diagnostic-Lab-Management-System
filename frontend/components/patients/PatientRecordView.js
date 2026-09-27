@@ -1,13 +1,14 @@
 'use client';
 
 import { Avatar, Box, Grid, Group, SimpleGrid, Stack, Text } from '@mantine/core';
-import { IconDropletFilled, IconFileText, IconShieldCheck } from '@tabler/icons-react';
+import { IconDropletFilled, IconShieldCheck } from '@tabler/icons-react';
 import { ageGender, formatDate, formatRelative } from '@/lib/format';
 import { GlowCard } from '@/components/ui/GlowCard';
 import { Panel } from '@/components/ui/Panel';
 import { Reveal } from '@/components/ui/Reveal';
 import { SafetyBanner } from '@/components/ui/SafetyBanner';
 import { initials } from '@/components/shell/UserMenu';
+import { LabOrderHistory } from '@/components/lab/LabOrderHistory';
 import { VisitHistory } from './VisitHistory';
 
 function Field({ label, children, mono = false }) {
@@ -116,13 +117,12 @@ export function PatientRecordView({ record, actions, audience = 'staff' }) {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Reveal delay={0.12}>
-            <Box p="md" style={{ borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-strong)' }}>
-              <Group gap="sm" mb={4}>
-                <IconFileText size={18} color="var(--text-muted)" stroke={1.6} />
-                <Text fw={600} size="sm">Lab reports</Text>
-              </Group>
-              <Text size="xs" c="var(--text-subtle)">Appears in this record from Phase 08.</Text>
-            </Box>
+            <Panel title="Lab tests" subtitle="Reports appear here once results are verified">
+              <LabOrderHistory
+                patientId={record.id}
+                hrefFor={(o) => (audience === 'patient' ? '/patient/lab-tests' : `/doctor/lab-orders/${o.id}`)}
+              />
+            </Panel>
           </Reveal>
         </Grid.Col>
       </Grid>
