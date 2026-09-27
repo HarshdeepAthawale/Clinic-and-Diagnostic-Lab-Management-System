@@ -7,10 +7,12 @@ import { notifications } from '@mantine/notifications';
 import { IconAlertCircle, IconCheck, IconCloudCheck, IconLock } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useCompleteConsultation, useSaveConsultation } from '@/lib/consultations';
+import { useConsultationLabOrder } from '@/lib/lab';
 import { friendlyMessage } from '@/lib/errors';
 import { formatTime } from '@/lib/format';
 import { Panel } from '@/components/ui/Panel';
 import { Reveal } from '@/components/ui/Reveal';
+import { ConsultLabOrder } from '@/components/lab/ConsultLabOrder';
 import { PatientRail } from './PatientRail';
 import { PrescriptionBuilder } from './PrescriptionBuilder';
 import { FOLLOW_UPS, formValuesFrom, isCompleteMedicine, isPartialMedicine, toRequest } from './presets';
@@ -58,6 +60,7 @@ export function ConsultWorkspace({ consultation, onCompleted }) {
   const save = useSaveConsultation(consultation.id);
   const complete = useCompleteConsultation(consultation.id);
   const [confirming, setConfirming] = useState(false);
+  const labOrder = useConsultationLabOrder(consultation.id).data;
   const form = useForm({ initialValues: formValuesFrom(consultation) });
 
   const body = JSON.stringify(toRequest(form.values));
@@ -169,6 +172,10 @@ export function ConsultWorkspace({ consultation, onCompleted }) {
           </Reveal>
 
           <Reveal delay={0.12}>
+            <ConsultLabOrder consultation={consultation} />
+          </Reveal>
+
+          <Reveal delay={0.15}>
             <Panel title="Advice & follow-up">
               <Stack gap="md">
                 <Textarea label="Advice for the patient" placeholder="Diet, rest, warning signs to come back for…" autosize minRows={2} maxLength={4000} {...form.getInputProps('advice')} />
@@ -209,6 +216,12 @@ export function ConsultWorkspace({ consultation, onCompleted }) {
               : 'No prescription will be issued — there are no medicines.'}{' '}
             The record is locked afterwards and the visit is marked complete.
           </Text>
+          {labOrder && (
+            <Text size="sm" c="var(--text-muted)">
+              Lab order <span className="mono">{labOrder.orderCode}</span> with {labOrder.items.length} test
+              {labOrder.items.length === 1 ? '' : 's'} is already with the lab.
+            </Text>
+          )}
           {partialRows > 0 && (
             <Alert color="yellow" variant="light" radius="md" icon={<IconAlertCircle size={16} />}>
               {partialRows} unfinished medicine row{partialRows === 1 ? '' : 's'} will be left out. Go back to complete {partialRows === 1 ? 'it' : 'them'} if needed.
