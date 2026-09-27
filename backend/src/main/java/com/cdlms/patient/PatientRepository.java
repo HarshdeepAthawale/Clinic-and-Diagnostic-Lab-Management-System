@@ -43,21 +43,33 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
     /**
      * Loads a patient only if the doctor has a care relationship with them (ADR-015): a
-     * non-cancelled appointment with that doctor. The check runs inside the query, so a record is
-     * never loaded for a doctor who may not see it (Security.md §6). Phase 04 adds consultations.
+     * non-cancelled appointment with that doctor, or a consultation by them. The check runs inside
+     * the query, so a record is never loaded for a doctor who may not see it (Security.md §6).
      */
     @Query(value = """
             SELECT p.* FROM patients p
             WHERE p.id = :patientId
-              AND EXISTS (SELECT 1 FROM appointments a
-                          WHERE a.patient_id = p.id AND a.doctor_id = :doctorId AND a.status <> 'CANCELLED')
+              AND (EXISTS (SELECT 1 FROM appointments a
+                           WHERE a.patient_id = p.id AND a.doctor_id = :doctorId AND a.status <> 'CANCELLED')
+                   OR EXISTS (SELECT 1 FROM consultations c WHERE c.patient_id = p.id AND c.doctor_id = :doctorId))
             """, nativeQuery = true)
     Optional<Patient> findWithCareRelationship(@Param("patientId") UUID patientId, @Param("doctorId") UUID doctorId);
 
+    /** Same rule as {@link #findWithCareRelationship}, without loading the record. */
+    @Query(value = """
+            SELECT EXISTS (SELECT 1 FROM appointments a
+                           WHERE a.patient_id = :patientId AND a.doctor_id = :doctorId AND a.status <> 'CANCELLED')
+                OR EXISTS (SELECT 1 FROM consultations c WHERE c.patient_id = :patientId AND c.doctor_id = :doctorId)
+            """, nativeQuery = true)
+    boolean hasCareRelationship(@Param("patientId") UUID patientId, @Param("doctorId") UUID doctorId);
+
     /** Which of the given patients the doctor has a care relationship with (for search results). */
     @Query(value = """
-            SELECT DISTINCT a.patient_id FROM appointments a
+            SELECT a.patient_id FROM appointments a
             WHERE a.doctor_id = :doctorId AND a.status <> 'CANCELLED' AND a.patient_id IN (:patientIds)
+            UNION
+            SELECT c.patient_id FROM consultations c
+            WHERE c.doctor_id = :doctorId AND c.patient_id IN (:patientIds)
             """, nativeQuery = true)
     List<UUID> careRelationshipsAmong(@Param("doctorId") UUID doctorId,
                                       @Param("patientIds") Collection<UUID> patientIds);
