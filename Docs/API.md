@@ -74,10 +74,18 @@ An appointment is `{ id, kind (SCHEDULED/WALK_IN), status, scheduledAt, duration
 
 | Method | Path | Role |
 |---|---|---|
-| GET | `/lab-tests` | All authenticated (catalog + pricing) |
-| POST | `/lab-orders` | Doctor (direct or auto-created from consultation) |
-| GET | `/lab-orders/{id}` | Patient (self), Doctor, Lab Technician |
-| GET | `/lab-orders?status=` | Lab Technician (incoming orders queue) |
+| GET | `/lab-tests?q=&includeInactive=` | All authenticated — active tests with price, tube, turnaround and prep; `includeInactive` only for Admin |
+| GET | `/lab-tests/{id}` | All authenticated — one test with its parameters and ranges (retired tests: Admin only) |
+| POST | `/lab-tests` | Admin — add a test; duplicate code → `409 CODE_TAKEN` |
+| PUT | `/lab-tests/{id}` | Admin — edit price, tube, prep, parameters; `active: false` retires it |
+| POST | `/lab-orders` | Doctor — body `{ consultationId }` (own draft consultation; adds to its open order) or `{ patientId }` (care relationship), plus `testIds`, `priority`, `clinicalNotes`. `201` with the order. Errors: `409 CONSULTATION_LOCKED`, `409 ALREADY_ORDERED`, `400 UNKNOWN_TEST`, `403 NO_CARE_RELATIONSHIP` |
+| GET | `/lab-orders` | Lab Technician, Pathologist — open orders, urgent first then oldest (`page`, `size`) |
+| GET | `/lab-orders/mine` | Patient — own orders with each test's prep (no `clinicalNotes`) |
+| GET | `/lab-orders/{id}` | Patient (own, no `clinicalNotes`), Doctor (ordered it or care relationship, logged), Lab Technician, Pathologist |
+| DELETE | `/lab-orders/{id}/items/{itemId}` | Doctor (who ordered) — remove a test; the last one cancels the order |
+| POST | `/lab-orders/{id}/cancel` | Doctor (who ordered) — body `{ reason }` optional; `409 ORDER_CANCELLED` if already cancelled |
+| GET | `/consultations/{id}/lab-order` | Doctor (author) — the consultation's open order, or `204` if none |
+| GET | `/patients/{id}/lab-orders` | Patient (self), Doctor with care relationship (logged) — order history rows |
 
 ## Samples (core differentiator — see [[Appflow]] §3, [[Rules]] §2)
 
@@ -144,7 +152,7 @@ Response (ADR-019):
       "data": [{ "module": "Billing", "phase": 6, "description": "..." }] } ] }
 ```
 
-`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in).
+`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`).
 
 ## Status
 
