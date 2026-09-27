@@ -47,6 +47,17 @@ Full permission enforcement details belong in [[Security]].
 - A medicine line needs the medicine, how often and for how long; dose and instructions are optional. At most 30 lines.
 - **Who can read:** the doctor who wrote it; other doctors only once it's finished and only for patients they are treating (logged); the patient their own finished consultations, without the doctor's clinical notes. The front desk and admin can't read consultations or prescriptions.
 
+## 2a. Lab Test Catalog & Orders
+
+- Only **active** catalog tests can be ordered. Admins add and edit tests and retire them; tests are never deleted, and retiring one never changes existing orders.
+- Each test has one **required tube or container** and may have **patient preparation** (fasting, first-morning urine…). Its parameters carry the normal range and critical limits results are checked against.
+- A doctor orders **from their own consultation while it is open** — the patient comes from the consultation, nothing is typed again. A consultation has **at most one open order**; ordering again adds to it, and the same test can't be on it twice.
+- Outside a visit, a doctor can order **directly** for a patient they are treating (care relationship).
+- Each ordered test keeps the **name and price it was ordered at**.
+- Orders are `ROUTINE` or `URGENT`; the lab sees urgent orders first, then oldest first. Orders are numbered `LO-000001`, `LO-000002`, …
+- The ordering doctor can remove a test or cancel the order while it is open; removing the last test cancels it.
+- **Who can read:** the patient their own orders and prep, without the doctor's note for the lab; doctors orders they placed or for patients they are treating (logged); lab technicians and pathologists all orders. The front desk can't read orders yet (Phase 06 adds billing).
+
 ## 2. Sample Lifecycle Rules
 
 - A sample's state must always move forward through the pipeline: `Ordered → Collected → Received at Lab → In Testing → Result Entered → Verified by Pathologist → Report Generated → Dispatched`. No skipping stages, no backward transitions except the two explicit paths below: **rejection** (new sample) and **return for retest** (same sample).
