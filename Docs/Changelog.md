@@ -4,7 +4,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phase 02 is complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02 and 03 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 03 (Appointments & Queue)
+- Backend: Flyway `V3__appointments_queue.sql` (doctor working hours, walk-in tokens, status timestamps, append-only `appointment_events`, no-double-booking index). Booking into slots, daily tokens, role-checked status lifecycle, live queue, working-hours API, `GET /doctors/me`, reminder emails 24 h ahead (ADR-020). Malformed parameters answer 400.
+- Frontend: patient booking (doctor → two-week date strip → slot grid) and "My appointments"; reception appointments day view with check-in, walk-in tokens with a printable token, and book-for-patient; animated live queue board with a names-free waiting-room screen; doctor schedule with week strip and working-hours editor; dashboard widgets for the live queue, today's visits by status and the patient's place in the queue. Admin gets a Live queue page.
+- Dev: Mailpit in `docker-compose.yml`; demo working hours and a second demo doctor.
+- Tests: 79 backend, 29 frontend.
+
+### Fixed
+- Navbar: the `Ctrl K` hint, clock and actions no longer wrap or overflow at laptop widths.
 
 ### Added — Phase 02 (Patient Registration & EMR)
 - Backend: Flyway `V2__patient_records.sql` — patient code (`PID-000123`), blood group, medical history, emergency contact, searchable phone digits, hashed one-time registration codes, `appointments` table, append-only `patient_access_log` (DB trigger). Patient search / register / update / clinical-edit endpoints, `GET /patients/me`, `POST /auth/register/claim` (ADR-018), admin access log, server-driven dashboards `GET /dashboard/{role}` (ADR-019).

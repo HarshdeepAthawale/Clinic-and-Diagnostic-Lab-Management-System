@@ -9,11 +9,11 @@ Let patients get in front of a doctor — by booked slot or walk-in token — an
 
 ## Scope
 
-- [ ] `Appointment` model + booking flow (Patient or Receptionist can create)
-- [ ] Doctor calendar view (today's/upcoming schedule)
-- [ ] Walk-in queue token issuance (Receptionist)
-- [ ] Appointment status lifecycle: `BOOKED → CHECKED_IN → IN_CONSULTATION → COMPLETED` (plus `NO_SHOW`, `CANCELLED`)
-- [ ] Automatic reminder before appointment (email via `@Scheduled` + `JavaMailSender`)
+- [x] `Appointment` model + booking flow (Patient or Receptionist can create)
+- [x] Doctor calendar view (today's/upcoming schedule)
+- [x] Walk-in queue token issuance (Receptionist)
+- [x] Appointment status lifecycle: `BOOKED → CHECKED_IN → IN_CONSULTATION → COMPLETED` (plus `NO_SHOW`, `CANCELLED`)
+- [x] Automatic reminder before appointment (email via `@Scheduled` + `JavaMailSender`)
 
 ## Exit Criteria
 

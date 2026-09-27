@@ -29,11 +29,11 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P3-1 | `Appointment` model + booking flow | Not Started | |
-| P3-2 | Doctor calendar view | Not Started | |
-| P3-3 | Walk-in queue token issuance | Not Started | |
-| P3-4 | Appointment status lifecycle | Not Started | |
-| P3-5 | Automatic reminder email | Not Started | |
+| P3-1 | `Appointment` model + booking flow | Done | V3 migration; slots from working hours; DB-enforced no double booking (ADR-020) |
+| P3-2 | Doctor calendar view | Done | Day agenda + week strip; working-hours editor |
+| P3-3 | Walk-in queue token issuance | Done | Daily tokens `T-001…`; live queue board + waiting-room screen |
+| P3-4 | Appointment status lifecycle | Done | Role table in Rules §1a; append-only history |
+| P3-5 | Automatic reminder email | Done | 24 h ahead, once; Mailpit in dev |
 
 ## Phase 04 — Consultations & E-Prescriptions
 
