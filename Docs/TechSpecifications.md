@@ -15,7 +15,7 @@ Java (Spring Boot) REST backend, a Next.js frontend written in JavaScript, and P
 | **ORM (runtime)** | Spring Data JPA + Hibernate | Maps Java entities to the Flyway-created tables. Runs with `ddl-auto=validate` — Hibernate never creates or alters tables, it only fails startup if entities and schema disagree |
 | **Authentication** | Spring Security + JWT | Login handling; ensures each role (Patient/Doctor/Pathologist/Receptionist/Lab Technician/Admin) can only access what it's allowed to. JWT delivered in an httpOnly cookie — see ADR-009 in [[Decisions]] |
 | **Validation** | Jakarta Bean Validation (`@Valid`) | Every request DTO is validated server-side regardless of frontend checks |
-| **PDF generation** | iText7 or Apache PDFBox | Auto-generates lab reports, prescriptions and invoices as downloadable PDFs. **Library choice not finalized** — see [[OpenQuestions]] |
+| **PDF generation** | OpenHTMLtoPDF (on Apache PDFBox) + Thymeleaf XHTML templates | Prescriptions now; lab reports and invoices later. Generated on request behind the record's access checks, never stored (ADR-021) |
 | **Background tasks** | Spring `@Async` / `@Scheduled` | Non-blocking work: email reminders, background report generation |
 | **Notifications** | JavaMailSender (email) / Twilio or similar (SMS, optional) | Appointment reminders, "your report is ready" alerts. **SMS provider not finalized** — see [[OpenQuestions]] |
 | **API docs** | springdoc-openapi (Swagger UI) | Auto-generated, always-current endpoint reference for frontend developers |
