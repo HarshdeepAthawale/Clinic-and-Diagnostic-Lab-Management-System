@@ -49,10 +49,10 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P5-1 | `LabTest` catalog model + seed tooling | Not Started | |
-| P5-2 | `LabOrder` / `LabOrderItem` models | Not Started | |
-| P5-3 | "Order test" from consultation (auto-create) | Not Started | Key clinic↔lab integration point |
-| P5-4 | Prep instructions surfaced to patient | Not Started | |
+| P5-1 | `LabTest` catalog model + seed tooling | Done | 22 seeded tests with per-parameter ranges; admin Test catalog (ADR-022) |
+| P5-2 | `LabOrder` / `LabOrderItem` models | Done | LO numbers, priority, price snapshots, cancel/remove |
+| P5-3 | "Order test" from consultation (auto-create) | Done | Order tests drawer with panels; direct orders from the record; lab queue |
+| P5-4 | Prep instructions surfaced to patient | Done | Lab tests page and "Tests to get done" dashboard card |
 
 ## Phase 06 — Billing & Invoicing
 
