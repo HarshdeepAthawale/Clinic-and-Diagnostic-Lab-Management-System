@@ -1,15 +1,14 @@
 'use client';
 
 import { Avatar, Button, Group, Stack, Text, Tooltip } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import { IconArmchair, IconPlayerPlay, IconTicket } from '@tabler/icons-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { minutesWaiting, useChangeStatus } from '@/lib/appointments';
-import { friendlyMessage } from '@/lib/errors';
+import { minutesWaiting } from '@/lib/appointments';
 import { ageGender, formatTime } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { initials } from '@/components/shell/UserMenu';
+import { useOpenConsultation } from '@/components/consultations/useOpenConsultation';
 import { AppointmentActions } from './AppointmentActions';
 import classes from './QueueBoard.module.css';
 
@@ -26,7 +25,7 @@ function useNow() {
 const LONG_WAIT_MINUTES = 30;
 
 function Serving({ appointment, role, now, tv }) {
-  const change = useChangeStatus();
+  const consultation = useOpenConsultation();
   const minutes = minutesWaiting(appointment.startedAt, now);
   return (
     <div className={classes.serving}>
@@ -49,15 +48,10 @@ function Serving({ appointment, role, now, tv }) {
             radius="md"
             variant="white"
             color="dark"
-            loading={change.isPending}
-            onClick={() =>
-              change.mutate(
-                { id: appointment.id, status: 'COMPLETED' },
-                { onError: (e) => notifications.show({ message: friendlyMessage(e), color: 'red', radius: 'lg' }) },
-              )
-            }
+            loading={consultation.isPending}
+            onClick={() => consultation.open(appointment.id)}
           >
-            Finish
+            Open consultation
           </Button>
         )}
       </div>
@@ -66,7 +60,7 @@ function Serving({ appointment, role, now, tv }) {
 }
 
 function Idle({ role, next }) {
-  const change = useChangeStatus();
+  const consultation = useOpenConsultation();
   return (
     <div className={classes.idle}>
       <Group justify="space-between" wrap="nowrap" gap="sm">
@@ -80,13 +74,8 @@ function Idle({ role, next }) {
             radius="md"
             color="dark"
             leftSection={<IconPlayerPlay size={14} />}
-            loading={change.isPending}
-            onClick={() =>
-              change.mutate(
-                { id: next.id, status: 'IN_CONSULTATION' },
-                { onError: (e) => notifications.show({ message: friendlyMessage(e), color: 'red', radius: 'lg' }) },
-              )
-            }
+            loading={consultation.isPending}
+            onClick={() => consultation.open(next.id)}
           >
             Call {next.queueToken}
           </Button>
