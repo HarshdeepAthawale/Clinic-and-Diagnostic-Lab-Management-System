@@ -66,16 +66,49 @@ Initial draft schema derived from the domain described in [[PRD]] and [[Appflow]
 ## 2. Clinic Side
 
 ### `Appointment`
-Created in V2 (Phase 02) because the doctor care-relationship check depends on it (ADR-015, ADR-018); booking flows arrive in Phase 03.
+Created in V2 (Phase 02) because the doctor care-relationship check depends on it (ADR-015, ADR-018); extended in V3 (Phase 03, ADR-020).
 
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
 | patient_id | UUID (FK → Patient) | |
 | doctor_id | UUID (FK → Doctor) | |
-| scheduled_at | timestamp | |
-| queue_token | string, nullable | for walk-ins |
-| status | enum | `BOOKED`, `CHECKED_IN`, `IN_CONSULTATION`, `COMPLETED`, `NO_SHOW`, `CANCELLED` |
+| kind | enum | `SCHEDULED`, `WALK_IN` |
+| scheduled_at | timestamp | slot start; for walk-ins, when the token was issued |
+| duration_minutes | smallint | slot length at booking time |
+| reason | string, nullable | |
+| status | enum | `BOOKED`, `CHECKED_IN`, `IN_CONSULTATION`, `COMPLETED`, `NO_SHOW`, `CANCELLED` ([[Rules]] §1a) |
+| queue_date / queue_number / queue_token | date / int / string, nullable | set together at check-in; `T-007`; unique per `queue_date` |
+| booked_by_user_id | UUID (FK → User), nullable | who booked or issued the token |
+| checked_in_at / started_at / completed_at / cancelled_at | timestamp, nullable | stamped by the matching status change |
+| cancellation_reason | string, nullable | |
+| reminder_sent_at | timestamp, nullable | reminder email sent (at most once) |
+| created_at / updated_at | timestamp | |
+
+Unique partial index `(doctor_id, scheduled_at)` where `kind = 'SCHEDULED' AND status <> 'CANCELLED'` — the database refuses double bookings.
+
+### `DoctorSchedule` (V3)
+Weekly working hours; several blocks a day allowed.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| doctor_id | UUID (FK → Doctor) | |
+| day_of_week | smallint | ISO, 1 = Monday |
+| start_time / end_time | time | end after start |
+| slot_minutes | smallint | 5–120 |
+
+### `AppointmentEvent` (V3)
+Append-only status history (DB trigger rejects `UPDATE`/`DELETE`).
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| appointment_id | UUID (FK → Appointment) | |
+| from_status | enum, nullable | null for the creating event |
+| to_status | enum | |
+| changed_by_user_id | UUID (FK → User) | |
+| note | string, nullable | e.g. cancellation reason |
 | created_at | timestamp | |
 
 ### `Consultation`
