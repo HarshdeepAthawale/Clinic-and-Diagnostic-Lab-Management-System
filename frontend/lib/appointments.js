@@ -28,6 +28,11 @@ export function useDoctors() {
   });
 }
 
+/** The logged-in doctor's own profile ({ id, fullName, specialization, hasWorkingHours }). */
+export function useMyDoctorProfile() {
+  return useQuery({ queryKey: ['doctors', 'me'], queryFn: ({ signal }) => api('/doctors/me', { signal }) });
+}
+
 export function useSlots(doctorId, date) {
   return useQuery({
     queryKey: appointmentKeys.slots(doctorId, date),
