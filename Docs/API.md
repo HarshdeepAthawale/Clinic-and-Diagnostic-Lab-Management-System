@@ -59,10 +59,16 @@ An appointment is `{ id, kind (SCHEDULED/WALK_IN), status, scheduledAt, duration
 
 | Method | Path | Role |
 |---|---|---|
-| POST | `/consultations` | Doctor (care relationship required) |
-| POST | `/consultations/{id}/prescriptions` | Doctor |
-| GET | `/patients/{id}/prescriptions` | Patient (self), Doctor |
-| GET | `/prescriptions/{id}/pdf` | Patient (self), Doctor |
+| POST | `/consultations` | Doctor — body `{ appointmentId }`; starts (calling a checked-in patient in) or reopens the consultation for their own appointment |
+| GET | `/consultations?today=&page=&size=` | Doctor — own consultations, open drafts first |
+| GET | `/consultations/{id}` | Doctor (author; others only completed + care relationship, logged), Patient (own completed, without `notes`) |
+| PUT | `/consultations/{id}` | Doctor (author, draft only) — autosave; replaces complaint, notes, diagnosis, advice, follow-up, vitals and medicines. Locked → `409 CONSULTATION_LOCKED` |
+| POST | `/consultations/{id}/complete` | Doctor (author) — same body; needs a diagnosis (`400 DIAGNOSIS_REQUIRED`); issues the prescription and completes the appointment |
+| GET | `/patients/{id}/consultations` | Patient (self), Doctor with care relationship (logged) — completed visits |
+| GET | `/prescriptions/mine` | Patient — issued prescriptions |
+| GET | `/prescriptions/{id}` | Patient (own), Doctor (author or care relationship, logged) — the consultation behind it |
+| GET | `/prescriptions/{id}/pdf?download=` | Same as above — `application/pdf`, generated on request, `Cache-Control: private, no-store` |
+| GET | `/formulary?q=` | Doctor — medicine suggestions |
 
 ## Lab Tests & Orders
 
