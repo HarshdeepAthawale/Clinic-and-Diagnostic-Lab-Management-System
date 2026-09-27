@@ -102,6 +102,7 @@ export const ROLES = {
     nav: [
       { label: 'Insights', href: '/admin', icon: IconChartBar },
       { label: 'Live queue', href: '/admin/queue', icon: IconTicket },
+      { label: 'Test catalog', href: '/admin/lab-tests', icon: IconFlask },
       { label: 'Staff', href: '/admin/staff', icon: IconUsers, phase: 9 },
       { label: 'Inventory', href: '/admin/inventory', icon: IconPackage, phase: 9 },
       { label: 'Access log', href: '/admin/access-log', icon: IconShieldLock },
