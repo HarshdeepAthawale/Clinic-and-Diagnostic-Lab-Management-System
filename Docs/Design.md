@@ -211,9 +211,11 @@ A live board, one column per doctor (built in Phase 03):
 
 A split view that keeps the patient in front of the doctor:
 
-- **Left rail:** patient summary — name, age, **allergies pinned in a red safety banner**, active medications, recent visits, recent lab results with range indicators.
-- **Main:** notes editor (autosave), diagnosis, then a **prescription builder** (add drug → dose → frequency → duration as fast keyboard rows) and an **"Order tests" drawer** (search catalog, test chips with price and prep instructions, which the patient will see).
-- Finishing the consult is one action that saves everything and returns to Today's schedule with the next patient highlighted.
+- **Left rail (sticky):** name, patient ID, age · gender, **allergies pinned in a red safety banner** (or a green "no known allergies"), blood group, medical history, and the last five visits (each opens that consultation).
+- **Main:** vitals (six optional fields, server limits), chief complaint, clinical notes (marked *clinicians only*), diagnosis, a **prescription builder** — formulary autocomplete that pre-fills the usual strength, quick-pick frequency (`1-0-1`, `SOS` …), duration and instructions, animated rows, unfinished rows flagged amber — then advice and follow-up with 3-day / 1-week / 2-week / 1-month shortcuts. *(Phase 05 adds an "Order tests" drawer.)*
+- **Autosave** 1.2 s after typing stops, with a status line ("Saving…", "Saved 10:44 pm", "Not saved — check the highlighted fields"). `Ctrl+S` saves now, `Ctrl+Enter` finishes.
+- **Finish** opens a confirmation that says exactly what will happen (prescription with N medicines, or none; record locked; visit completed) and warns about unfinished rows. Afterwards the page becomes the read-only summary with **View PDF / Download**.
+- **Entry points:** "Start consultation" / "Call T-00x" on the queue and day agenda, "Open consultation" for the patient in the room, and a **Resume consultation** card at the top of the doctor's dashboard while one is open.
 
 ### 5.6 Patient Home
 
