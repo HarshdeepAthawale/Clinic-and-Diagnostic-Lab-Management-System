@@ -284,6 +284,22 @@ class ConsultationFlowTest extends IntegrationTest {
         mvc.perform(get("/api/consultations").cookie(otherDoctor)).andExpect(jsonPath("$.totalElements").value(0));
     }
 
+    // ---------------------------------------------------------------- dashboards
+
+    @Test
+    void dashboardsShowTheOpenConsultationAndRecentPrescriptions() throws Exception {
+        String id = startedConsultation();
+        mvc.perform(get("/api/dashboard/doctor").cookie(doctor))
+                .andExpect(jsonPath("$.widgets[0].type").value("openConsultation"))
+                .andExpect(jsonPath("$.widgets[0].data.consultationId").value(id));
+
+        mvc.perform(json(post("/api/consultations/" + id + "/complete"), FULL).cookie(doctor)).andExpect(status().isOk());
+        mvc.perform(get("/api/dashboard/doctor").cookie(doctor))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'openConsultation')]").isEmpty());
+        mvc.perform(get("/api/dashboard/patient").cookie(patient))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'recentPrescriptions')].data[0].diagnosis").value("Acute pharyngitis"));
+    }
+
     // ---------------------------------------------------------------- formulary
 
     @Test
