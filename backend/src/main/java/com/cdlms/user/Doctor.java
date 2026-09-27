@@ -26,6 +26,13 @@ public class Doctor {
     @Column(nullable = false)
     private String specialization;
 
+    /** Printed on prescriptions, e.g. "MBBS, MD (General Medicine)". */
+    private String qualification;
+
+    /** Medical council registration number, printed on prescriptions. */
+    @Column(name = "registration_number", unique = true)
+    private String registrationNumber;
+
     protected Doctor() {
     }
 
@@ -49,5 +56,13 @@ public class Doctor {
 
     public String getSpecialization() {
         return specialization;
+    }
+
+    public String getQualification() {
+        return qualification;
+    }
+
+    public String getRegistrationNumber() {
+        return registrationNumber;
     }
 }
