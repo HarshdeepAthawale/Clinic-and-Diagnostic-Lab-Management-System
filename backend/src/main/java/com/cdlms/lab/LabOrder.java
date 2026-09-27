@@ -21,7 +21,7 @@ import java.util.UUID;
 
 /**
  * Tests a doctor ordered for a patient (Docs/Schema.md §3), numbered like {@code LO-000123}. Created
- * from a consultation (at most one order per consultation — later tests are added to it) or directly
+ * from a consultation (at most one open order per consultation — later tests are added to it) or directly
  * from the patient's record. Each test is a line with the price copied at order time.
  */
 @Entity
@@ -45,7 +45,7 @@ public class LabOrder {
     @Column(name = "ordering_doctor_id", nullable = false, updatable = false)
     private UUID orderingDoctorId;
 
-    @Column(name = "consultation_id", unique = true, updatable = false)
+    @Column(name = "consultation_id", updatable = false)
     private UUID consultationId;
 
     @Enumerated(EnumType.STRING)

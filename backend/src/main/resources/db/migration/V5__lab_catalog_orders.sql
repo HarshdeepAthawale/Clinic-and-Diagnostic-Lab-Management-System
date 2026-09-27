@@ -54,8 +54,8 @@ CREATE TABLE lab_orders (
         DEFAULT ('LO-' || lpad(nextval('lab_order_code_seq')::text, 6, '0')),
     patient_id           uuid         NOT NULL REFERENCES patients (id),
     ordering_doctor_id   uuid         NOT NULL REFERENCES doctors (id),
-    -- Set when ordered during a consultation; one order per consultation.
-    consultation_id      uuid         UNIQUE REFERENCES consultations (id),
+    -- Set when ordered during a consultation; at most one open order per consultation (index below).
+    consultation_id      uuid         REFERENCES consultations (id),
     priority             varchar(10)  NOT NULL DEFAULT 'ROUTINE' CHECK (priority IN ('ROUTINE', 'URGENT')),
     clinical_notes       varchar(500),
     status               varchar(12)  NOT NULL DEFAULT 'ORDERED' CHECK (status IN ('ORDERED', 'CANCELLED')),
@@ -66,6 +66,8 @@ CREATE TABLE lab_orders (
     cancellation_reason  varchar(300)
 );
 
+CREATE UNIQUE INDEX lab_orders_open_consultation_uq ON lab_orders (consultation_id)
+    WHERE consultation_id IS NOT NULL AND status <> 'CANCELLED';
 CREATE INDEX lab_orders_patient_idx ON lab_orders (patient_id, created_at DESC);
 CREATE INDEX lab_orders_queue_idx ON lab_orders (status, priority, created_at) WHERE status = 'ORDERED';
 

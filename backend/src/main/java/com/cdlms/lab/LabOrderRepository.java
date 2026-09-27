@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface LabOrderRepository extends JpaRepository<LabOrder, UUID> {
 
-    Optional<LabOrder> findByConsultationId(UUID consultationId);
+    Optional<LabOrder> findByConsultationIdAndStatus(UUID consultationId, LabOrder.Status status);
 
     /** Next number in the LO sequence, formatted like {@code LO-000123}. */
     @Query(value = "SELECT 'LO-' || lpad(nextval('lab_order_code_seq')::text, 6, '0')", nativeQuery = true)
