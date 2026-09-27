@@ -10,6 +10,9 @@ import com.cdlms.consultation.ConsultationQueries;
 import com.cdlms.dashboard.DashboardQueries.Window;
 import com.cdlms.dashboard.Widget.Stat;
 import com.cdlms.dashboard.Widget.Upcoming;
+import com.cdlms.lab.LabDtos.LabOrderView;
+import com.cdlms.lab.LabOrderService;
+import com.cdlms.lab.LabQueries;
 import com.cdlms.patient.Patient;
 import com.cdlms.patient.PatientRepository;
 import com.cdlms.user.Doctor;
@@ -44,11 +47,14 @@ public class DashboardService {
     private final AppointmentService appointments;
     private final AppointmentQueries appointmentQueries;
     private final ConsultationQueries consultationQueries;
+    private final LabQueries labQueries;
+    private final LabOrderService labOrders;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
                             AppointmentService appointments, AppointmentQueries appointmentQueries,
-                            ConsultationQueries consultationQueries,
+                            ConsultationQueries consultationQueries, LabQueries labQueries,
+                            LabOrderService labOrders,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
@@ -56,6 +62,8 @@ public class DashboardService {
         this.appointments = appointments;
         this.appointmentQueries = appointmentQueries;
         this.consultationQueries = consultationQueries;
+        this.labQueries = labQueries;
+        this.labOrders = labOrders;
         this.zone = ZoneId.of(zone);
     }
 
@@ -73,10 +81,7 @@ public class DashboardService {
                     new Upcoming("Verification queue", 8, "Results waiting for your sign-off, critical values first."),
                     new Upcoming("Focus mode", 8, "Review one result at a time and sign off from the keyboard."),
                     new Upcoming("Return for retest", 8, "Send doubtful results back to the bench with a reason."))));
-            case LAB_TECHNICIAN -> List.of(Widget.upcoming("Your workspace", List.of(
-                    new Upcoming("Test orders", 5, "Orders arrive here the moment a doctor requests them."),
-                    new Upcoming("Sample bench", 7, "Scan a sample code to collect, receive or reject it."),
-                    new Upcoming("Result entry", 8, "Enter results with the reference range beside each value."))));
+            case LAB_TECHNICIAN -> lab();
         };
         return new DashboardResponse(user.role(), widgets);
     }
@@ -102,6 +107,25 @@ public class DashboardService {
                 new Widget("schedule", "Today's schedule", "full",
                         queries.schedule(today, doctorId).stream().map(e -> scheduleRow(e, date)).toList())));
         return widgets;
+    }
+
+    /** The lab's day: what's waiting (urgent first), and which tubes to set out for it. */
+    private List<Widget> lab() {
+        Window today = today();
+        long waiting = labQueries.countOpenOrders();
+        return List.of(
+                Widget.stats(List.of(
+                        new Stat("ordersWaiting", "Orders waiting", waiting, null),
+                        new Stat("urgentWaiting", "Urgent", labQueries.countOpenUrgent(), "Open orders marked urgent"),
+                        new Stat("orderedToday", "Ordered today", labQueries.countOrderedBetween(today.from(), today.to()), null),
+                        new Stat("catalogTests", "Tests offered", labQueries.countActiveTests(), null))),
+                new Widget("incomingOrders", "Incoming orders", "wide",
+                        Map.of("orders", labQueries.openOrders(6, 0), "total", waiting)),
+                new Widget("tubesNeeded", "Tubes to set out", "narrow", labQueries.openTubeCounts()),
+                Widget.upcoming("Coming next", List.of(
+                        new Upcoming("Sample bench", 7, "Scan a sample code to collect, receive or reject it."),
+                        new Upcoming("Rejection & recollection", 7, "Reject a haemolysed or wrong-tube sample with a reason; the patient is recalled."),
+                        new Upcoming("Result entry", 8, "Enter results with the reference range beside each value."))));
     }
 
     private List<Widget> reception(AuthUser user) {
@@ -157,6 +181,12 @@ public class DashboardService {
                         queries.upcomingForPatient(patient.getId(), Instant.now(), 5)),
                 new Widget("recentPrescriptions", "Recent prescriptions", "full",
                         consultationQueries.prescriptionsForPatient(patient.getId(), 4))));
+        List<LabOrderView> tests = labOrders.openForPatient(patient.getId());
+        if (!tests.isEmpty()) {
+            // Tests to get done come right after the queue card: prep (fasting etc.) is time-sensitive.
+            int at = widgets.getFirst().type().equals("myQueue") ? 1 : 0;
+            widgets.add(at, new Widget("myLabOrders", "Tests to get done", "full", tests));
+        }
         return widgets;
     }
 
