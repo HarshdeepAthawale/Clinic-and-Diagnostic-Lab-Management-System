@@ -39,11 +39,11 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P4-1 | `Consultation` model from appointment | Not Started | |
-| P4-2 | Consultation notes + diagnosis entry | Not Started | |
-| P4-3 | `Prescription` model | Not Started | |
-| P4-4 | Prescription PDF export | Not Started | Blocked on ADR-006 (PDF library) |
-| P4-5 | Patient-facing prescription list/download | Not Started | |
+| P4-1 | `Consultation` model from appointment | Done | One per appointment; starting calls the patient in |
+| P4-2 | Consultation notes + diagnosis entry | Done | Consult workspace with vitals, autosave and finish confirmation |
+| P4-3 | `Prescription` model | Done | Structured medicine lines, RX numbers, formulary autocomplete |
+| P4-4 | Prescription PDF export | Done | OpenHTMLtoPDF on PDFBox (ADR-021) |
+| P4-5 | Patient-facing prescription list/download | Done | Prescriptions page, dashboard widget, visit history in My record |
 
 ## Phase 05 — Lab Test Catalog & Ordering
 

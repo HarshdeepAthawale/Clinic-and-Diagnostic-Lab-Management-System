@@ -9,11 +9,11 @@ Turn a checked-in appointment into a real consultation record: notes, diagnosis,
 
 ## Scope
 
-- [ ] `Consultation` model, created from an appointment (see `Schema.md` §2)
-- [ ] Doctor-facing consultation notes + diagnosis entry
-- [ ] `Prescription` model: medicines (name/dosage/duration), linked to the consultation
-- [ ] Prescription PDF export (iText7 or PDFBox — see `Decisions.md` ADR-006, currently open)
-- [ ] Patient-facing prescription list + download
+- [x] `Consultation` model, created from an appointment (see `Schema.md` §2)
+- [x] Doctor-facing consultation notes + diagnosis entry
+- [x] `Prescription` model: medicines (name/dosage/duration), linked to the consultation
+- [x] Prescription PDF export (OpenHTMLtoPDF on PDFBox — see `Decisions.md` ADR-021)
+- [x] Patient-facing prescription list + download
 
 ## Exit Criteria
 
