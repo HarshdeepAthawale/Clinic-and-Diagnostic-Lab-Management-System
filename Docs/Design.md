@@ -212,7 +212,8 @@ A live board, one column per doctor (built in Phase 03):
 A split view that keeps the patient in front of the doctor:
 
 - **Left rail (sticky):** name, patient ID, age · gender, **allergies pinned in a red safety banner** (or a green "no known allergies"), blood group, medical history, and the last five visits (each opens that consultation).
-- **Main:** vitals (six optional fields, server limits), chief complaint, clinical notes (marked *clinicians only*), diagnosis, a **prescription builder** — formulary autocomplete that pre-fills the usual strength, quick-pick frequency (`1-0-1`, `SOS` …), duration and instructions, animated rows, unfinished rows flagged amber — then advice and follow-up with 3-day / 1-week / 2-week / 1-month shortcuts. *(Phase 05 adds an "Order tests" drawer.)*
+- **Main:** vitals (six optional fields, server limits), chief complaint, clinical notes (marked *clinicians only*), diagnosis, a **prescription builder** — formulary autocomplete that pre-fills the usual strength, quick-pick frequency (`1-0-1`, `SOS` …), duration and instructions, animated rows, unfinished rows flagged amber — a **Lab tests** panel, then advice and follow-up with 3-day / 1-week / 2-week / 1-month shortcuts.
+- **Order tests drawer:** search the catalog (name, code or category), filter by category, or tap a **panel** (Fever workup, Diabetes, Annual check-up, Fatigue / anaemia). Each row shows the tube chip, turnaround, price and a prep marker; tests already on the order are ticked and locked. A live footer sums it up — tubes needed (`Fluoride ×2 · EDTA · SST`), "results in about 1 day", **what the patient must prepare**, the total — with Routine / Urgent and a note for the lab. `Ctrl+Enter` orders. The order reaches the lab queue immediately; lines can be removed from the panel, and the finish dialog mentions tests already with the lab.
 - **Autosave** 1.2 s after typing stops, with a status line ("Saving…", "Saved 10:44 pm", "Not saved — check the highlighted fields"). `Ctrl+S` saves now, `Ctrl+Enter` finishes.
 - **Finish** opens a confirmation that says exactly what will happen (prescription with N medicines, or none; record locked; visit completed) and warns about unfinished rows. Afterwards the page becomes the read-only summary with **View PDF / Download**.
 - **Entry points:** "Start consultation" / "Call T-00x" on the queue and day agenda, "Open consultation" for the patient in the room, and a **Resume consultation** card at the top of the doctor's dashboard while one is open.
@@ -248,6 +249,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - My appointments (upcoming / past)
 - Medical history (read-only EMR)
 - Prescriptions (list + PDF download)
+- Lab tests: ordered tests with a "Before your test" prep checklist and the order number to show at the lab
 - Sample journey ★ (§5.1), per active sample
 - Reports (reader view + PDF download)
 - Invoices / billing
@@ -257,6 +259,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Patient search (basic details for everyone; badge on patients they can open — ADR-015)
 - Patient record (full EMR, only with a care relationship; otherwise a friendly "no appointment with this patient" state, not an error page)
 - Consult workspace ★ (§5.5): notes, prescription builder, order tests
+- Order tests directly from a patient's record (patients under their care)
 - Verified lab reports for their patients
 
 ### Pathologist (`/pathology`)
@@ -273,7 +276,8 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Sample-rejected inbox
 
 ### Lab Technician (`/lab`)
-- Bench home ★ (§5.3): scan field + incoming orders queue (retests pinned on top)
+- Bench home ★ (§5.3): scan field + incoming orders queue (retests pinned on top) and "Tubes to set out" by cap colour
+- Orders: every open order, urgent first; order detail with tubes to collect, the doctor's note and the prep to check
 - Sample collection (tube type chips, body site, timestamp)
 - Receipt check (accept / reject with reason)
 - Result entry per analyzer/test, with range bar preview and a secondary "Reject sample" action (exhausted / degraded / other)
@@ -282,6 +286,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 
 ### Admin (`/admin`)
 - Insight dashboard ★ (§5.7)
+- Test catalog: price, tube, turnaround, patient prep, parameters with normal and critical ranges; retire tests
 - Staff accounts (create, deactivate, assign role; pathologist registration details)
 - Inventory management
 - Record access log (filter by patient, staff member, date)
