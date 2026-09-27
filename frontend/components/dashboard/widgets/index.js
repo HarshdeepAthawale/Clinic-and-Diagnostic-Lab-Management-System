@@ -3,13 +3,16 @@
 import { Avatar, Box, Group, Progress, SimpleGrid, Stack, Text } from '@mantine/core';
 import {
   IconActivity,
+  IconBolt,
   IconCalendarEvent,
   IconCalendarOff,
   IconClockHour4,
   IconDropletFilled,
   IconFileSearch,
+  IconFlask,
   IconHistory,
   IconLink,
+  IconListDetails,
   IconUserPlus,
   IconUsers,
 } from '@tabler/icons-react';
@@ -25,6 +28,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { initials } from '@/components/shell/UserMenu';
 import { QueueBoard } from '@/components/appointments/QueueBoard';
 import { OpenConsultation, RecentPrescriptions } from './consultationWidgets';
+import { IncomingOrders, MyLabOrders, TubesNeeded } from './labWidgets';
 import { ListRow } from './ListRow';
 
 /** Where a staff member opens a patient's page, if their role has one. */
@@ -44,6 +48,10 @@ const STAT_ICONS = {
   pendingCodes: IconLink,
   recordOpensToday: IconFileSearch,
   activeStaff: IconUsers,
+  ordersWaiting: IconFlask,
+  urgentWaiting: IconBolt,
+  orderedToday: IconCalendarEvent,
+  catalogTests: IconListDetails,
 };
 
 function Stats({ widget }) {
@@ -363,4 +371,7 @@ export const WIDGETS = {
   myQueue: MyQueue,
   openConsultation: OpenConsultation,
   recentPrescriptions: RecentPrescriptions,
+  incomingOrders: IncomingOrders,
+  tubesNeeded: TubesNeeded,
+  myLabOrders: MyLabOrders,
 };
