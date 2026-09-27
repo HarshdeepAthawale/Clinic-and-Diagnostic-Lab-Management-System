@@ -1,9 +1,13 @@
 import { Group, Text, UnstyledButton } from '@mantine/core';
 import Link from 'next/link';
 
-/** A clickable list row used by several widgets: primary + secondary text, right-hand slot. */
+/**
+ * A clickable list row used by several widgets: primary + secondary text, right-hand slot. When the
+ * row links somewhere, the right slot sits beside the link rather than inside it, so it can hold its
+ * own links or buttons (e.g. a PDF download) without nesting interactive elements.
+ */
 export function ListRow({ href, title, subtitle, right, leading }) {
-  const body = (
+  const main = (
     <Group wrap="nowrap" gap="md" py={10} px="sm">
       {leading}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -16,13 +20,22 @@ export function ListRow({ href, title, subtitle, right, leading }) {
           </Text>
         )}
       </div>
-      {right}
     </Group>
   );
-  if (!href) return body;
+  if (!href) {
+    return (
+      <Group wrap="nowrap" gap={0}>
+        <div style={{ flex: 1, minWidth: 0 }}>{main}</div>
+        {right && <Group gap={6} wrap="nowrap" pr="sm" style={{ flex: 'none' }}>{right}</Group>}
+      </Group>
+    );
+  }
   return (
-    <UnstyledButton component={Link} href={href} className="lift" style={{ display: 'block', borderRadius: 'var(--radius-sm)', border: '1px solid transparent' }}>
-      {body}
-    </UnstyledButton>
+    <Group wrap="nowrap" gap={0} className="lift" style={{ borderRadius: 'var(--radius-sm)', border: '1px solid transparent' }}>
+      <UnstyledButton component={Link} href={href} style={{ display: 'block', flex: 1, minWidth: 0, borderRadius: 'var(--radius-sm)' }}>
+        {main}
+      </UnstyledButton>
+      {right && <Group gap={6} wrap="nowrap" pr="sm" style={{ flex: 'none' }}>{right}</Group>}
+    </Group>
   );
 }

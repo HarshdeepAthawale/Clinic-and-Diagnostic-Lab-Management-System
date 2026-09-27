@@ -60,7 +60,7 @@ export function RecentPrescriptions({ widget }) {
                   <Badge size="sm" radius="sm" variant="outline" color="dark" styles={{ root: { textTransform: 'none', fontFamily: 'var(--font-mono)' } }}>
                     {rx.prescriptionCode}
                   </Badge>
-                  <Button component="a" href={prescriptionPdfUrl(rx.id, true)} size="xs" variant="default" onClick={(e) => e.stopPropagation()}>
+                  <Button component="a" href={prescriptionPdfUrl(rx.id, true)} size="xs" variant="default">
                     PDF
                   </Button>
                 </Group>

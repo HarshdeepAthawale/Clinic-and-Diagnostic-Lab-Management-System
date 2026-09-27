@@ -150,13 +150,7 @@ export function PatientPrescriptionsView() {
                 right={
                   <Group gap="xs" wrap="nowrap">
                     {rxBadge(rx.prescriptionCode)}
-                    <Button
-                      component="a"
-                      href={prescriptionPdfUrl(rx.id, true)}
-                      size="xs"
-                      variant="default"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <Button component="a" href={prescriptionPdfUrl(rx.id, true)} size="xs" variant="default">
                       PDF
                     </Button>
                   </Group>
