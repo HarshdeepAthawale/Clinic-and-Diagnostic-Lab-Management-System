@@ -36,6 +36,7 @@ export const ROLES = {
       { label: 'Home', href: '/patient', icon: IconHome },
       { label: 'Appointments', href: '/patient/appointments', icon: IconCalendarEvent },
       { label: 'Prescriptions', href: '/patient/prescriptions', icon: IconPrescription },
+      { label: 'Lab tests', href: '/patient/lab-tests', icon: IconFlask },
       { label: 'Reports', href: '/patient/reports', icon: IconFileText, phase: 8 },
       { label: 'Bills', href: '/patient/bills', icon: IconReceipt, phase: 6 },
       { label: 'My record', href: '/patient/profile', icon: IconId },
@@ -88,7 +89,7 @@ export const ROLES = {
     dashboardEndpoint: '/dashboard/lab-technician',
     nav: [
       { label: 'Bench', href: '/lab', icon: IconHome },
-      { label: 'Orders', href: '/lab/orders', icon: IconFlask, phase: 5 },
+      { label: 'Orders', href: '/lab/orders', icon: IconFlask },
       { label: 'Samples', href: '/lab/samples', icon: IconTestPipe, phase: 7 },
       { label: 'Inventory', href: '/lab/inventory', icon: IconPackage, phase: 9 },
     ],
