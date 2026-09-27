@@ -22,6 +22,7 @@ import { PageTitle } from '@/components/ui/PageTitle';
 import { Panel } from '@/components/ui/Panel';
 import { Reveal } from '@/components/ui/Reveal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { FrontDeskActions } from '@/components/appointments/views';
 import { ClinicalEditModal } from './ClinicalEditModal';
 import { PatientForm } from './PatientForm';
 import { PatientRecordView } from './PatientRecordView';
@@ -123,7 +124,12 @@ export function ReceptionPatientView({ id }) {
         title={p.fullName}
         subtitle={<span className="mono">{p.patientCode} · {ageGender(p.age, p.gender)} · born {formatDate(p.dob)}</span>}
         back={{ href: '/reception/patients', label: 'All patients' }}
-        actions={<Button variant="default" leftSection={<IconEdit size={16} />} onClick={edit.open}>Edit details</Button>}
+        actions={
+          <>
+            <Button variant="default" leftSection={<IconEdit size={16} />} onClick={edit.open}>Edit details</Button>
+            <FrontDeskActions patient={{ id: p.id, fullName: p.fullName, patientCode: p.patientCode, age: p.age, gender: p.gender, maskedPhone: '' }} />
+          </>
+        }
       />
 
       <Grid gutter="lg">
