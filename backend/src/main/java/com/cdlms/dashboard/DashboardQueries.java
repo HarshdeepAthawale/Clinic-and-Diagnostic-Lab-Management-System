@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -171,6 +172,28 @@ public class DashboardQueries {
                     }
                     return result;
                 });
+    }
+
+    // ------------------------------------------------------------------ consultations
+
+    public record OpenConsultation(UUID consultationId, UUID patientId, String patientName, String patientCode,
+                                   String queueToken, Instant startedAt) {
+    }
+
+    /** The doctor's consultation still in progress (a draft), if any. */
+    public Optional<OpenConsultation> openConsultation(UUID doctorId) {
+        return jdbc.query("""
+                SELECT c.id, p.id AS patient_id, p.full_name, p.patient_code, a.queue_token,
+                       COALESCE(a.started_at, c.created_at) AS started_at
+                FROM consultations c
+                JOIN appointments a ON a.id = c.appointment_id
+                JOIN patients p ON p.id = c.patient_id
+                WHERE c.doctor_id = :doctorId AND c.status = 'DRAFT'
+                ORDER BY c.created_at DESC LIMIT 1
+                """, new MapSqlParameterSource("doctorId", doctorId), (rs, i) -> new OpenConsultation(
+                rs.getObject("id", UUID.class), rs.getObject("patient_id", UUID.class), rs.getString("full_name"),
+                rs.getString("patient_code"), rs.getString("queue_token"), rs.getTimestamp("started_at").toInstant()))
+                .stream().findFirst();
     }
 
     private long count(String sql, MapSqlParameterSource params) {
