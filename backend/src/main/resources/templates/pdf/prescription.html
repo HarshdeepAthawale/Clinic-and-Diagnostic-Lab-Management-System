@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="'Prescription ' + ${rx.prescriptionCode}">Prescription</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 20mm 16mm;
+      @bottom-center {
+        content: element(footer);
+      }
+    }
+    body { font-family: sans-serif; font-size: 10pt; color: #1c1b19; line-height: 1.4; }
+    .muted { color: #6a6762; }
+    .small { font-size: 8.5pt; }
+    .mono { font-family: monospace; }
+    table { border-collapse: collapse; width: 100%; }
+
+    .head td { vertical-align: top; }
+    .clinic { font-size: 16pt; font-weight: bold; letter-spacing: -0.3pt; }
+    .doctor { text-align: right; }
+    .doctor .name { font-size: 11pt; font-weight: bold; }
+    .rule { border-top: 2px solid #b42318; margin: 10px 0 12px 0; }
+
+    .patient td { padding: 2px 0; }
+    .label { color: #6a6762; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4pt; }
+    .allergy { margin-top: 8px; padding: 6px 8px; border: 1px solid #b42318; color: #b42318; font-weight: bold; }
+
+    .section { margin-top: 14px; }
+    .section-title { font-size: 8.5pt; font-weight: bold; color: #6a6762; text-transform: uppercase;
+                     letter-spacing: 0.5pt; margin-bottom: 4px; }
+    .vitals td { padding: 3px 10px 3px 0; }
+
+    .rx-mark { font-size: 20pt; font-weight: bold; color: #b42318; margin: 14px 0 4px 0; }
+    .meds th { text-align: left; font-size: 8.5pt; color: #6a6762; text-transform: uppercase; letter-spacing: 0.4pt;
+               border-bottom: 1px solid #d2d0cb; padding: 5px 6px; }
+    .meds td { padding: 7px 6px; border-bottom: 1px solid #e4e2dd; vertical-align: top; }
+    .meds .num { width: 18px; color: #6a6762; }
+    .medicine { font-weight: bold; }
+
+    .signature { margin-top: 36px; text-align: right; }
+    .signature .line { display: inline-block; border-top: 1px solid #1c1b19; padding-top: 4px; min-width: 200px; }
+
+    #footer { position: running(footer); font-size: 8pt; color: #9a968f; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="footer">
+    <span th:text="${rx.prescriptionCode}">RX-000001</span> · issued <span th:text="${issuedOn}">date</span>
+    · digitally issued via CDLMS · verify with the clinic before dispensing if in doubt
+  </div>
+
+  <table class="head">
+    <tr>
+      <td>
+        <div class="clinic" th:text="${clinic.name}">Clinic</div>
+        <div class="muted small" th:if="${clinic.address != null}" th:text="${clinic.address}">Address</div>
+        <div class="muted small" th:if="${clinic.phone != null}" th:text="'Phone ' + ${clinic.phone}">Phone</div>
+      </td>
+      <td class="doctor">
+        <div class="name" th:text="${c.doctor.fullName}">Doctor</div>
+        <div class="muted" th:if="${c.doctor.qualification != null}" th:text="${c.doctor.qualification}">MBBS</div>
+        <div class="muted" th:text="${c.doctor.specialization}">Specialisation</div>
+        <div class="muted small" th:if="${c.doctor.registrationNumber != null}"
+             th:text="'Reg. no. ' + ${c.doctor.registrationNumber}">Reg</div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="rule"></div>
+
+  <table class="patient">
+    <tr>
+      <td style="width: 55%;">
+        <div class="label">Patient</div>
+        <div><b th:text="${c.patient.fullName}">Name</b>
+          <span class="muted" th:text="' · ' + ${c.patient.age} + ' y · ' + ${gender}">· 32 y · F</span></div>
+        <div class="muted mono small" th:text="${c.patient.patientCode}">PID</div>
+      </td>
+      <td>
+        <div class="label">Date</div>
+        <div th:text="${visitOn}">date</div>
+      </td>
+      <td style="text-align: right;">
+        <div class="label">Prescription</div>
+        <div class="mono" th:text="${rx.prescriptionCode}">RX</div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="allergy" th:if="${c.patient.knownAllergies != null}" th:text="'ALLERGIES: ' + ${c.patient.knownAllergies}">
+    Allergies
+  </div>
+
+  <div class="section" th:if="${vitals != null}">
+    <div class="section-title">Vitals</div>
+    <div th:text="${vitals}">BP 120/80</div>
+  </div>
+
+  <div class="section" th:if="${c.chiefComplaint != null}">
+    <div class="section-title">Complaint</div>
+    <div th:text="${c.chiefComplaint}">Complaint</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Diagnosis</div>
+    <div th:text="${c.diagnosis}">Diagnosis</div>
+  </div>
+
+  <div class="rx-mark">Rx</div>
+  <table class="meds">
+    <thead>
+      <tr>
+        <th class="num">#</th>
+        <th>Medicine</th>
+        <th>Dose</th>
+        <th>Frequency</th>
+        <th>Duration</th>
+        <th>Instructions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="m, stat : ${rx.medicines}">
+        <td class="num" th:text="${stat.count}">1</td>
+        <td class="medicine" th:text="${m.medicine}">Medicine</td>
+        <td th:text="${m.dosage != null ? m.dosage : '—'}">500 mg</td>
+        <td class="mono" th:text="${m.frequency}">1-0-1</td>
+        <td th:text="${m.duration}">5 days</td>
+        <td th:text="${m.instructions != null ? m.instructions : ''}">After food</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section" th:if="${c.advice != null}">
+    <div class="section-title">Advice</div>
+    <div th:text="${c.advice}" style="white-space: pre-wrap;">Advice</div>
+  </div>
+
+  <div class="section" th:if="${followUpOn != null}">
+    <div class="section-title">Follow-up</div>
+    <div th:text="${followUpOn}">date</div>
+  </div>
+
+  <div class="signature">
+    <div class="line">
+      <b th:text="${c.doctor.fullName}">Doctor</b><br />
+      <span class="muted small" th:if="${c.doctor.registrationNumber != null}"
+            th:text="'Reg. no. ' + ${c.doctor.registrationNumber}">Reg</span>
+    </div>
+  </div>
+</body>
+</html>
