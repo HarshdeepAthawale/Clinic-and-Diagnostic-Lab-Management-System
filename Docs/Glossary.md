@@ -28,5 +28,10 @@
 | **Care relationship** | A doctor has one with a patient if there is a non-cancelled appointment/walk-in token with that doctor, or a past consultation by them; required to open the full record (see [[Rules]] §1) |
 | **Consultation** | A doctor visit event — the anchor record that appointments, prescriptions, and (often) lab orders attach to |
 | **Formulary** | The clinic's list of common medicines (name, form, usual strength) used to suggest medicines while prescribing |
+| **Lab order** | The tests a doctor ordered for a patient in one go, numbered `LO-000123`; ordered from a consultation (patient taken from it) or directly |
+| **Test panel** | A group of tests ordered together with one tap, e.g. "Diabetes" = FBS + PPBS + HbA1c |
+| **Patient preparation (prep)** | What the patient must do before the sample, e.g. fasting 10–12 hours; shown in the patient's app when the test is ordered |
+| **Tube type** | The collection tube or container a test needs, recognised by cap colour — EDTA (lavender), SST (gold), Fluoride (grey)…; sterile cups for urine and stool |
+| **Reference range / critical limit** | The normal low–high values for a test parameter, and the far-out values that must be flagged at once (Phase 08) |
 | **Prescription number** | `RX-000123` — issued in sequence when a consultation is finished; the prescription is locked from then on |
 | **Lab order** | A request for one or more tests, created either directly or automatically from a doctor's consultation notes |
