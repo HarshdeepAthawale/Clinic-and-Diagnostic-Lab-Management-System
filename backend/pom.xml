@@ -20,6 +20,7 @@
         <java.version>21</java.version>
         <jjwt.version>0.13.0</jjwt.version>
         <springdoc.version>3.1.1</springdoc.version>
+        <openhtmltopdf.version>1.1.87</openhtmltopdf.version>
     </properties>
 
     <dependencies>
@@ -73,6 +74,17 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- PDFs (prescriptions, later reports and invoices): XHTML templates rendered with PDFBox (ADR-021) -->
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>${openhtmltopdf.version}</version>
         </dependency>
 
         <dependency>
