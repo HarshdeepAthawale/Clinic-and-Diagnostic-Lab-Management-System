@@ -15,10 +15,12 @@ describe('statusActions', () => {
     expect(labels(statusActions('RECEPTIONIST', at('2026-09-29T08:00:00Z', 'BOOKED'), now))).toEqual(['CANCELLED']);
   });
 
-  it('doctor calls in and finishes', () => {
+  it('doctor starts and reopens the consultation from the workspace', () => {
     expect(labels(statusActions('DOCTOR', at('2026-09-28T05:00:00Z', 'CHECKED_IN'), now))).toEqual(['IN_CONSULTATION', 'NO_SHOW']);
     expect(labels(statusActions('DOCTOR', at('2026-09-28T05:00:00Z', 'IN_CONSULTATION'), now))).toEqual(['COMPLETED']);
     expect(statusActions('DOCTOR', at('2026-09-28T05:00:00Z', 'BOOKED'), now)).toEqual([]);
+    expect(statusActions('DOCTOR', at('2026-09-28T05:00:00Z', 'CHECKED_IN'), now)[0]).toMatchObject({ consult: true, label: 'Start consultation' });
+    expect(statusActions('DOCTOR', at('2026-09-28T05:00:00Z', 'IN_CONSULTATION'), now)[0]).toMatchObject({ consult: true, label: 'Open consultation' });
   });
 
   it('patients can only cancel future bookings', () => {
