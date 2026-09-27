@@ -52,7 +52,7 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 
 ## ADR-006: PDF generation library — undecided
 
-**Status:** Open
+**Status:** Superseded by ADR-021
 **Context:** Need to generate lab reports and invoices as PDFs.
 **Options:** iText7 vs Apache PDFBox.
 **Decision:** Not yet made — tracked in [[OpenQuestions]].
@@ -216,3 +216,20 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - **Waiting-room screen** shows tokens only, never patient names.
 **Alternatives considered:** Fixed slot table pre-generated per day (heavy to maintain when hours change); per-doctor token numbers (confusing when a patient hears "7" for two doctors); WebSocket/SSE push (more moving parts than a small clinic needs today — can replace polling later without changing the API).
 **Consequence:** Appointments created before Phase 03 have no token until checked in. Changing hours doesn't warn about bookings now outside them — a later phase can list those for the front desk.
+
+---
+
+## ADR-021: Consultations, e-prescriptions and PDF generation
+
+**Status:** Accepted (resolves ADR-006)
+**Context:** Phase 04 turns a visit into a medical record and a prescription the patient can download. The record must not change after the fact, and PDFs are needed again later for lab reports (Phase 08) and invoices (Phase 06).
+**Decision:**
+- **One consultation per appointment.** The doctor starts it on their own checked-in appointment — starting calls the patient in (`CHECKED_IN → IN_CONSULTATION`). It stays a `DRAFT` (autosaved) while the patient is in the room.
+- **Finishing is one transaction:** it requires a diagnosis, issues the prescription (if it has medicines) with the next number from a sequence (`RX-000123`), marks the consultation `COMPLETED` and the appointment `COMPLETED`. If any step fails, nothing changes.
+- **Locked after finishing.** Database triggers reject any update or delete of a completed consultation, an issued prescription, or its medicine lines. Corrections will be added as amendments later, never edits.
+- **Structured medicines** (`prescription_items`: medicine, dose, frequency, duration, instructions) instead of free-text JSON, plus a small **formulary** of common generics for autocomplete. Free text is still allowed.
+- **Doctor details on prescriptions:** doctors gain `qualification` and `registration_number`.
+- **Who sees what:** the author doctor always; other doctors only completed consultations of patients they have a care relationship with; the patient only their own completed consultations, **without the doctor's working notes**. Every doctor read is written to the access log. The front desk sees no clinical content.
+- **PDFs:** XHTML templates (Thymeleaf, XML mode so everything is escaped) rendered by **OpenHTMLtoPDF on Apache PDFBox** (LGPL). PDFs are generated on request behind the same access checks as the record — nothing is stored, so there are no guessable file URLs. The clinic letterhead comes from `app.clinic.*` settings.
+**Alternatives considered:** iText 7 (AGPL — would force the whole app to be open-sourced or a commercial licence); drawing PDFs directly with PDFBox (more code per document and harder to style); storing generated PDFs (extra storage and an access-control surface for no benefit at this scale).
+**Consequence:** The standard PDF fonts cover Latin text only; names in other scripts need an embedded font later. The same renderer is reused for reports and invoices.
