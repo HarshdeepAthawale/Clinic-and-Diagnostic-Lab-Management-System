@@ -4,7 +4,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02, 03 and 04 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02–05 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 05 (Lab Test Catalog & Ordering)
+- Backend: Flyway `V5__lab_catalog_orders.sql` — lab test catalog with 22 seeded tests (price, tube/container, turnaround, patient prep) and per-parameter normal and critical ranges; lab orders numbered `LO-000123` with priority, the doctor's note, one open order per consultation and price-snapshot lines. Order from a consultation or directly, remove tests, cancel, patient/doctor/lab access rules with `LAB_HISTORY` logging, the lab's urgent-first queue, admin catalog editing (ADR-022).
+- Frontend: Order tests drawer (search, categories, one-tap panels, live tubes / prep / turnaround / total, Routine or Urgent, Ctrl+Enter) in the consult workspace and on the patient record; patient Lab tests page with a "Before your test" checklist; lab Orders queue and order detail; admin Test catalog with a range editor; dashboard widgets for incoming orders, tubes to set out and the patient's tests to get done; tube chips for urine, stool and swab containers.
+- Tests: 113 backend, 44 frontend.
+
+### Fixed — Phase 05
+- Prescription rows no longer nest the PDF link inside the row link (hydration error on the patient dashboard and Prescriptions page).
 
 ### Added — Phase 04 (Consultations & E-Prescriptions)
 - Backend: Flyway `V4__consultations_prescriptions.sql` (consultations, prescriptions, medicine lines, formulary; triggers lock completed consultations and issued prescriptions; RX number sequence; doctor qualification and registration number). Start / autosave / finish workflow that issues the prescription and completes the appointment in one transaction; visit history; patient prescriptions; formulary search; prescription PDF via OpenHTMLtoPDF with the clinic letterhead (ADR-021).
