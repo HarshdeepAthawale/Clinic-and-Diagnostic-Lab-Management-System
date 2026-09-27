@@ -9,8 +9,12 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Array;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /** Read-only list queries (one SQL each) behind the catalog picker, the lab's order queue and order histories. */
@@ -101,6 +105,35 @@ public class LabQueries {
         Long n = jdbc.queryForObject("SELECT count(*) FROM lab_orders WHERE status = 'ORDERED' AND priority = 'URGENT'",
                 new MapSqlParameterSource(), Long.class);
         return n == null ? 0 : n;
+    }
+
+    public long countOrderedBetween(Instant from, Instant to) {
+        Long n = jdbc.queryForObject("SELECT count(*) FROM lab_orders WHERE created_at >= :from AND created_at < :to",
+                new MapSqlParameterSource("from", Timestamp.from(from)).addValue("to", Timestamp.from(to)), Long.class);
+        return n == null ? 0 : n;
+    }
+
+    public long countActiveTests() {
+        Long n = jdbc.queryForObject("SELECT count(*) FROM lab_tests WHERE is_active",
+                new MapSqlParameterSource(), Long.class);
+        return n == null ? 0 : n;
+    }
+
+    /** How many of each tube the open orders need — what to set out before collection starts. */
+    public Map<String, Long> openTubeCounts() {
+        Map<String, Long> counts = new LinkedHashMap<>();
+        jdbc.query("""
+                SELECT t.required_tube_type AS tube, count(*) AS n
+                FROM lab_order_items i
+                JOIN lab_orders o ON o.id = i.lab_order_id AND o.status = 'ORDERED'
+                JOIN lab_tests t ON t.id = i.lab_test_id
+                WHERE i.status <> 'CANCELLED'
+                GROUP BY t.required_tube_type
+                ORDER BY n DESC, tube
+                """, new MapSqlParameterSource(), rs -> {
+            counts.put(rs.getString("tube"), rs.getLong("n"));
+        });
+        return counts;
     }
 
     /** A patient's orders, newest first (cancelled ones included, for the record). */
