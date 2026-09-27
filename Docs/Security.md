@@ -32,7 +32,7 @@ Enforced at the service layer, matching [[Rules]] §1:
 | Patient | Only their own patient_id-scoped records |
 | Doctor | Basic details of any patient (search); full EMR, orders and prescriptions only with a care relationship (see [[Rules]] §1). Every full-record view is logged |
 | Receptionist | Registration, appointments, billing — not lab results or prescriptions |
-| Lab Technician | Sample/result data — not billing, cannot verify results |
+| Lab Technician | Lab orders, sample and result data — not billing, cannot verify results |
 | Pathologist | Results pending verification + the related sample/patient lab history; verify action — not billing, prescriptions, appointments, or registration |
 | Admin | Analytics, staff, inventory — not clinical write actions (prescriptions, verification) |
 
@@ -45,6 +45,7 @@ Every query that returns patient-scoped data must filter by the requesting user'
 - `SampleStatusEvent`, `PatientAccessLog` and (if built) `AuditLog` rows are append-only — no update/delete path should exist in the application layer, even for admins. `patient_access_log` also has a database trigger that rejects `UPDATE`/`DELETE`. If a correction is needed, insert a new event; don't rewrite history.
 - Prescription PDFs (and later reports and invoices) are generated on request behind the same checks as the record and sent with `Cache-Control: private, no-store`; nothing is stored, so there are no file URLs to leak.
 - The doctor's clinical notes are never returned to patients; completed consultations and issued prescriptions can't be edited or deleted (database triggers).
+- Lab orders: the doctor's note for the lab is left out of the patient's view; ordered tests keep their name and price at order time; orders and lines are cancelled, never deleted. A doctor reading an order or a patient's order history writes a `LAB_HISTORY` access-log row.
 - Report PDFs and other exported documents should only be servable to a caller who is authorized to view the underlying record — a guessable/sequential URL to a PDF is a data leak even if the "screen" is protected.
 
 ## 5. Input Validation
