@@ -19,12 +19,13 @@ const DONE_MESSAGES = {
 /**
  * The status buttons a role may use on one appointment: the main move as a button, the rest in a
  * menu. Cancelling asks for an optional reason, which is kept in the appointment's history.
+ * `exclude` hides moves that can't work right now (e.g. "Call in" while a patient is already in).
  */
-export function AppointmentActions({ role, appointment, size = 'xs', compact = false }) {
+export function AppointmentActions({ role, appointment, size = 'xs', exclude = [] }) {
   const change = useChangeStatus();
   const [asking, setAsking] = useState(null);
   const [note, setNote] = useState('');
-  const actions = statusActions(role, appointment);
+  const actions = statusActions(role, appointment).filter((a) => !exclude.includes(a.status));
   if (actions.length === 0) return null;
 
   const run = (action, reason) =>
@@ -52,29 +53,22 @@ export function AppointmentActions({ role, appointment, size = 'xs', compact = f
             {primary.label}
           </Button>
         )}
-        {rest.length > 0 &&
-          (compact || primary ? (
-            <Menu position="bottom-end" radius="md" shadow="md" withinPortal>
-              <Menu.Target>
-                <ActionIcon variant="subtle" color="gray" radius="md" size={size === 'xs' ? 30 : 36} aria-label="More actions">
-                  <IconDots size={16} />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                {rest.map((a) => (
-                  <Menu.Item key={a.status} color={a.danger ? 'red' : undefined} onClick={() => choose(a)}>
-                    {a.label}
-                  </Menu.Item>
-                ))}
-              </Menu.Dropdown>
-            </Menu>
-          ) : (
-            rest.map((a) => (
-              <Button key={a.status} size={size} radius="md" variant="default" c={a.danger ? 'var(--critical)' : undefined} onClick={() => choose(a)}>
-                {a.label}
-              </Button>
-            ))
-          ))}
+        {rest.length > 0 && (
+          <Menu position="bottom-end" radius="md" shadow="md" withinPortal>
+            <Menu.Target>
+              <ActionIcon variant="subtle" color="gray" radius="md" size={size === 'xs' ? 30 : 36} aria-label="More actions">
+                <IconDots size={16} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              {rest.map((a) => (
+                <Menu.Item key={a.status} color={a.danger ? 'red' : undefined} onClick={() => choose(a)}>
+                  {a.label}
+                </Menu.Item>
+              ))}
+            </Menu.Dropdown>
+          </Menu>
+        )}
       </Group>
 
       <Modal opened={Boolean(asking)} onClose={() => setAsking(null)} title={<Text fw={600}>{asking?.label}</Text>} radius="lg" centered>

@@ -152,7 +152,10 @@ function Column({ column, role, now, tv, limit }) {
                   </div>
                 )}
                 <span className={`${classes.wait} ${minutes >= LONG_WAIT_MINUTES ? classes.long : ''}`}>{minutes} min</span>
-                {!tv && role !== 'ADMIN' && <AppointmentActions role={role} appointment={a} compact />}
+                {!tv && role !== 'ADMIN' && (
+                  // The doctor calls the next patient from the "room is free" bar; rows keep the other moves.
+                  <AppointmentActions role={role} appointment={a} exclude={role === 'DOCTOR' ? ['IN_CONSULTATION'] : []} />
+                )}
               </motion.div>
             );
           })}
