@@ -6,6 +6,7 @@ import com.cdlms.appointment.AppointmentService;
 import com.cdlms.appointment.AppointmentStatus;
 import com.cdlms.auth.AuthUser;
 import com.cdlms.common.ApiException;
+import com.cdlms.consultation.ConsultationQueries;
 import com.cdlms.dashboard.DashboardQueries.Window;
 import com.cdlms.dashboard.Widget.Stat;
 import com.cdlms.dashboard.Widget.Upcoming;
@@ -42,16 +43,19 @@ public class DashboardService {
     private final PatientRepository patients;
     private final AppointmentService appointments;
     private final AppointmentQueries appointmentQueries;
+    private final ConsultationQueries consultationQueries;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
                             AppointmentService appointments, AppointmentQueries appointmentQueries,
+                            ConsultationQueries consultationQueries,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
         this.patients = patients;
         this.appointments = appointments;
         this.appointmentQueries = appointmentQueries;
+        this.consultationQueries = consultationQueries;
         this.zone = ZoneId.of(zone);
     }
 
@@ -84,7 +88,10 @@ public class DashboardService {
                 .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "No doctor profile for this account"));
         Window today = today();
         LocalDate date = LocalDate.now(zone);
-        return List.of(
+        List<Widget> widgets = new ArrayList<>();
+        queries.openConsultation(doctorId)
+                .ifPresent(open -> widgets.add(new Widget("openConsultation", "In consultation", "full", open)));
+        widgets.addAll(List.of(
                 Widget.stats(List.of(
                         new Stat("appointmentsToday", "Appointments today", queries.appointmentsBetween(today, doctorId), null),
                         new Stat("seenToday", "Seen today", queries.appointmentsWithStatus(today, doctorId, "COMPLETED"), null),
@@ -93,7 +100,8 @@ public class DashboardService {
                 new Widget("liveQueue", "Your queue", "wide", appointments.queue(user)),
                 new Widget("recentRecords", "Records you opened", "narrow", queries.recentAccess(user.id(), 6)),
                 new Widget("schedule", "Today's schedule", "full",
-                        queries.schedule(today, doctorId).stream().map(e -> scheduleRow(e, date)).toList()));
+                        queries.schedule(today, doctorId).stream().map(e -> scheduleRow(e, date)).toList())));
+        return widgets;
     }
 
     private List<Widget> reception(AuthUser user) {
@@ -146,7 +154,9 @@ public class DashboardService {
                         "hasHistory", patient.getMedicalHistory() != null,
                         "updatedAt", patient.getUpdatedAt())),
                 new Widget("upcomingAppointments", "Upcoming appointments", "wide",
-                        queries.upcomingForPatient(patient.getId(), Instant.now(), 5))));
+                        queries.upcomingForPatient(patient.getId(), Instant.now(), 5)),
+                new Widget("recentPrescriptions", "Recent prescriptions", "full",
+                        consultationQueries.prescriptionsForPatient(patient.getId(), 4))));
         return widgets;
     }
 
