@@ -2,6 +2,7 @@
 
 **Depends on:** Phase 04 (Consultations & E-Prescriptions)
 **Feeds into:** Phase 06 (Billing), Phase 07 (Sample Lifecycle) — this is the hinge between the clinic side and the lab side
+**Status:** Done (ADR-022)
 
 ## Goal
 
@@ -9,12 +10,12 @@ This is the key clinic↔lab integration point described in the PRD: a doctor or
 
 ## Scope
 
-- [ ] `LabTest` catalog: name, price, required tube type, reference range, prep instructions (see `Schema.md` §3)
-- [ ] Admin/seed tooling to populate the catalog
-- [ ] `LabOrder` + `LabOrderItem` models
-- [ ] "Order test" action from within a consultation (Doctor) — auto-creates `LabOrder`/`LabOrderItem`, no manual re-entry of patient info
-- [ ] Direct lab order creation path (if tests can also be ordered outside a consultation — confirm against `OpenQuestions.md` if this comes up)
-- [ ] Prep instructions surfaced to the patient (e.g., "fast 12 hours")
+- [x] `LabTest` catalog: name, price, required tube type, reference ranges (per parameter), prep instructions (see `Schema.md` §3)
+- [x] Admin/seed tooling to populate the catalog — 22 tests seeded by V5; admin Test catalog page
+- [x] `LabOrder` + `LabOrderItem` models
+- [x] "Order test" action from within a consultation (Doctor) — auto-creates `LabOrder`/`LabOrderItem`, no manual re-entry of patient info
+- [x] Direct lab order creation path — from the patient's record, for patients under the doctor's care
+- [x] Prep instructions surfaced to the patient (e.g., "fast 12 hours")
 
 ## Exit Criteria
 
