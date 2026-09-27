@@ -233,3 +233,20 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - **PDFs:** XHTML templates (Thymeleaf, XML mode so everything is escaped) rendered by **OpenHTMLtoPDF on Apache PDFBox** (LGPL). PDFs are generated on request behind the same access checks as the record — nothing is stored, so there are no guessable file URLs. The clinic letterhead comes from `app.clinic.*` settings.
 **Alternatives considered:** iText 7 (AGPL — would force the whole app to be open-sourced or a commercial licence); drawing PDFs directly with PDFBox (more code per document and harder to style); storing generated PDFs (extra storage and an access-control surface for no benefit at this scale).
 **Consequence:** The standard PDF fonts cover Latin text only; names in other scripts need an embedded font later. The same renderer is reused for reports and invoices.
+
+---
+
+## ADR-022: Lab test catalog and ordering — per-parameter ranges, one open order per consultation, price snapshots
+
+**Status:** Accepted
+**Context:** Phase 05 is the hinge between the clinic and the lab: a doctor orders tests during a visit and the lab sees them with no re-typing. The planned schema had one reference range per test, but most tests report several values (a CBC has haemoglobin, WBC, platelets…), and later phases need critical limits and billing needs stable prices.
+**Decision:**
+- **Catalog:** `lab_tests` (code, name, category, sample type, required tube/container, price, turnaround hours, patient prep, active flag) plus `lab_test_parameters` — each with its own unit, normal range and critical limits. 22 common tests ship with the schema as reference data; admins add, edit and retire tests. Tests are retired, never deleted.
+- **Tube types** are an enum that also covers sterile containers: `EDTA`, `PLAIN`, `SST`, `CITRATE`, `FLUORIDE`, `HEPARIN`, `URINE_CUP`, `STOOL_CUP`, `SWAB_TUBE`.
+- **Ordering from a consultation:** only the consultation id is sent — patient and doctor come from it. A consultation has **at most one open order** (partial unique index); ordering again adds tests to it, and a test can't be on it twice. Only the author may order, and only while the consultation is a draft.
+- **Direct orders** (outside a visit) name the patient and need a care relationship (ADR-015).
+- **Snapshots:** each line copies the test name and price at order time, so later catalog edits never change what was ordered or billed.
+- **Changes:** the ordering doctor can remove a test or cancel the order while it is open; removing the last test cancels it. Nothing is deleted.
+- **Who sees what:** the patient their own orders with prep, **without the doctor's note for the lab**; doctors orders they placed or for patients under their care (logged as `LAB_HISTORY`); lab technicians and pathologists all orders. Orders are numbered `LO-000123`.
+**Alternatives considered:** one range per test (as first planned — can't represent multi-value tests); a new order per "Order tests" click (splits one visit's tests across several orders and several lab tickets); price looked up at billing time (a price change would silently change old bills).
+**Consequence:** Phase 07 attaches samples to order lines and will stop cancellation once a sample is collected. Phase 08 checks results against `lab_test_parameters`. Phase 06 bills from the snapshot prices.
