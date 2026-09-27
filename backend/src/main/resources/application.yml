@@ -20,6 +20,13 @@ server:
   port: 8080
 
 app:
+  reminders:
+    # Email reminder for booked appointments (Phase 03). Needs spring.mail.* (SPRING_MAIL_HOST etc.);
+    # without a mail server, reminders are only logged.
+    lead-time: 24h
+    poll-interval: 5m
+    from: ${REMINDER_FROM:CDLMS Clinic <no-reply@cdlms.local>}
+    clinic-name: ${CLINIC_NAME:CDLMS Clinic}
   clinic:
     # "Today" on dashboards is computed in the clinic's time zone, not the server's.
     zone: Asia/Kolkata
