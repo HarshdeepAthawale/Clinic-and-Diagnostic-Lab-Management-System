@@ -78,6 +78,14 @@ public class AppointmentService {
         return queries.doctors();
     }
 
+    /** The calling doctor's own profile (for their schedule page). */
+    @Transactional(readOnly = true)
+    public DoctorOption me(AuthUser doctor) {
+        UUID id = doctorIdOf(doctor);
+        return queries.doctors().stream().filter(d -> d.id().equals(id)).findFirst()
+                .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "No doctor profile for this account"));
+    }
+
     @Transactional(readOnly = true)
     public DaySlots slots(UUID doctorId, LocalDate date) {
         requireDoctor(doctorId);

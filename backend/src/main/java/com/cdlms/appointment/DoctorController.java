@@ -38,6 +38,12 @@ public class DoctorController {
         return service.doctors();
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public DoctorOption me(@AuthenticationPrincipal AuthUser caller) {
+        return service.me(caller);
+    }
+
     @GetMapping("/{id}/slots")
     @PreAuthorize("hasAnyRole('PATIENT', 'RECEPTIONIST')")
     public DaySlots slots(@PathVariable UUID id,

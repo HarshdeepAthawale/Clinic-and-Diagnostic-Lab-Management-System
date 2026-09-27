@@ -321,6 +321,15 @@ class AppointmentFlowTest extends IntegrationTest {
     }
 
     @Test
+    void doctorLooksUpOwnProfile() throws Exception {
+        mvc.perform(get("/api/doctors/me").cookie(doctor))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(doctorId.toString()))
+                .andExpect(jsonPath("$.hasWorkingHours").value(true));
+        mvc.perform(get("/api/doctors/me").cookie(reception)).andExpect(status().isForbidden());
+    }
+
+    @Test
     void overlappingHoursAreRejected() throws Exception {
         mvc.perform(json(put("/api/doctors/" + doctorId + "/working-hours"), """
                         {"blocks":[{"dayOfWeek":2,"startTime":"09:00","endTime":"13:00","slotMinutes":15},
