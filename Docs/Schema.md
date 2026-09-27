@@ -167,32 +167,60 @@ Reference list of common generic medicines for autocomplete; doctors can still t
 
 ## 3. Lab Side
 
-### `LabTest` (catalog)
-| Field | Type | Notes |
-|---|---|---|
-| id | UUID (PK) | |
-| name | string | e.g., "Complete Blood Count" |
-| price | decimal | |
-| required_tube_type | string | see [[Rules]] tube-type rule |
-| reference_range_low | decimal, nullable | |
-| reference_range_high | decimal, nullable | |
-| prep_instructions | text, nullable | e.g., "fast 12 hours" |
+### `LabTest` (catalog, V5)
+What the lab offers. Seeded with 22 common tests; maintained by admins. Retired (`is_active = false`), never deleted (ADR-022).
 
-### `LabOrder`
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| consultation_id | UUID (FK → Consultation), nullable | auto-created when a doctor orders during consultation — see [[Appflow]] §1 |
-| patient_id | UUID (FK → Patient) | |
+| code | string, unique | e.g. `CBC`, `LIPID`; fixed once created |
+| name | string | e.g. "Complete Blood Count" |
+| category | string | Haematology, Biochemistry, … |
+| sample_type | enum | `BLOOD`, `URINE`, `STOOL`, `SWAB` |
+| required_tube_type | enum | `EDTA`, `PLAIN`, `SST`, `CITRATE`, `FLUORIDE`, `HEPARIN`, `URINE_CUP`, `STOOL_CUP`, `SWAB_TUBE` — see [[Rules]] tube-type rule |
+| price | decimal | ≥ 0 |
+| turnaround_hours | smallint | 1–720 |
+| prep_instructions | string, nullable | shown to the patient, e.g. "Fast for 10–12 hours" |
+| is_active | boolean | only active tests can be ordered |
+| created_at / updated_at | timestamp | |
+
+### `LabTestParameter` (V5)
+What a test reports — replaces the single reference range first planned on `LabTest`.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| lab_test_id | UUID (FK → LabTest) | |
+| position | smallint | unique per test |
+| name | string | e.g. "Haemoglobin" |
+| unit | string, nullable | e.g. `g/dL` |
+| ref_low / ref_high | decimal, nullable | normal range; empty for qualitative results (Positive/Negative) |
+| critical_low / critical_high | decimal, nullable | critical limits (Phase 08) |
+
+### `LabOrder` (V5)
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| order_code | string, unique | `LO-000123`, from `lab_order_code_seq` |
+| patient_id | UUID (FK → Patient) | taken from the consultation when ordered there |
 | ordering_doctor_id | UUID (FK → Doctor) | |
-| created_at | timestamp | |
+| consultation_id | UUID (FK → Consultation), nullable | set when ordered during a consultation — see [[Appflow]] §1; at most one open order per consultation (partial unique index) |
+| priority | enum | `ROUTINE`, `URGENT` |
+| clinical_notes | string, nullable | the doctor's note for the lab — not shown to the patient |
+| status | enum | `ORDERED`, `CANCELLED` (Phase 07 adds sample progress) |
+| created_at / updated_at | timestamp | |
+| cancelled_at / cancelled_by_user_id / cancellation_reason | nullable | |
 
-### `LabOrderItem`
+### `LabOrderItem` (V5)
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
 | lab_order_id | UUID (FK → LabOrder) | |
-| lab_test_id | UUID (FK → LabTest) | |
+| lab_test_id | UUID (FK → LabTest) | a test is live at most once per order (partial unique index) |
+| test_name | string | snapshot at order time |
+| price_at_order | decimal | snapshot at order time — billing uses this |
+| status | enum | `ORDERED`, `CANCELLED` |
+| created_at / cancelled_at | timestamp | |
 
 ### `Sample`
 One row per physical sample instance. A rejected sample is **not reused** — a redraw creates a new `Sample` row linked back to the same `LabOrderItem`, preserving the rejected one as a permanent record (see [[Rules]] §2).
