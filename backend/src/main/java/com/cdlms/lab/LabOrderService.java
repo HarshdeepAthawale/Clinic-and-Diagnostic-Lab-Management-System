@@ -1,6 +1,7 @@
 package com.cdlms.lab;
 
 import com.cdlms.auth.AuthUser;
+import com.cdlms.billing.BillingService;
 import com.cdlms.common.ApiException;
 import com.cdlms.common.ClinicTime;
 import com.cdlms.common.PageResponse;
@@ -56,11 +57,12 @@ public class LabOrderService {
     private final PatientRepository patients;
     private final DoctorRepository doctors;
     private final PatientAccessLogRepository accessLog;
+    private final BillingService billing;
     private final ClinicTime time;
 
     public LabOrderService(LabOrderRepository orders, LabTestRepository tests, LabQueries queries,
                            ConsultationRepository consultations, PatientRepository patients, DoctorRepository doctors,
-                           PatientAccessLogRepository accessLog, ClinicTime time) {
+                           PatientAccessLogRepository accessLog, BillingService billing, ClinicTime time) {
         this.orders = orders;
         this.tests = tests;
         this.queries = queries;
@@ -68,6 +70,7 @@ public class LabOrderService {
         this.patients = patients;
         this.doctors = doctors;
         this.accessLog = accessLog;
+        this.billing = billing;
         this.time = time;
     }
 
@@ -124,7 +127,12 @@ public class LabOrderService {
                     ? ordered.getFirst().getName() + " is already on this order"
                     : "These tests are already on this order");
         }
-        return view(orders.saveAndFlush(order), true);
+        LabOrder saved = orders.saveAndFlush(order);
+        // Outside a visit the order is billed at once; in a visit, finishing the consultation bills it.
+        if (saved.getConsultationId() == null) {
+            billing.invoiceLabOrder(saved, doctor.id());
+        }
+        return view(saved, true);
     }
 
     /** Removes one test from an open order; the last one removed cancels the order. */
@@ -133,6 +141,7 @@ public class LabOrderService {
         LabOrder order = ownOpenOrder(doctor, orderId);
         LabOrderItem item = order.liveItems().stream().filter(i -> i.getId().equals(itemId)).findFirst()
                 .orElseThrow(() -> notFound("That test isn't on this order"));
+        billing.voidTests(List.of(item), doctor.id(), "Removed from order " + order.getOrderCode());
         order.cancelItem(item, doctor.id(), time.now());
         return view(orders.saveAndFlush(order), true);
     }
@@ -140,6 +149,7 @@ public class LabOrderService {
     @Transactional
     public LabOrderView cancel(AuthUser doctor, UUID orderId, String reason) {
         LabOrder order = ownOpenOrder(doctor, orderId);
+        billing.voidTests(order.liveItems(), doctor.id(), "Order " + order.getOrderCode() + " cancelled");
         order.cancel(doctor.id(), time.now(), trim(reason) == null ? "Cancelled by the doctor" : trim(reason));
         return view(orders.saveAndFlush(order), true);
     }
