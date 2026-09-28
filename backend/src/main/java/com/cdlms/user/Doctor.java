@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -32,6 +33,10 @@ public class Doctor {
     /** Medical council registration number, printed on prescriptions. */
     @Column(name = "registration_number", unique = true)
     private String registrationNumber;
+
+    /** Charged on the visit invoice when this doctor finishes a consultation (ADR-023). */
+    @Column(name = "consultation_fee", nullable = false, precision = 10, scale = 2)
+    private BigDecimal consultationFee = new BigDecimal("500.00");
 
     protected Doctor() {
     }
@@ -64,5 +69,9 @@ public class Doctor {
 
     public String getRegistrationNumber() {
         return registrationNumber;
+    }
+
+    public BigDecimal getConsultationFee() {
+        return consultationFee;
     }
 }
