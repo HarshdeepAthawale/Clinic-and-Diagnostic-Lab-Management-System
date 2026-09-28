@@ -5,6 +5,8 @@ import com.cdlms.appointment.AppointmentQueries;
 import com.cdlms.appointment.AppointmentService;
 import com.cdlms.appointment.AppointmentStatus;
 import com.cdlms.auth.AuthUser;
+import com.cdlms.billing.BillingDtos.InvoiceSummary;
+import com.cdlms.billing.BillingQueries;
 import com.cdlms.common.ApiException;
 import com.cdlms.consultation.ConsultationQueries;
 import com.cdlms.dashboard.DashboardQueries.Window;
@@ -49,12 +51,13 @@ public class DashboardService {
     private final ConsultationQueries consultationQueries;
     private final LabQueries labQueries;
     private final LabOrderService labOrders;
+    private final BillingQueries billingQueries;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
                             AppointmentService appointments, AppointmentQueries appointmentQueries,
                             ConsultationQueries consultationQueries, LabQueries labQueries,
-                            LabOrderService labOrders,
+                            LabOrderService labOrders, BillingQueries billingQueries,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
@@ -64,6 +67,7 @@ public class DashboardService {
         this.consultationQueries = consultationQueries;
         this.labQueries = labQueries;
         this.labOrders = labOrders;
+        this.billingQueries = billingQueries;
         this.zone = ZoneId.of(zone);
     }
 
@@ -146,7 +150,18 @@ public class DashboardService {
                                 "age", Period.between(p.dob(), date).getYears(), "gender", p.gender(),
                                 "hasLogin", p.hasLogin(), "registeredAt", p.registeredAt())).toList()),
                 new Widget("schedule", "Today's appointments", "full",
-                        queries.schedule(today, null).stream().map(e -> scheduleRow(e, date)).toList()));
+                        queries.schedule(today, null).stream().map(e -> scheduleRow(e, date)).toList()),
+                billingCounter(),
+                new Widget("collections", "Collected today", "narrow",
+                        billingQueries.collectedBetween(today.from(), today.to())));
+    }
+
+    /** Unpaid and part-paid bills, oldest first, with what's owed in total. */
+    private Widget billingCounter() {
+        return new Widget("outstandingBills", "Bills to collect", "wide", Map.of(
+                "invoices", billingQueries.list(BillingQueries.Filter.OUTSTANDING, "", 6, 0),
+                "count", billingQueries.countOutstanding(),
+                "amount", billingQueries.outstandingAmount()));
     }
 
     /** Clinic-wide overview: patients, today's visits by status, the live queue, record access, accounts. */
@@ -162,7 +177,10 @@ public class DashboardService {
                 new Widget("visitsByStatus", "Today's visits", "narrow",
                         appointmentQueries.statusCounts(today.from(), today.to())),
                 new Widget("accessLog", "Record access log", "wide", queries.recentAccess(null, 8)),
-                new Widget("team", "Accounts by role", "narrow", queries.activeUsersByRole()));
+                new Widget("team", "Accounts by role", "narrow", queries.activeUsersByRole()),
+                billingCounter(),
+                new Widget("collections", "Collected today", "narrow",
+                        billingQueries.collectedBetween(today.from(), today.to())));
     }
 
     private List<Widget> patient(AuthUser user) {
@@ -186,6 +204,10 @@ public class DashboardService {
             // Tests to get done come right after the queue card: prep (fasting etc.) is time-sensitive.
             int at = widgets.getFirst().type().equals("myQueue") ? 1 : 0;
             widgets.add(at, new Widget("myLabOrders", "Tests to get done", "full", tests));
+        }
+        List<InvoiceSummary> bills = billingQueries.outstandingForPatient(patient.getId(), 3);
+        if (!bills.isEmpty()) {
+            widgets.add(new Widget("myBills", "Bills to pay", "full", bills));
         }
         return widgets;
     }
