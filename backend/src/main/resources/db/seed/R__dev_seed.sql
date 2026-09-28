@@ -62,3 +62,7 @@ UPDATE doctors SET qualification = 'MBBS, MD (General Medicine)', registration_n
 WHERE user_id = '00000000-0000-4000-8000-000000000002' AND registration_number IS NULL;
 UPDATE doctors SET qualification = 'MBBS, DCH (Paediatrics)', registration_number = 'MMC-2015-20456'
 WHERE user_id = '00000000-0000-4000-8000-000000000007' AND registration_number IS NULL;
+
+-- Consultation fees on the invoice (Phase 06).
+UPDATE doctors SET consultation_fee = 600 WHERE user_id = '00000000-0000-4000-8000-000000000002';
+UPDATE doctors SET consultation_fee = 500 WHERE user_id = '00000000-0000-4000-8000-000000000007';
