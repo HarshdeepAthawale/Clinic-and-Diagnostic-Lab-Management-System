@@ -6,6 +6,7 @@ import com.cdlms.appointment.AppointmentRepository;
 import com.cdlms.appointment.AppointmentService;
 import com.cdlms.appointment.AppointmentStatus;
 import com.cdlms.auth.AuthUser;
+import com.cdlms.billing.BillingService;
 import com.cdlms.common.ApiException;
 import com.cdlms.common.ClinicTime;
 import com.cdlms.common.PageResponse;
@@ -19,6 +20,8 @@ import com.cdlms.consultation.ConsultationDtos.PatientBrief;
 import com.cdlms.consultation.ConsultationDtos.PrescriptionSummary;
 import com.cdlms.consultation.ConsultationDtos.PrescriptionView;
 import com.cdlms.consultation.ConsultationDtos.Vitals;
+import com.cdlms.lab.LabOrder;
+import com.cdlms.lab.LabOrderRepository;
 import com.cdlms.patient.Patient;
 import com.cdlms.patient.PatientAccessLog;
 import com.cdlms.patient.PatientAccessLog.Resource;
@@ -60,12 +63,15 @@ public class ConsultationService {
     private final PatientRepository patients;
     private final DoctorRepository doctors;
     private final PatientAccessLogRepository accessLog;
+    private final LabOrderRepository labOrders;
+    private final BillingService billing;
     private final ClinicTime time;
 
     public ConsultationService(ConsultationRepository consultations, PrescriptionRepository prescriptions,
                                ConsultationQueries queries, AppointmentRepository appointments,
                                AppointmentService appointmentService, PatientRepository patients,
-                               DoctorRepository doctors, PatientAccessLogRepository accessLog, ClinicTime time) {
+                               DoctorRepository doctors, PatientAccessLogRepository accessLog,
+                               LabOrderRepository labOrders, BillingService billing, ClinicTime time) {
         this.consultations = consultations;
         this.prescriptions = prescriptions;
         this.queries = queries;
@@ -74,6 +80,8 @@ public class ConsultationService {
         this.patients = patients;
         this.doctors = doctors;
         this.accessLog = accessLog;
+        this.labOrders = labOrders;
+        this.billing = billing;
         this.time = time;
     }
 
@@ -144,6 +152,10 @@ public class ConsultationService {
             appointmentService.changeStatus(doctor, appointment.getId(),
                     new StatusRequest(AppointmentStatus.COMPLETED, null));
         }
+
+        // Bill the visit: the doctor's fee plus the tests ordered in it (ADR-023).
+        billing.invoiceVisit(consultation,
+                labOrders.findByConsultationIdAndStatus(consultation.getId(), LabOrder.Status.ORDERED), doctor.id());
         return view(consultation, true);
     }
 
