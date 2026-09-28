@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title th:text="'Invoice ' + ${inv.invoiceCode}">Invoice</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 20mm 16mm;
+      @bottom-center {
+        content: element(footer);
+      }
+    }
+    body { font-family: sans-serif; font-size: 10pt; color: #1c1b19; line-height: 1.4; }
+    .muted { color: #6a6762; }
+    .small { font-size: 8.5pt; }
+    .mono { font-family: monospace; color: #1c1b19; }
+    table { border-collapse: collapse; width: 100%; }
+
+    .head td { vertical-align: top; }
+    .clinic { font-size: 16pt; font-weight: bold; letter-spacing: -0.3pt; }
+    .title { text-align: right; }
+    .title .word { font-size: 18pt; font-weight: bold; color: #b42318; letter-spacing: 1pt; }
+    .rule { border-top: 2px solid #b42318; margin: 10px 0 12px 0; }
+
+    .meta td { padding: 2px 0; vertical-align: top; }
+    .label { color: #6a6762; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4pt; }
+
+    .lines { margin-top: 16px; }
+    .lines th { text-align: left; font-size: 8.5pt; color: #6a6762; text-transform: uppercase; letter-spacing: 0.4pt;
+                border-bottom: 1px solid #d2d0cb; padding: 5px 6px; }
+    .lines td { padding: 7px 6px; border-bottom: 1px solid #e4e2dd; vertical-align: top; }
+    .lines .num { width: 18px; color: #6a6762; }
+    .amount { text-align: right; white-space: nowrap; }
+
+    .totals { width: 48%; margin: 12px 0 0 auto; }
+    .totals td { padding: 4px 6px; }
+    .totals .grand td { border-top: 1.5px solid #1c1b19; font-weight: bold; font-size: 11pt; padding-top: 7px; }
+    .totals .due td { font-weight: bold; color: #b42318; }
+
+    .stamp { margin-top: 18px; display: inline-block; padding: 6px 12px; border: 2px solid #0f766e; color: #0f766e;
+             font-weight: bold; letter-spacing: 1pt; }
+    .payments { margin-top: 18px; }
+    .payments td { padding: 4px 6px; border-bottom: 1px solid #e4e2dd; }
+
+    #footer { position: running(footer); font-size: 8pt; color: #9a968f; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="footer">
+    <span th:text="${inv.invoiceCode}">INV-000001</span> · generated <span th:text="${generatedOn}">date</span>
+    · computer-generated invoice, no signature required
+  </div>
+
+  <table class="head">
+    <tr>
+      <td>
+        <div class="clinic" th:text="${clinic.name}">Clinic</div>
+        <div class="muted small" th:if="${clinic.address != null}" th:text="${clinic.address}">Address</div>
+        <div class="muted small" th:if="${clinic.phone != null}" th:text="'Phone ' + ${clinic.phone}">Phone</div>
+      </td>
+      <td class="title">
+        <div class="word">INVOICE</div>
+        <div class="mono" th:text="${inv.invoiceCode}">INV</div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="rule"></div>
+
+  <table class="meta">
+    <tr>
+      <td style="width: 45%;">
+        <div class="label">Billed to</div>
+        <div><b th:text="${inv.patient.fullName}">Name</b></div>
+        <div class="muted mono small" th:text="${inv.patient.patientCode}">PID</div>
+      </td>
+      <td>
+        <div class="label">Date</div>
+        <div th:text="${issuedOn}">date</div>
+      </td>
+      <td style="text-align: right;">
+        <div class="label" th:text="${inv.labOrderCode != null ? 'Lab order' : 'Doctor'}">Doctor</div>
+        <div th:text="${inv.labOrderCode != null ? inv.labOrderCode : inv.doctorName}">Doctor</div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="lines">
+    <thead>
+      <tr>
+        <th class="num">#</th>
+        <th>Description</th>
+        <th class="amount">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr th:each="l, stat : ${lines}">
+        <td class="num" th:text="${stat.count}">1</td>
+        <td th:text="${l.description}">Consultation</td>
+        <td class="amount mono" th:text="${l.amount}">Rs. 600.00</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="totals">
+    <tr>
+      <td class="muted">Subtotal</td>
+      <td class="amount mono" th:text="${t.gross}">0</td>
+    </tr>
+    <tr th:if="${t.discount != null}">
+      <td class="muted" th:text="'Discount (' + ${t.discountReason} + ')'">Discount</td>
+      <td class="amount mono" th:text="'- ' + ${t.discount}">0</td>
+    </tr>
+    <tr class="grand">
+      <td>Total</td>
+      <td class="amount mono" th:text="${t.net}">0</td>
+    </tr>
+    <tr th:if="${t.paid != null}">
+      <td class="muted">Paid</td>
+      <td class="amount mono" th:text="${t.paid}">0</td>
+    </tr>
+    <tr class="due" th:if="${t.balance != null}">
+      <td>Balance due</td>
+      <td class="amount mono" th:text="${t.balance}">0</td>
+    </tr>
+  </table>
+
+  <div class="stamp" th:if="${paidOn != null}" th:text="'PAID · ' + ${paidOn}">PAID</div>
+
+  <div class="payments" th:if="${hasPayments}">
+    <div class="label">Payments received</div>
+    <table>
+      <tr th:each="p : ${payments}">
+        <td th:text="${p.on}">date</td>
+        <td th:text="${p.method}">Cash</td>
+        <td class="muted" th:text="${p.reference}">ref</td>
+        <td class="amount mono" th:text="${p.amount}">Rs. 0</td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
