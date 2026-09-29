@@ -2,6 +2,7 @@
 
 **Depends on:** Phase 07 (Sample Lifecycle: Collection Through Rejection)
 **Feeds into:** Phase 09 (Inventory & Admin Analytics) — TAT analytics need completed samples to measure
+**Status:** Done (ADR-025)
 
 ## Goal
 
@@ -9,17 +10,17 @@ Complete the sample state machine through result entry, the hard pathologist-ver
 
 ## Scope
 
-- [ ] Result entry screen (Lab Technician): value, analyzer/machine used
-- [ ] Auto reference-range check against `LabTest.reference_range_*`
-- [ ] `TestResult` model (see `Schema.md` §3)
-- [ ] Pathologist verification action — **hard server-side gate**: no report without `verified_at` set (see `Rules.md` §2)
-- [ ] Pathologist verification queue + review screen (see `Design.md` Pathologist); verify endpoint restricted to the `PATHOLOGIST` role, and the verifier must not be the user who entered the result
-- [ ] Return for retest (Pathologist): reason + note, `RESULT_ENTERED → IN_TESTING`, old result kept as `RETURNED_FOR_RETEST`, new result row with `attempt_number + 1` (see `Rules.md` §2, ADR-012)
-- [ ] Lab technician queue shows returned samples at the top with the reason; result history shows all attempts
-- [ ] Reject during testing (Lab Technician): `IN_TESTING → REJECTED` with `SAMPLE_EXHAUSTED` / `SAMPLE_DEGRADED` / `OTHER`, reusing Phase 07's `RejectionRecord`, front-desk notification and redraw path (ADR-013)
-- [ ] `Report` PDF generation: letterhead + digital verification stamp (pathologist name, qualification, registration number, signature)
-- [ ] Dispatch: channel selection (email/SMS/download link) + delivery, receipt confirmation tracking
-- [ ] Patient-facing visual sample tracker (Amazon-order-style, per `Design.md` §3)
+- [x] Result entry screen (Lab Technician): a value for every parameter, analyzer/machine used
+- [x] Auto reference-range check against `LabTest.reference_range_*`
+- [x] `TestResult` model (see `Schema.md` §3)
+- [x] Pathologist verification action — **hard server-side gate**: no report without `verified_at` set (see `Rules.md` §2)
+- [x] Pathologist verification queue + review screen (see `Design.md` Pathologist); verify endpoint restricted to the `PATHOLOGIST` role, and the verifier must not be the user who entered the result
+- [x] Return for retest (Pathologist): reason + note, `RESULT_ENTERED → IN_TESTING`, old result kept as `RETURNED_FOR_RETEST`, new result row with `attempt_number + 1` (see `Rules.md` §2, ADR-012)
+- [x] Lab technician queue shows returned samples at the top with the reason; result history shows all attempts
+- [x] Reject during testing (Lab Technician): `IN_TESTING → REJECTED` with `SAMPLE_EXHAUSTED` / `SAMPLE_DEGRADED` / `OTHER`, reusing Phase 07's `RejectionRecord`, front-desk notification and redraw path (ADR-013)
+- [x] `Report` PDF generation: letterhead + digital verification stamp (pathologist name, qualification, registration number; the signature image is deferred)
+- [x] Dispatch: channel selection (email / download link; SMS waits on a provider) + delivery, receipt confirmation tracking
+- [x] Patient-facing visual sample tracker (Amazon-order-style, per `Design.md` §3)
 
 ## Exit Criteria
 
