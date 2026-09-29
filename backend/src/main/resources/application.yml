@@ -34,6 +34,8 @@ app:
     name: ${CLINIC_NAME:CDLMS Clinic & Diagnostic Lab}
     address: ${CLINIC_ADDRESS:}
     phone: ${CLINIC_PHONE:}
+  # Where patients sign in; used in the "your report is ready" email (Phase 08).
+  public-url: ${PUBLIC_URL:http://localhost:3000}
   billing:
     # The most the front desk may discount, as a share of the bill. Admins are not capped (ADR-023).
     reception-discount-cap-percent: ${RECEPTION_DISCOUNT_CAP_PERCENT:20}
