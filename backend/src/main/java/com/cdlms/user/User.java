@@ -72,6 +72,11 @@ public class User {
         return role;
     }
 
+    /** Replaces the stored hash; the caller has already checked the current password. */
+    public void changePasswordHash(String newHash) {
+        this.passwordHash = newHash;
+    }
+
     public boolean isActive() {
         return active;
     }

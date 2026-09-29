@@ -23,6 +23,11 @@ public final class AuthDtos {
             @NotBlank String password) {
     }
 
+    public record ChangePasswordRequest(
+            @NotBlank String currentPassword,
+            @NotBlank @Size(min = 8, max = 72, message = "must be 8 to 72 characters") String newPassword) {
+    }
+
     /** Patient self-registration. Staff accounts are created by Admin, never self-registered. */
     public record RegisterRequest(
             @NotBlank @Email @Size(max = 254) String email,

@@ -86,6 +86,20 @@ public class AuthService {
         return user;
     }
 
+    /** Changes the signed-in user's own password. The current one must be right, and the new one must differ. */
+    @Transactional
+    public void changePassword(AuthUser caller, AuthDtos.ChangePasswordRequest request) {
+        User user = users.findById(caller.id()).orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "UNAUTHENTICATED", "Please sign in again"));
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "Your current password isn't right");
+        }
+        if (request.currentPassword().equals(request.newPassword())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Choose a password you haven't been using");
+        }
+        user.changePasswordHash(passwordEncoder.encode(request.newPassword()));
+        users.save(user);
+    }
+
     @Transactional(readOnly = true)
     public User login(LoginRequest request) {
         Optional<User> found = users.findByEmail(User.normalizeEmail(request.email()));

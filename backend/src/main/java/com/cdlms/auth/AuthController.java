@@ -71,6 +71,23 @@ public class AuthController {
         return withLoginCookie(ResponseEntity.ok(), user);
     }
 
+    /** Guessing the current password is limited like signing in (ADR-030). */
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@AuthenticationPrincipal AuthUser caller,
+                                               @Valid @RequestBody AuthDtos.ChangePasswordRequest request, HttpServletRequest http) {
+        String address = http.getRemoteAddr();
+        limiter.check(Kind.LOGIN, address, caller.email());
+        try {
+            authService.changePassword(caller, request);
+        } catch (ApiException e) {
+            if (e.getStatus() == HttpStatus.UNAUTHORIZED) {
+                limiter.failed(Kind.LOGIN, address, caller.email());
+            }
+            throw e;
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent()
