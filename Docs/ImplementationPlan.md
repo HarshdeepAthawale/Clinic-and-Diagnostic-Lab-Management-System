@@ -12,7 +12,7 @@ High-level phase grouping derived from the priority order in [[PRD]] section 8. 
 | Core Modules ([[PRD]] §5) | `02` through `06` | Patient/EMR, Appointments, Consultations/Prescriptions, Lab Catalog/Ordering, Billing |
 | Sample Lifecycle Tracking ([[PRD]] §6, the differentiator) | `07`, `08` | Collection → rejection/redraw, result entry → verification → report/dispatch |
 | Analytics | `09-Inventory-Admin-Analytics` | Inventory, admin dashboard, TAT analytics |
-| Stretch & Demo Prep ([[PRD]] §7) | `10-Stretch-Features-Demo-Readiness` | 2–3 stretch features + full rehearsal |
+| Stretch & Demo Prep ([[PRD]] §7) | `10-Stretch-Features-Demo-Readiness` | 3 stretch features (critical alerts, trends, QR-verified reports) + full rehearsal |
 
 ## Sequencing Notes
 
