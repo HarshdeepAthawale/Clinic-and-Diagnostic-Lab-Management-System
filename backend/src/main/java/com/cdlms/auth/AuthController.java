@@ -5,6 +5,9 @@ import com.cdlms.auth.AuthDtos.LoginRequest;
 import com.cdlms.auth.AuthDtos.MeResponse;
 import com.cdlms.auth.AuthDtos.RegisterRequest;
 import com.cdlms.user.User;
+import com.cdlms.auth.AttemptLimiter.Kind;
+import com.cdlms.common.ApiException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,11 +26,13 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
     private final AuthCookies cookies;
+    private final AttemptLimiter limiter;
 
-    public AuthController(AuthService authService, JwtService jwtService, AuthCookies cookies) {
+    public AuthController(AuthService authService, JwtService jwtService, AuthCookies cookies, AttemptLimiter limiter) {
         this.authService = authService;
         this.jwtService = jwtService;
         this.cookies = cookies;
+        this.limiter = limiter;
     }
 
     @PostMapping("/register")
@@ -38,14 +43,31 @@ public class AuthController {
 
     /** Patient signup that links to an existing front-desk record via its registration code. */
     @PostMapping("/register/claim")
-    public ResponseEntity<MeResponse> claim(@Valid @RequestBody ClaimAccountRequest request) {
-        User user = authService.claimAccount(request);
+    public ResponseEntity<MeResponse> claim(@Valid @RequestBody ClaimAccountRequest request, HttpServletRequest http) {
+        String address = http.getRemoteAddr();
+        limiter.check(Kind.CLAIM, address, request.email());
+        User user;
+        try {
+            user = authService.claimAccount(request);
+        } catch (ApiException e) {
+            limiter.failed(Kind.CLAIM, address, request.email());
+            throw e;
+        }
         return withLoginCookie(ResponseEntity.status(HttpStatus.CREATED), user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<MeResponse> login(@Valid @RequestBody LoginRequest request) {
-        User user = authService.login(request);
+    public ResponseEntity<MeResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
+        String address = http.getRemoteAddr();
+        limiter.check(Kind.LOGIN, address, request.email());
+        User user;
+        try {
+            user = authService.login(request);
+        } catch (ApiException e) {
+            limiter.failed(Kind.LOGIN, address, request.email());
+            throw e;
+        }
+        limiter.succeeded(Kind.LOGIN, address, request.email());
         return withLoginCookie(ResponseEntity.ok(), user);
     }
 
