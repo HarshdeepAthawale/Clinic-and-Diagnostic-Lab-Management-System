@@ -10,7 +10,7 @@ Unresolved design/product questions. Tracked here rather than dropped — resolv
 ## Product / Domain
 
 - **Which 2–3 stretch features** (from [[PRD]] section 7) will actually be built? Needs a decision once core + differentiator modules are stable — feeds [[ImplementationPlan]].
-- **Payment handling:** is billing purely "mark as paid" by staff, or does the system need real online payment gateway integration? Currently assumed out of scope (see [[NonGoals]]) but not firmly decided.
+- **Payment handling:** billing is "record payment" by staff at the counter (cash, card or UPI) — built in Phase 06 (ADR-023). Whether a real online payment gateway is ever needed is still open; it stays out of scope (see [[NonGoals]]).
 - **QR code scope:** is the sample QR code purely visual (printed on a demo label, not scanned), or does the demo need actual scan-to-lookup capability?
 
 ## Ops
