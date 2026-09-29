@@ -182,9 +182,9 @@ Ordered  Collected  At lab   Testing    Verified   Report ready
 
 Verification is deep, careful work — so it gets a distraction-free mode:
 
-- One result fills the screen: big value in mono, the **range bar**, the **trend sparkline**, sample details (collected/received times, tube), earlier attempts if it's a retest.
+- One result fills the screen: big value in mono, the **range bar**, the **trend sparkline** (the patient's earlier verified values for that parameter, oldest to newest), sample details (collected/received times, tube, who entered it and on which analyzer), earlier attempts if it's a retest.
 - Critical values show a red banner at the top.
-- Keyboard-driven: `V` verify (with confirm), `R` return for retest (reason picker opens), `J/K` next/previous, `Esc` back to queue.
+- Keyboard-driven: `V` verify (with confirm), `R` return for retest (reason picker opens), `J/K` next/previous, `Esc` back to queue. After a decision it moves to the next result in the queue.
 - A small progress indicator: "7 of 23 in queue".
 
 ### 5.3 Lab Bench Mode (Lab Technician)
@@ -195,6 +195,7 @@ Designed for a tablet on the bench, gloves on:
 - 56px touch targets, large tube chips, one primary action per screen ("Mark received", "Enter result").
 - Tube-type mismatch appears as an amber warning while collecting (it needs an explicit confirmation) and again before the sample can be marked received.
 - Returned-for-retest samples are pinned at the top of the queue with the pathologist's reason.
+- **Result entry:** one card per test with a large input per parameter, the reference range under each name, the range bar and flag appearing as you type, `Enter` moving to the next field (and submitting on the last), the analyzer remembered from last time, and — on a retest — "last time 38" beside each field. A critical value shows a banner. "Reject" is offered for a sample that is used up or unusable.
 
 ### 5.4 Reception Live Queue
 
@@ -251,7 +252,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Prescriptions (list + PDF download)
 - Lab tests: ordered tests with a "Before your test" prep checklist and the order number to show at the lab
 - Sample journey ★ (§5.1), per active sample — on the Lab tests page, one line per tube; a rejected sample says "We need a new sample" and the redraw starts a new line
-- Reports (reader view + PDF download)
+- Reports (reader view + PDF download) — each test's values with a range bar, flag and unit, and the pathologist's verification stamp
 - Bills: unpaid amount first, invoices with status and a PDF view/download; the invoice shows the lines, any discount (who gave it and why), payments received and what is still owed
 
 ### Doctor (`/doctor`)
@@ -260,13 +261,13 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Patient record (full EMR, only with a care relationship; otherwise a friendly "no appointment with this patient" state, not an error page)
 - Consult workspace ★ (§5.5): notes, prescription builder, order tests
 - Order tests directly from a patient's record (patients under their care)
-- Verified lab reports for their patients
+- Lab reports: verified reports for tests they ordered, with the same reader view and PDF
 
 ### Pathologist (`/pathology`)
-- Verification queue (oldest first, critical and out-of-range flagged, retest count shown)
+- Verification queue (critical first, then out-of-range, then oldest; retest count shown)
 - Focus mode ★ (§5.2): verify or return for retest
 - My verifications (history)
-- Profile (qualification, registration number, signature image used on reports)
+- *(Profile with a signature image is deferred; reports print the name, qualification and registration number.)*
 
 ### Receptionist (`/reception`)
 - Live queue ★ (§5.4) with walk-in token issuance
@@ -279,7 +280,8 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 ### Lab Technician (`/lab`)
 - Bench home ★ (§5.3): scan field + incoming orders queue (retests pinned on top) and "Tubes to set out" by cap colour
 - Orders: every open order, urgent first; order detail with tubes to collect, the doctor's note and the prep to check
-- Samples ★ (§5.3): the scan field, then "To collect" and "To receive" lists (urgent, then redraws, then oldest)
+- Samples ★ (§5.3): the scan field, then "To collect", "To receive" and "To test" lists (urgent, redraws and retests first)
+- Reports to send: verified reports waiting for dispatch (critical first); each opens the report with a **Send** panel — email or download link, SMS shown but off — and afterwards shows when the patient opened it
 - Sample page: **collection** (tube chips with the needed one pre-selected, body site chips, amber wrong-tube warning that needs an explicit confirmation), **receipt check** ("Mark received" or "Reject sample" with a reason), the printable **label with a QR code**, and the chain of custody
 - Result entry per analyzer/test, with range bar preview and a secondary "Reject sample" action (exhausted / degraded / other)
 - My processed samples
