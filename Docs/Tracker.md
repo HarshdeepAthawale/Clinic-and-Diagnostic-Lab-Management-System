@@ -95,10 +95,11 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P9-1 | `InventoryItem` model | Not Started | |
-| P9-2 | Inventory management screen + low-stock warning | Not Started | |
-| P9-3 | Admin dashboard (counts, revenue, most-ordered tests, staff performance) | Not Started | Analytics endpoints + Mantine Charts |
-| P9-4 | TAT analytics by test type | Not Started | |
+| P9-1 | `InventoryItem` model | Done | Items and append-only movements; levels change only through a movement (ADR-026) |
+| P9-2 | Inventory management screen + low-stock warning | Done | List, side panel with adjust form and history, admin add/edit/retire; dashboard card and bell |
+| P9-3 | Admin dashboard (counts, revenue, most-ordered tests, staff performance) | Done | `/admin/insights` with KPI tiles, area and bar charts, staff table, data-table toggles |
+| P9-4 | TAT analytics by test type | Done | Median / p90 from the sample event log, stage breakdown, test × day heatmap |
+| P9-5 | Staff account management | Not Started | Not part of Phase 09; decide in Phase 10 (see [[OpenQuestions]]) |
 
 ## Phase 10 — Stretch Features & Demo Readiness
 
