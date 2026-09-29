@@ -283,36 +283,50 @@ Something a role needs to act on. Today: a rejected sample tells the front desk 
 | created_at | timestamp | |
 | handled_at / handled_by_user_id | nullable | set together when the front desk marks it done |
 
-### `TestResult`
-A sample can have several results over time: each return for retest keeps the old row (status `RETURNED_FOR_RETEST`) and the retest adds a new one. At most one row per sample is `PENDING_VERIFICATION` or `VERIFIED` (enforce with a partial unique index).
+### `SampleResult` (V9)
+One attempt at the results of a sample (ADR-025) — replaces the planned single-value `TestResult`. Each return for retest keeps its row (status `RETURNED_FOR_RETEST`) and the retest adds a new one. At most one row per sample is `PENDING_VERIFICATION` or `VERIFIED` (partial unique index). A trigger lets a result move only `PENDING_VERIFICATION → VERIFIED` or `→ RETURNED_FOR_RETEST`, and forbids edits to the entered fields and deletes.
 
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
 | sample_id | UUID (FK → Sample) | |
+| attempt_number | int | 1 for the first result, +1 per retest; unique with `sample_id` |
 | status | enum | `PENDING_VERIFICATION`, `VERIFIED`, `RETURNED_FOR_RETEST` |
-| attempt_number | int | 1 for the first result, +1 per retest |
-| value | decimal / text | |
-| entered_by_staff_id | UUID (FK → Staff) | lab technician |
-| entered_at | timestamp | |
-| is_within_reference_range | boolean | computed against `LabTest.reference_range_*` |
-| verified_by_pathologist_id | UUID (FK → Pathologist), nullable | pathologist sign-off, see [[Rules]] verification gate |
-| verified_at | timestamp, nullable | |
-| returned_by_pathologist_id | UUID (FK → Pathologist), nullable | set when returned for retest |
-| returned_at | timestamp, nullable | |
+| analyzer | string, nullable | machine used |
+| entered_by_user_id / entered_at | | the lab technician |
+| verified_by_pathologist_id / verified_at | nullable | pathologist sign-off, see [[Rules]] verification gate; required together for `VERIFIED` (check constraint) |
+| returned_by_pathologist_id / returned_at | nullable | set when returned for retest |
 | return_reason | enum, nullable | `IMPLAUSIBLE_VALUE`, `INCONSISTENT_WITH_HISTORY`, `CRITICAL_VALUE_CONFIRMATION`, `QC_CONCERN`, `OTHER` |
-| return_note | text, nullable | required when `return_reason = OTHER` |
+| return_note | string, nullable | required when `return_reason = OTHER` |
 
-### `Report`
+### `ResultValue` (V9)
+One value of one attempt: a parameter of a test on the sample. Append-only (trigger).
+
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| sample_id | UUID (FK → Sample) | |
-| pdf_url | string | |
-| generated_at | timestamp | only after `TestResult.verified_at` is set — enforced in service layer, not just UI |
-| dispatched_channel | enum, nullable | `EMAIL`, `SMS`, `DOWNLOAD_LINK` |
-| dispatched_at | timestamp, nullable | |
-| receipt_confirmed_at | timestamp, nullable | |
+| sample_result_id | UUID (FK → SampleResult) | |
+| lab_order_item_id / parameter_id | UUID (FK) | the test and the parameter; unique per attempt |
+| position | smallint | order on the sheet |
+| parameter_name / unit | string | copied when entered |
+| value_type | enum | `NUMERIC` or `TEXT` |
+| numeric_value / text_value | decimal / string | exactly one, matching `value_type` (check constraint) |
+| ref_low / ref_high / critical_low / critical_high | decimal, nullable | the ranges it was flagged against, copied when entered |
+| flag | enum, nullable | `NORMAL`, `LOW`, `HIGH`, `CRITICAL_LOW`, `CRITICAL_HIGH`; numeric values only, worked out by the server |
+
+`LabTestParameter` gains `value_type` (`NUMERIC` / `TEXT`, V9). It defaults to numeric when a range or limit is set.
+
+### `Report` (V9)
+One per verified sample. The PDF is drawn from the verified values when asked for — nothing is stored. A trigger refuses to insert a report unless a verified result exists (the hard gate); reports can't be deleted, and dispatch and receipt are each set once.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| sample_id | UUID (FK → Sample), unique | |
+| generated_at / generated_by_user_id | | set when the pathologist verifies |
+| dispatched_channel | enum, nullable | `EMAIL`, `SMS` (not available yet), `DOWNLOAD_LINK` |
+| dispatched_at / dispatched_by_user_id | nullable | set together with the channel |
+| receipt_confirmed_at | timestamp, nullable | the patient's first open after dispatch |
 
 ## 4. Billing
 
