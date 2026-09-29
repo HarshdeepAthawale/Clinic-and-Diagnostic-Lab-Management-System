@@ -327,6 +327,9 @@ One per verified sample. The PDF is drawn from the verified values when asked fo
 | dispatched_channel | enum, nullable | `EMAIL`, `SMS` (not available yet), `DOWNLOAD_LINK` |
 | dispatched_at / dispatched_by_user_id | nullable | set together with the channel |
 | receipt_confirmed_at | timestamp, nullable | the patient's first open after dispatch |
+| verification_code | string (32 hex), unique | random 128 bits; printed as a QR code on the PDF; fixed once issued (V11, ADR-027) |
+| is_critical | boolean | a verified value is at a critical limit; fixed when the report is created (V12, ADR-028) |
+| critical_acknowledged_at / critical_acknowledged_by_user_id / critical_ack_note | nullable | the ordering doctor's acknowledgement; set once, only on a critical report (V12) |
 
 ## 4. Billing
 
