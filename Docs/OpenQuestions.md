@@ -10,7 +10,7 @@ Unresolved design/product questions. Tracked here rather than dropped — resolv
 ## Product / Domain
 
 - **Payment handling:** billing is "record payment" by staff at the counter (cash, card or UPI) — built in Phase 06 (ADR-023). Whether a real online payment gateway is ever needed is still open; it stays out of scope (see [[NonGoals]]).
-- **Staff accounts and reagent mapping:** admin staff management (`POST /admin/staff`, deactivate, assign role) and reagent-to-test stock decrement (ADR-026) were not built in Phases 09–10 and were not among the chosen stretch features. Staff stays off the admin menu; promote either explicitly (PRD, ImplementationPlan, a Decision) if it is wanted.
+- **Reagent mapping and password recovery:** reagent-to-test stock decrement (ADR-026) is not built and was not among the chosen stretch features. Staff accounts exist (ADR-032) but there is no "forgot password" or admin password reset, and a temporary password isn't forced to change at first sign-in. Promote any of these explicitly (PRD, ImplementationPlan, a Decision) if wanted.
 - **Critical result escalation:** an unacknowledged critical result is visible to the lab and shown as overdue after an hour, but nothing escalates to a covering doctor automatically (ADR-028).
 - **QR code scope:** decided in Phase 07 (ADR-024) — the label prints a QR of the sample code, and the bench's scan field accepts a typed code or a barcode scanner (which types the code). Camera scanning in the browser isn't built; add it only if the demo needs it.
 
