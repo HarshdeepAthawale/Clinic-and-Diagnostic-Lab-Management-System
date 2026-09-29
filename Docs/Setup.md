@@ -54,6 +54,17 @@ Open http://localhost:3000. API docs (Swagger UI): http://localhost:8080/swagger
 
 One account per role is seeded by `backend/src/main/resources/db/seed/R__dev_seed.sql` — see that file for the emails and the shared demo password. In development the login page shows a chip per role that fills the form.
 
+### Demo data (dev profile only)
+
+With `docker compose up -d` and the backend running in the dev profile:
+
+```bash
+node scripts/demo-walkthrough.mjs            # ~1 minute; safe to re-run, it resumes where it stopped
+node scripts/demo-walkthrough.mjs --force    # start over and add another round
+```
+
+It signs in as each demo account and drives the real API through registration, consultation, ordering, collection, rejection and redraw, testing, retest, verification, dispatch, billing and payment — three rounds of history, then the bench at every stage (ADR-031). It only runs against `localhost`, and moves the local database's timestamps back to make history, so never point it at a shared database. Delete `scripts/.demo-state.json` after resetting the database.
+
 ## Running Tests
 
 ```bash
