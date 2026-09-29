@@ -108,7 +108,7 @@ export const ROLES = {
       { label: 'Live queue', href: '/admin/queue', icon: IconTicket },
       { label: 'Billing', href: '/admin/billing', icon: IconCash },
       { label: 'Test catalog', href: '/admin/lab-tests', icon: IconFlask },
-      { label: 'Staff', href: '/admin/staff', icon: IconUsers, phase: 9 },
+      { label: 'Staff', href: '/admin/staff', icon: IconUsers },
       { label: 'Inventory', href: '/admin/inventory', icon: IconPackage },
       { label: 'Access log', href: '/admin/access-log', icon: IconShieldLock },
     ],
