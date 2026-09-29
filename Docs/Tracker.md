@@ -82,14 +82,14 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P8-1 | Result entry screen | Not Started | |
-| P8-2 | Reference-range auto-check | Not Started | |
-| P8-3 | Pathologist verification gate + queue/review screens | Not Started | Separate `PATHOLOGIST` role (ADR-011) |
-| P8-3b | Return for retest (reason, result history, technician queue flag) | Not Started | ADR-012 |
-| P8-3c | Reject during testing (exhausted/degraded) → redraw | Not Started | ADR-013; reuses P7-8/P7-9 |
-| P8-4 | Report PDF generation (letterhead + stamp) | Not Started | |
-| P8-5 | Dispatch (channel + receipt confirmation) | Not Started | |
-| P8-6 | Patient-facing visual sample tracker | Not Started | |
+| P8-1 | Result entry screen | Done | Per-parameter entry with live flags, analyzer, retest context (ADR-025) |
+| P8-2 | Reference-range auto-check | Done | Server-side flags, ranges copied onto each value; numeric or text parameters |
+| P8-3 | Pathologist verification gate + queue/review screens | Done | Gate enforced by a DB trigger; queue, focus mode (V/R/J/K/Esc) and history |
+| P8-3b | Return for retest (reason, result history, technician queue flag) | Done | ADR-012; attempts kept, retests pinned first |
+| P8-3c | Reject during testing (exhausted/degraded) → redraw | Done | ADR-013; reuses P7-8/P7-9 |
+| P8-4 | Report PDF generation (letterhead + stamp) | Done | Drawn on request; signature image deferred |
+| P8-5 | Dispatch (channel + receipt confirmation) | Done | Email and download link; SMS waits on a provider (ADR-007) |
+| P8-6 | Patient-facing visual sample tracker | Done | Journey line through to "Report ready"; Reports pages |
 
 ## Phase 09 — Inventory & Admin Analytics
 
