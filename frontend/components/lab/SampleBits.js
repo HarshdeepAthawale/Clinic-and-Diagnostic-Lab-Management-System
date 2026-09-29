@@ -1,5 +1,5 @@
 import { Badge, Group, Stack, Text } from '@mantine/core';
-import { IconAlertTriangle, IconArrowBackUp } from '@tabler/icons-react';
+import { IconAlertTriangle, IconArrowBackUp, IconRefresh } from '@tabler/icons-react';
 import { SAMPLE_STATUS_LABEL } from '@/lib/samples';
 import { formatDateTime, formatRelative } from '@/lib/format';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -38,6 +38,36 @@ export function RedrawBadge() {
     <Badge size="sm" radius="sm" leftSection={<IconArrowBackUp size={12} />} styles={{ root: { textTransform: 'none', background: 'var(--info-soft)', color: 'var(--info)', fontWeight: 700 } }}>
       Redraw
     </Badge>
+  );
+}
+
+export function RetestBadge({ count }) {
+  return (
+    <Badge size="sm" radius="sm" leftSection={<IconRefresh size={12} />} styles={{ root: { textTransform: 'none', background: 'var(--warning-soft)', color: 'var(--warning)', fontWeight: 700 } }}>
+      Retest{count > 1 ? ` ×${count}` : ''}
+    </Badge>
+  );
+}
+
+/** A row in the "to test" list: a retest is flagged and shows the pathologist's reason. */
+export function TestingRow({ row, href, reasonLabel }) {
+  const reason = row.returnReason ? `Returned: ${reasonLabel[row.returnReason] ?? row.returnReason}${row.returnNote ? ` — ${row.returnNote}` : ''}` : null;
+  return (
+    <ListRow
+      href={href}
+      leading={
+        <div style={{ width: 4, height: 36, flex: 'none', borderRadius: 4, background: row.returnReason ? 'var(--warning)' : row.priority === 'URGENT' ? 'var(--critical)' : 'var(--border-strong)' }} />
+      }
+      title={row.patientName}
+      subtitle={reason ?? `${row.sampleCode} · ${row.testNames.join(', ')} · ${row.status === 'IN_TESTING' ? 'in testing' : 'ready to start'}`}
+      right={
+        <Group gap={6} wrap="nowrap">
+          {row.priority === 'URGENT' && <UrgentBadge />}
+          {row.retestCount > 0 && <RetestBadge count={row.retestCount} />}
+          <TubeChip tube={row.tubeType} />
+        </Group>
+      }
+    />
   );
 }
 
