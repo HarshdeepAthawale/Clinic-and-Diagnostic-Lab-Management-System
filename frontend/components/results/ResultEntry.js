@@ -52,6 +52,7 @@ export function ResultEntry({ results }) {
   const problems = entryProblems(results.sheet, values);
   const { abnormal, critical } = entrySummary(results.sheet, values);
   const flat = results.sheet.flatMap((t) => t.parameters);
+  const positionOf = new Map(flat.map((p, position) => [p.parameterId, position]));
 
   const focusNext = (index) => {
     const next = inputs.current[index + 1];
@@ -78,7 +79,6 @@ export function ResultEntry({ results }) {
     });
   };
 
-  let index = -1;
   return (
     <Stack gap="lg">
       {results.lastReturnReason && (
@@ -110,8 +110,7 @@ export function ResultEntry({ results }) {
               </Group>
               <Stack gap={0}>
                 {test.parameters.map((p) => {
-                  index += 1;
-                  const i = index;
+                  const i = positionOf.get(p.parameterId);
                   const raw = values[p.parameterId] ?? '';
                   const numeric = p.valueType === 'NUMERIC';
                   const flag = numeric ? flagFor(raw, p) : null;
