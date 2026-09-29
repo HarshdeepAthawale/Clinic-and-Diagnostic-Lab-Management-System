@@ -86,6 +86,8 @@ Additional derived capabilities: unique sample IDs (`LAB-YYYYMMDD-####`) with QR
 - Full audit log on record edits
 - Digital consent tracking for sensitive tests
 
+**Built in Phase 10:** critical value alerts, trend graphs across visits, and QR-verified reports (ADR-027, ADR-028, ADR-029). The rest stay out of scope for this iteration.
+
 Items explicitly excluded from scope entirely are tracked in [[NonGoals]].
 
 ## 8. Priority / Roadmap
