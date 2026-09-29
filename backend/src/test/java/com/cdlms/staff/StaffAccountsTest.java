@@ -81,6 +81,19 @@ class StaffAccountsTest extends IntegrationTest {
     }
 
     @Test
+    void theResponseNamesTheNewPersonAndTheirDetails() throws Exception {
+        mvc.perform(json(post("/api/admin/staff"), body("PATHOLOGIST", "Dr. Priya Path", "priya.path@test.local",
+                        ",\"qualification\":\"MD Pathology\",\"registrationNumber\":\"MMC-2020-99001\"")).cookie(admin))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.staff.fullName").value("Dr. Priya Path"))
+                .andExpect(jsonPath("$.staff.role").value("PATHOLOGIST"))
+                .andExpect(jsonPath("$.staff.detail").value("MD Pathology · Reg. MMC-2020-99001"))
+                .andExpect(jsonPath("$.staff.active").value(true));
+        mvc.perform(json(post("/api/admin/staff"), body("RECEPTIONIST", "Ravi Front", "ravi.front@test.local", "")).cookie(admin))
+                .andExpect(jsonPath("$.staff.fullName").value("Ravi Front"));
+    }
+
+    @Test
     void thePasswordIsStoredOnlyAsAHashAndNotInTheList() throws Exception {
         String password = create("RECEPTIONIST", "Ravi Front", "ravi.front@test.local", "");
         assertThat(jdbc.queryForObject("SELECT password_hash FROM users WHERE email = 'ravi.front@test.local'", String.class)).isNotEqualTo(password).startsWith("$2");

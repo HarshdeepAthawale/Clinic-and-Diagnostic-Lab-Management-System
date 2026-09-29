@@ -111,9 +111,9 @@ public class StaffService {
         String password = temporaryPassword();
         User user = users.saveAndFlush(new User(email, passwordEncoder.encode(password), role));
         switch (role) {
-            case DOCTOR -> doctors.save(new Doctor(user.getId(), name, request.specialization().trim()));
-            case PATHOLOGIST -> pathologists.save(new Pathologist(user.getId(), name, request.qualification().trim(), registration));
-            default -> staff.save(new Staff(user.getId(), name, role));
+            case DOCTOR -> doctors.saveAndFlush(new Doctor(user.getId(), name, request.specialization().trim()));
+            case PATHOLOGIST -> pathologists.saveAndFlush(new Pathologist(user.getId(), name, request.qualification().trim(), registration));
+            default -> staff.saveAndFlush(new Staff(user.getId(), name, role));
         }
         return new CreatedStaff(viewOf(user), password);
     }
