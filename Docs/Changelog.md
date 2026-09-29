@@ -4,7 +4,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02–05 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02–06 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 06 (Billing & Invoicing)
+- Backend: Flyway `V6__billing.sql` — consultation fee per doctor; invoices numbered `INV-000123` with snapshot lines, append-only payments and invoice history; the database rejects a discount without who applied it and why. Finishing a consultation bills the visit (fee plus its tests); a direct lab order is billed at once; removing a test voids its line unless already paid. Part payments (cash / card / UPI), discounts with a reason and a front-desk cap (20%, admins higher), invoice PDF with Indian digit grouping (ADR-023).
+- Frontend: billing counter (to collect / paid / all, searchable) with an invoice page that has Take payment and Discount panels; admin Billing pages; patient Bills pages with PDF view and download; dashboard widgets for bills to collect, today's takings by method and the patient's unpaid bills.
+- Tests: 127 backend, 53 frontend.
+
+### Fixed — Phase 06
+- The payment amount now follows the balance after a discount instead of keeping the old amount.
 
 ### Added — Phase 05 (Lab Test Catalog & Ordering)
 - Backend: Flyway `V5__lab_catalog_orders.sql` — lab test catalog with 22 seeded tests (price, tube/container, turnaround, patient prep) and per-parameter normal and critical ranges; lab orders numbered `LO-000123` with priority, the doctor's note, one open order per consultation and price-snapshot lines. Order from a consultation or directly, remove tests, cancel, patient/doctor/lab access rules with `LAB_HISTORY` logging, the lab's urgent-first queue, admin catalog editing (ADR-022).
