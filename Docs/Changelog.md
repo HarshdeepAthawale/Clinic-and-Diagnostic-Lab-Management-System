@@ -4,7 +4,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02–06 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02–07 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 07 (Sample Lifecycle: Collection Through Rejection)
+- Backend: Flyway `V7__samples.sql` — samples (one per physical tube, coded `LAB-YYYYMMDD-####`), append-only chain of custody, permanent rejection records and front-desk notifications; a database trigger allows only legal status moves and blocks deletes. `V8__backfill_samples.sql` gives existing orders their samples. Samples are created when tests are ordered; collection needs the tube and (for blood) the body site, and a wrong tube must be confirmed; the receipt check accepts or rejects — a rejection keeps the sample, notifies the front desk with the patient's phone number and creates the redraw at once. Tests can't be removed once their sample is drawn (ADR-024).
+- Frontend: lab Samples bench with a scan-first field and to-collect / to-receive lists; sample page with the collection form (56px tube targets, amber mismatch confirmation), the receipt check with rejection, a printable label with a QR code and the chain of custody; the patient's sample journey on Lab tests (kind message on rejection); samples on the order page; the front desk's live bell, "Patients to call back" card and Samples to redraw inbox; lab dashboard sample bench and tube counts.
+- Tests: 156 backend, 67 frontend.
+
+### Changed — Phase 07
+- The lab dashboard's tiles and tube counts now count samples (physical tubes), not order lines; the incoming-orders widget is replaced by the sample bench.
+
+### Fixed — Phase 07
+- Tube-mismatch messages read "the EDTA tube" instead of "a EDTA tube".
 
 ### Added — Phase 06 (Billing & Invoicing)
 - Backend: Flyway `V6__billing.sql` — consultation fee per doctor; invoices numbered `INV-000123` with snapshot lines, append-only payments and invoice history; the database rejects a discount without who applied it and why. Finishing a consultation bills the visit (fee plus its tests); a direct lab order is billed at once; removing a test voids its line unless already paid. Part payments (cash / card / UPI), discounts with a reason and a front-desk cap (20%, admins higher), invoice PDF with Indian digit grouping (ADR-023).
