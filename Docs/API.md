@@ -146,18 +146,24 @@ Removing or cancelling a lab test that was already paid for answers `409 ALREADY
 
 ## Inventory
 
+Consumables and their levels (ADR-026). An item is `{ id, name, category, unit, currentStock, lowStockThreshold, lowStock, outOfStock, active, updatedAt }`.
+
 | Method | Path | Role |
 |---|---|---|
-| GET | `/inventory` | Lab Technician, Admin |
-| PATCH | `/inventory/{id}/stock` | Lab Technician, Admin |
+| GET | `/inventory?q=&category=&lowOnly=&includeInactive=` | Lab Technician, Admin — out-of-stock first, then low, then by name; retired items only with `includeInactive` |
+| GET | `/inventory/alerts` | Lab Technician, Admin — `{ lowCount, outCount, items }`, the emptiest few |
+| GET | `/inventory/{id}/movements` | Lab Technician, Admin — the last 30 changes, newest first, with who made each |
+| POST | `/inventory` | Admin — `{ name, category, unit, openingStock?, lowStockThreshold }`. `201`. `409 NAME_TAKEN` |
+| PUT | `/inventory/{id}` | Admin — `{ name, category, unit, lowStockThreshold, active? }`; the level is not editable here |
+| PATCH | `/inventory/{id}/stock` | Lab Technician, Admin — `{ delta, reason (RESTOCK/USED/WASTAGE/CORRECTION), note? }`. Wrong direction for the reason → `400`; would go below zero → `409 INSUFFICIENT_STOCK`; retired item → `409 ITEM_RETIRED` |
 
 ## Admin / Analytics
 
 | Method | Path | Role |
 |---|---|---|
-| GET | `/admin/dashboard` | Admin |
-| GET | `/admin/analytics/tat?testId=` | Admin |
-| POST | `/admin/staff` | Admin (all staff roles, incl. Pathologist with registration details) |
+| GET | `/admin/dashboard?days=` | Admin — the last `days` clinic days (default 30, 1–180, else `400`): `{ days, from, to, kpis, series, topTests, staff, tat, heatmap }`. `series` has one point per day with zeros filled in (`date, patients, registrations, revenue, reports`); `kpis` carry the previous period's figures for comparison, and the median turnaround is omitted until a report exists; `staff` counts what each person recorded |
+| GET | `/admin/analytics/tat?testId=&days=` | Admin — turnaround per test (`samples, avg/median/p90 minutes, toLab/testing/verification minutes, retested`) and the daily median per test for the heatmap; a `testId` that doesn't exist → `404` |
+| POST | `/admin/staff` | Admin (all staff roles, incl. Pathologist with registration details) — not built yet |
 | GET | `/admin/access-log?patientId=&userId=&from=&to=` | Admin — record access log, paginated |
 
 ## Dashboards
