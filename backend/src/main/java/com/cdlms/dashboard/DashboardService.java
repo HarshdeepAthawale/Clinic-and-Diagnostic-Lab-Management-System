@@ -16,6 +16,9 @@ import com.cdlms.lab.LabDtos.LabOrderView;
 import com.cdlms.lab.LabOrderService;
 import com.cdlms.lab.LabQueries;
 import com.cdlms.patient.Patient;
+import com.cdlms.sample.NotificationService;
+import com.cdlms.sample.SampleQueries;
+import com.cdlms.sample.SampleStatus;
 import com.cdlms.patient.PatientRepository;
 import com.cdlms.user.Doctor;
 import com.cdlms.user.DoctorRepository;
@@ -52,12 +55,15 @@ public class DashboardService {
     private final LabQueries labQueries;
     private final LabOrderService labOrders;
     private final BillingQueries billingQueries;
+    private final SampleQueries sampleQueries;
+    private final NotificationService notifications;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
                             AppointmentService appointments, AppointmentQueries appointmentQueries,
                             ConsultationQueries consultationQueries, LabQueries labQueries,
                             LabOrderService labOrders, BillingQueries billingQueries,
+                            SampleQueries sampleQueries, NotificationService notifications,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
@@ -68,6 +74,8 @@ public class DashboardService {
         this.labQueries = labQueries;
         this.labOrders = labOrders;
         this.billingQueries = billingQueries;
+        this.sampleQueries = sampleQueries;
+        this.notifications = notifications;
         this.zone = ZoneId.of(zone);
     }
 
@@ -113,28 +121,41 @@ public class DashboardService {
         return widgets;
     }
 
-    /** The lab's day: what's waiting (urgent first), and which tubes to set out for it. */
+    /** The lab's day: samples to draw and to check in (urgent and redraws first), and which tubes to set out. */
     private List<Widget> lab() {
         Window today = today();
-        long waiting = labQueries.countOpenOrders();
         return List.of(
                 Widget.stats(List.of(
-                        new Stat("ordersWaiting", "Orders waiting", waiting, null),
-                        new Stat("urgentWaiting", "Urgent", labQueries.countOpenUrgent(), "Open orders marked urgent"),
-                        new Stat("orderedToday", "Ordered today", labQueries.countOrderedBetween(today.from(), today.to()), null),
-                        new Stat("catalogTests", "Tests offered", labQueries.countActiveTests(), null))),
-                new Widget("incomingOrders", "Incoming orders", "wide",
-                        Map.of("orders", labQueries.openOrders(6, 0), "total", waiting)),
-                new Widget("tubesNeeded", "Tubes to set out", "narrow", labQueries.openTubeCounts()),
+                        new Stat("samplesToCollect", "To collect", sampleQueries.countWaiting(SampleStatus.ORDERED),
+                                "Waiting to be drawn"),
+                        new Stat("samplesToReceive", "To receive", sampleQueries.countWaiting(SampleStatus.COLLECTED),
+                                "Drawn, awaiting the receipt check"),
+                        new Stat("urgentWaiting", "Urgent", sampleQueries.countUrgentToCollect(), "Urgent samples to collect"),
+                        new Stat("orderedToday", "Ordered today", labQueries.countOrderedBetween(today.from(), today.to()), null))),
+                new Widget("sampleQueue", "Sample bench", "wide", Map.of(
+                        "toCollect", sampleQueries.waiting(SampleStatus.ORDERED, 5, 0),
+                        "collectTotal", sampleQueries.countWaiting(SampleStatus.ORDERED),
+                        "toReceive", sampleQueries.waiting(SampleStatus.COLLECTED, 5, 0),
+                        "receiveTotal", sampleQueries.countWaiting(SampleStatus.COLLECTED))),
+                new Widget("tubesNeeded", "Tubes to set out", "narrow", sampleQueries.tubesToCollect()),
                 Widget.upcoming("Coming next", List.of(
-                        new Upcoming("Sample bench", 7, "Scan a sample code to collect, receive or reject it."),
-                        new Upcoming("Rejection & recollection", 7, "Reject a haemolysed or wrong-tube sample with a reason; the patient is recalled."),
-                        new Upcoming("Result entry", 8, "Enter results with the reference range beside each value."))));
+                        new Upcoming("Result entry", 8, "Enter results with the reference range beside each value."),
+                        new Upcoming("Reject during testing", 8, "Flag a used-up or degraded sample while it is being tested."))));
     }
 
     private List<Widget> reception(AuthUser user) {
         Window today = today();
         LocalDate date = LocalDate.now(zone);
+        List<Widget> widgets = new ArrayList<>(receptionWidgets(user, today, date));
+        var alerts = notifications.open(user);
+        if (alerts.open() > 0) {
+            // Redraws to arrange are time-sensitive (a patient has to be called back): right after the tiles.
+            widgets.add(1, new Widget("sampleAlerts", "Patients to call back", "full", alerts));
+        }
+        return widgets;
+    }
+
+    private List<Widget> receptionWidgets(AuthUser user, Window today, LocalDate date) {
         return List.of(
                 Widget.stats(List.of(
                         new Stat("appointmentsToday", "Appointments today", queries.appointmentsBetween(today, null), null),
