@@ -13,3 +13,5 @@ app:
   auth:
     jwt-secret: test-only-jwt-secret-that-is-long-enough-0123456789
     cookie-secure: true
+    # Tests sign in and fail from one address (the mock client's); the per-address cap must not trip across classes.
+    max-failures-per-address: 100000
