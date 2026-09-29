@@ -135,7 +135,11 @@ export function ResultEntry({ results }) {
                         value={raw}
                         maxLength={numeric ? 20 : 200}
                         error={tried ? problems[p.parameterId] : null}
-                        onChange={(e) => setValues((v) => ({ ...v, [p.parameterId]: e.currentTarget.value }))}
+                        onChange={(e) => {
+                          // Read the value now: the event target is gone by the time the updater runs.
+                          const typed = e.currentTarget.value;
+                          setValues((v) => ({ ...v, [p.parameterId]: typed }));
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
