@@ -89,20 +89,29 @@ An appointment is `{ id, kind (SCHEDULED/WALK_IN), status, scheduledAt, duration
 
 ## Samples (core differentiator — see [[Appflow]] §3, [[Rules]] §2)
 
+Samples are created by the system when tests are ordered (ADR-024) — one per tube — never through the API.
+
 | Method | Path | Role |
 |---|---|---|
-| POST | `/samples/{id}/collect` | Lab Technician |
-| POST | `/samples/{id}/receive` | Lab Technician (may result in `RECEIVED_AT_LAB` or `REJECTED`) |
-| POST | `/samples/{id}/results` | Lab Technician |
-| POST | `/samples/{id}/reject` | Lab Technician — only while `IN_TESTING`; body `{ reason: SAMPLE_EXHAUSTED \| SAMPLE_DEGRADED \| OTHER, note }` |
-| POST | `/samples/{id}/verify` | Pathologist |
-| POST | `/samples/{id}/return-for-retest` | Pathologist — body `{ reason, note }`; moves sample back to `IN_TESTING` |
-| GET | `/samples/{id}/results` | Lab Technician, Pathologist (all attempts, incl. returned ones) |
-| GET | `/samples/{id}/status` | Patient (self), Doctor, Pathologist, Receptionist, Lab Technician |
-| GET | `/samples/{id}/events` | Lab Technician, Pathologist, Admin (full chain-of-custody log) |
-| GET | `/samples/pending-verification` | Pathologist |
-| GET | `/samples/verified-by-me` | Pathologist |
-| GET | `/notifications` | Receptionist (sample-rejected inbox), others as needed |
+| GET | `/samples?status=&page=&size=` | Lab Technician, Pathologist — samples at one step: `ORDERED` (to collect) or `COLLECTED` (to receive); urgent orders first, then redraws, then oldest |
+| GET | `/samples/by-code/{code}` | Lab Technician, Pathologist — look a sample up by its label code (any case) |
+| GET | `/samples/mine` | Patient — own samples with their journey |
+| GET | `/samples/{id}/status` | Patient (own), Doctor (ordered it or care relationship, logged), Pathologist, Receptionist, Lab Technician, Admin — patients and doctors get the journey without staff names or detail; lab staff also get the rejection |
+| GET | `/samples/{id}/events` | Lab Technician, Pathologist, Admin (full chain-of-custody log with names) |
+| GET | `/lab-orders/{id}/samples` | Same audiences as the order — the order's samples with their journeys |
+| POST | `/samples/{id}/collect` | Lab Technician — body `{ tubeTypeUsed, bodySite?, confirmMismatch? }`. `400 BODY_SITE_REQUIRED` (blood), `409 TUBE_MISMATCH` unless `confirmMismatch`, `409 NOT_WAITING_FOR_COLLECTION` |
+| POST | `/samples/{id}/receive` | Lab Technician — body `{ accepted, reason?, note? }`; accepting gives `RECEIVED_AT_LAB`, rejecting gives `REJECTED` (permanent record, front-desk notification, redraw sample created). `400 REASON_REQUIRED` / `REASON_NOT_ALLOWED` / `NOTE_REQUIRED`, `409 NOT_WAITING_FOR_RECEIPT` |
+| POST | `/samples/{id}/results` | Lab Technician *(Phase 08)* |
+| POST | `/samples/{id}/reject` | Lab Technician *(Phase 08)* — only while `IN_TESTING`; body `{ reason: SAMPLE_EXHAUSTED \| SAMPLE_DEGRADED \| OTHER, note }` |
+| POST | `/samples/{id}/verify` | Pathologist *(Phase 08)* |
+| POST | `/samples/{id}/return-for-retest` | Pathologist *(Phase 08)* — body `{ reason, note }`; moves sample back to `IN_TESTING` |
+| GET | `/samples/{id}/results` | Lab Technician, Pathologist *(Phase 08)* (all attempts, incl. returned ones) |
+| GET | `/samples/pending-verification` | Pathologist *(Phase 08)* |
+| GET | `/samples/verified-by-me` | Pathologist *(Phase 08)* |
+| GET | `/notifications` | Receptionist — open items (sample-rejected inbox), newest first, with the open count |
+| POST | `/notifications/{id}/handle` | Receptionist — mark an item handled; returns the updated list |
+
+Removing or cancelling a lab test whose sample has been collected answers `409 SAMPLE_COLLECTED` (see Lab Tests & Orders).
 
 ## Reports
 
@@ -160,7 +169,7 @@ Response (ADR-019):
       "data": [{ "module": "Billing", "phase": 6, "description": "..." }] } ] }
 ```
 
-`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`). Phase 06: `outstandingBills` and `collections` (receptionist, admin — bills to collect, today's takings by method), `myBills` (patient — unpaid bills).
+`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`). Phase 07: `sampleQueue` and `tubesNeeded` (lab technician — samples to collect and receive, tubes still to draw; replace `incomingOrders`), `sampleAlerts` (receptionist — patients to call back, shown only when there are open ones). Phase 06: `outstandingBills` and `collections` (receptionist, admin — bills to collect, today's takings by method), `myBills` (patient — unpaid bills).
 
 ## Status
 
