@@ -222,42 +222,66 @@ What a test reports — replaces the single reference range first planned on `La
 | status | enum | `ORDERED`, `CANCELLED` |
 | created_at / cancelled_at | timestamp | |
 
-### `Sample`
-One row per physical sample instance. A rejected sample is **not reused** — a redraw creates a new `Sample` row linked back to the same `LabOrderItem`, preserving the rejected one as a permanent record (see [[Rules]] §2).
+### `Sample` (V7)
+One row per physical tube or cup (ADR-024). It covers every test of one order that needs that tube. A rejected sample is **not reused** — a redraw creates a new `Sample` row pointing back at it, preserving the rejected one as a permanent record (see [[Rules]] §2). Rows are never deleted (trigger), and status changes are checked by a trigger against the allowed moves.
 
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| sample_code | string, unique | format `LAB-YYYYMMDD-####` |
-| lab_order_item_id | UUID (FK → LabOrderItem) | |
-| status | enum | `ORDERED`, `COLLECTED`, `RECEIVED_AT_LAB`, `IN_TESTING`, `RESULT_ENTERED`, `VERIFIED`, `REPORT_GENERATED`, `DISPATCHED`, `REJECTED` |
-| tube_type_used | string, nullable | set at collection |
-| body_site | string, nullable | set at collection |
-| created_at | timestamp | |
+| sample_code | string, unique | `LAB-YYYYMMDD-####`, from the daily `sample_code_counters` |
+| lab_order_id | UUID (FK → LabOrder) | |
+| patient_id | UUID (FK → Patient) | denormalised for access checks and lists |
+| required_tube_type | enum | the tube the tests need (`EDTA`, `PLAIN`, `SST`, `CITRATE`, `FLUORIDE`, `HEPARIN`, `URINE_CUP`, `STOOL_CUP`, `SWAB_TUBE`) |
+| status | enum | `ORDERED`, `COLLECTED`, `RECEIVED_AT_LAB`, `IN_TESTING`, `RESULT_ENTERED`, `VERIFIED`, `REPORT_GENERATED`, `DISPATCHED`, `REJECTED`, `CANCELLED` (all tests removed before collection) |
+| tube_type_used | enum, nullable | set at collection |
+| tube_mismatch | boolean | true when the tube used differs from the required one and the technician confirmed |
+| body_site | string, nullable | set at collection; required for blood tubes |
+| collected_at / collected_by_user_id | nullable | set together with `tube_type_used` (check constraint) |
+| received_at / received_by_user_id | nullable | set at an accepted receipt check |
+| redraw_of_sample_id | UUID (FK → Sample), nullable | the rejected sample this replaces |
+| created_at / updated_at | timestamp | |
 
-### `SampleStatusEvent`
-Append-only log — this table **is** the chain of custody. Never updated or deleted, only inserted.
+### `SampleItem` (V7)
+Links a sample to the order lines it covers: `(sample_id, lab_order_item_id)`. A rejected sample keeps its rows; the redraw gets its own for the same lines.
+
+### `SampleStatusEvent` (V7)
+Append-only log — this table **is** the chain of custody. Never updated or deleted, only inserted (trigger).
 
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
 | sample_id | UUID (FK → Sample) | |
 | status | enum | same values as `Sample.status` |
-| actor_user_id | UUID (FK → User) | who performed this transition (technician, pathologist, etc.) |
+| actor_user_id | UUID (FK → User) | who performed this transition (doctor when ordered, technician, pathologist, etc.) |
 | occurred_at | timestamp | |
-| detail | text, nullable | e.g., rejection reason, retest reason, analyzer/machine ID used |
+| detail | text, nullable | e.g., site and tube used, mismatch note, rejection reason, retest reason, analyzer/machine ID used |
 
-### `RejectionRecord`
+### `RejectionRecord` (V7)
+Permanent (trigger). One per rejected sample.
+
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| sample_id | UUID (FK → Sample) | |
+| sample_id | UUID (FK → Sample), unique | |
 | rejected_at_stage | enum | `RECEIVED_AT_LAB`, `IN_TESTING` |
 | reason | enum | `HEMOLYZED`, `CLOTTED`, `INSUFFICIENT_VOLUME` (receipt only); `SAMPLE_EXHAUSTED`, `SAMPLE_DEGRADED` (testing only); `OTHER` (either). Stage/reason pairing enforced by a check constraint |
 | note | text, nullable | required when `reason = OTHER` |
-| flagged_by_staff_id | UUID (FK → Staff) | |
+| flagged_by_user_id | UUID (FK → User) | the technician who rejected it |
 | flagged_at | timestamp | |
-| front_desk_notified_at | timestamp, nullable | |
+| front_desk_notified_at | timestamp, nullable | set when the rejection is recorded — the notification is created in the same transaction |
+
+### `Notification` (V7)
+Something a role needs to act on. Today: a rejected sample tells the front desk to call the patient back.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| audience_role | enum | who sees it (`RECEPTIONIST` for rejections) |
+| type | enum | `SAMPLE_REJECTED` |
+| title / message | string | includes the patient's phone number |
+| patient_id / sample_id | UUID, nullable | for the "Open record" link |
+| created_at | timestamp | |
+| handled_at / handled_by_user_id | nullable | set together when the front desk marks it done |
 
 ### `TestResult`
 A sample can have several results over time: each return for retest keeps the old row (status `RETURNED_FOR_RETEST`) and the retest adds a new one. At most one row per sample is `PENDING_VERIFICATION` or `VERIFIED` (enforce with a partial unique index).
