@@ -168,7 +168,7 @@ public class SampleService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "BODY_SITE_REQUIRED", "Say where the blood was drawn from");
         }
         boolean mismatch = request.tubeTypeUsed() != sample.getRequiredTubeType();
-        if (mismatch && !request.confirmMismatch()) {
+        if (mismatch && !request.mismatchConfirmed()) {
             throw conflict("TUBE_MISMATCH", "These tests need the " + label(sample.getRequiredTubeType()) + " tube, not "
                     + label(request.tubeTypeUsed()) + ". Use the right tube, or confirm to record the mismatch.");
         }

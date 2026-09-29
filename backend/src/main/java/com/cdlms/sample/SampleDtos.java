@@ -25,7 +25,12 @@ public final class SampleDtos {
     public record CollectRequest(
             @NotNull TubeType tubeTypeUsed,
             @Size(max = 60) String bodySite,
-            boolean confirmMismatch) {
+            Boolean confirmMismatch) {
+
+        /** Leaving {@code confirmMismatch} out means "not confirmed". */
+        public boolean mismatchConfirmed() {
+            return Boolean.TRUE.equals(confirmMismatch);
+        }
     }
 
     /** The receipt check: accept, or reject with a reason (a note is needed for {@code OTHER}). */
