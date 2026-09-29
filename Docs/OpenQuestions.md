@@ -4,7 +4,7 @@ Unresolved design/product questions. Tracked here rather than dropped — resolv
 
 ## Tech / Architecture
 
-- **SMS provider:** "Twilio or similar" — no specific provider chosen (see [[Decisions]] ADR-007). Also unclear if SMS is in scope for the initial build at all, or email-only.
+- **SMS provider:** "Twilio or similar" — no specific provider chosen (see [[Decisions]] ADR-007). Email is built (appointment reminders, "report ready" notices); SMS is listed as a report dispatch channel but stays off until a provider is chosen. Also unclear if SMS is in scope for the initial build at all.
 - **Deployment target:** not yet decided — now two deployables (Next.js frontend + Spring Boot backend). See [[Deployment]].
 
 ## Product / Domain
