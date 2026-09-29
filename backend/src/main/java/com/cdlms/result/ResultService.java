@@ -219,7 +219,7 @@ public class ResultService {
         samples.saveAndFlush(sample);
         record(sample, SampleStatus.VERIFIED, user.id(), "Verified by " + pathologist.getFullName());
 
-        reports.saveAndFlush(new Report(sample.getId(), user.id(), time.now()));
+        reports.saveAndFlush(new Report(sample.getId(), user.id(), time.now(), pending.isCritical()));
         sample.reportGenerated();
         samples.saveAndFlush(sample);
         record(sample, SampleStatus.REPORT_GENERATED, user.id(), "Report generated");

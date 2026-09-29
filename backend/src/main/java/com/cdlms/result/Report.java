@@ -54,13 +54,28 @@ public class Report {
     @Column(name = "verification_code", nullable = false, updatable = false, length = 32)
     private String verificationCode;
 
+    /** True when a verified value is at a critical limit; fixed when the report is created (ADR-028). */
+    @Column(name = "is_critical", nullable = false, updatable = false)
+    private boolean critical;
+
+    /** Set once, by the ordering doctor, through {@link ReportRepository#acknowledgeCritical}. */
+    @Column(name = "critical_acknowledged_at")
+    private Instant criticalAcknowledgedAt;
+
+    @Column(name = "critical_acknowledged_by_user_id")
+    private UUID criticalAcknowledgedByUserId;
+
+    @Column(name = "critical_ack_note", length = 300)
+    private String criticalAckNote;
+
     protected Report() {
     }
 
-    public Report(UUID sampleId, UUID generatedByUserId, Instant generatedAt) {
+    public Report(UUID sampleId, UUID generatedByUserId, Instant generatedAt, boolean critical) {
         this.sampleId = sampleId;
         this.generatedByUserId = generatedByUserId;
         this.generatedAt = generatedAt;
+        this.critical = critical;
         this.verificationCode = newVerificationCode();
     }
 
@@ -114,5 +129,17 @@ public class Report {
 
     public String getVerificationCode() {
         return verificationCode;
+    }
+
+    public boolean isCritical() {
+        return critical;
+    }
+
+    public Instant getCriticalAcknowledgedAt() {
+        return criticalAcknowledgedAt;
+    }
+
+    public UUID getCriticalAcknowledgedByUserId() {
+        return criticalAcknowledgedByUserId;
     }
 }
