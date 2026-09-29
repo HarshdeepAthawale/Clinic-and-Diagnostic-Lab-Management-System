@@ -37,6 +37,10 @@
 | **Receipt** | The moment a patient first opens their dispatched report |
 | **Sample rejection** | Flagging a sample as unusable and requesting a redraw — either at receipt (hemolyzed/clotted/insufficient volume) or during testing (sample exhausted/degraded) |
 | **Reagent** | A consumable chemical/substance used in running a lab test — tracked in inventory |
+| **Low stock** | An item whose level is below its low-stock threshold; a threshold of 0 means the item isn't watched. **Out of stock** is level 0 on a watched item |
+| **Stock movement** | One recorded change to a level — opening, restock, used, wastage or correction — with who made it; the only way a level changes |
+| **Turnaround (TAT)** | Time from collecting a sample to its report being ready; the insights show the median, the slowest 1 in 10 (90th percentile) and where the time goes |
+| **Median** | The middle value: half the reports were faster, half slower. Used instead of an average because a few slow samples would distort it |
 | **Token / queue number** | A number issued to walk-in patients to manage consultation order without a fixed appointment slot |
 | **Care relationship** | A doctor has one with a patient if there is a non-cancelled appointment/walk-in token with that doctor, or a past consultation by them; required to open the full record (see [[Rules]] §1) |
 | **Consultation** | A doctor visit event — the anchor record that appointments, prescriptions, and (often) lab orders attach to |
