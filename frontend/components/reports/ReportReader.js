@@ -1,9 +1,11 @@
 'use client';
 
-import { Alert, Box, Button, Group, Radio, Skeleton, Stack, Text } from '@mantine/core';
+import { Alert, Anchor, Box, Button, Group, Radio, Skeleton, Stack, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconAlertOctagon, IconAlertCircle, IconCheck, IconDownload, IconFileText, IconSend, IconShieldCheck } from '@tabler/icons-react';
+import Link from 'next/link';
 import { useState } from 'react';
+import { verifyPath } from '@/lib/verify';
 import { CHANNEL_LABEL, DISPATCH_CHANNELS, reportPdfUrl, useDispatchReport, useReport } from '@/lib/results';
 import { friendlyMessage } from '@/lib/errors';
 import { ageGender, formatDate, formatDateTime } from '@/lib/format';
@@ -40,6 +42,11 @@ function VerificationStamp({ report }) {
       {v.qualification && <Text size="sm" c="var(--text-muted)">{v.qualification}</Text>}
       {v.registrationNumber && <Text size="xs" c="var(--text-muted)" className="mono">Reg. no. {v.registrationNumber}</Text>}
       <Text size="xs" c="var(--text-muted)" mt={4}>Verified {formatDateTime(report.verifiedAt)}</Text>
+      {report.verificationCode && (
+        <Anchor component={Link} href={verifyPath(report.verificationCode)} target="_blank" size="xs" fw={600} c="var(--success)" mt={6} style={{ display: 'inline-block' }}>
+          See what a scan of the printed QR code shows
+        </Anchor>
+      )}
     </Box>
   );
 }
