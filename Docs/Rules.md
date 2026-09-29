@@ -107,7 +107,10 @@ Full permission enforcement details belong in [[Security]].
 ## 5. Reporting & Audit Rules
 
 - Any edit to a patient's medical record or a report must be logged with who made the change and when (required for accreditation-style audit trails, e.g. NABL-style expectations referenced in [[PRD]]).
-- Report PDFs must carry the lab's letterhead and a digital verification stamp tied to the verifying pathologist.
+- Report PDFs must carry the lab's letterhead and a digital verification stamp tied to the verifying pathologist, and a **QR code** that opens a public page confirming the clinic issued the report (report number, patient initials, tests, verifier — never results).
+- **A critical result must be acknowledged.** When a verified report has a value at a critical limit, its ordering doctor sees it pinned on their dashboard and on the bell until they acknowledge it (with an optional note). The acknowledgement records who and when, happens once, and can't be edited. It never blocks sending the report to the patient. The lab sees every waiting one; the admin only how many and for how long.
+- **Trends** use only verified results: a patient sees values from reports already sent to them, a doctor needs a care relationship (and the view is logged), a pathologist sees all; nobody else.
+- **Repeated failed sign-ins are refused for a while** (5 per email from one address, 30 per address, in 15 minutes) — see [[Security]].
 - Unique sample IDs follow the format `LAB-YYYYMMDD-####` (date + daily sequence number) and must be unique system-wide, not just per day per device.
 
 ## 6. Consent (if Digital Consent Tracking stretch feature is built)
