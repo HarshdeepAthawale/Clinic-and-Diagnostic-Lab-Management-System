@@ -4,7 +4,20 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02–07 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02–08 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 08 (Result Entry, Verification & Reporting)
+- Backend: Flyway `V9__results_reports.sql` — per-attempt sample results with a value for every parameter (name, unit and ranges copied so flags stay meaningful), a number-or-text type per parameter, and reports. Database triggers: a result is decided once and never edited or deleted, values are append-only, and **a report cannot be created without a verified result**. Testing starts explicitly; the server flags each number (normal, low, high, critical); the pathologist verifies (never the person who entered it) — which creates the report — or returns for retest, keeping the attempt; rejection during testing reuses Phase 07. Report PDF drawn on request with the pathologist's stamp; dispatch by email (a notice with no clinical content, Mailpit locally) or download link, SMS unavailable; receipt recorded by one atomic update on the patient's first open (ADR-025).
+- Frontend: result entry with live flags, Enter-to-advance, remembered analyzer and last-time values on a retest; start testing, awaiting-verification view, attempt history and reject-in-testing on the sample page; the bench's "To test" tab with retests pinned; pathologist queue, **focus mode** (large values, range bars, the patient's trend, retest history, V / R / J / K / Esc), and history; report reader and PDF for patients and doctors; the lab's "Reports to send" with a Send panel; dashboards for the pathologist, lab, patient and doctor; the patient's journey now runs to "Report ready"; number/text choice per parameter in the catalog editor.
+- Tests: 190 backend, 76 frontend.
+
+### Changed — Phase 08
+- The lab dashboard's tiles are now to collect / to receive / to test / reports to send; the pathologist's dashboard shows a real queue instead of placeholders. The pathologist navbar drops "Profile" for now.
+
+### Fixed — Phase 08
+- Typing in a result field crashed the page (the event target was read after React had cleared it).
+- Opening a report on two devices at once could return an error, because both tried to write the receipt time; it is now a single conditional update.
+- A collect request without `confirmMismatch` was refused; leaving it out now means "not confirmed".
 
 ### Added — Phase 07 (Sample Lifecycle: Collection Through Rejection)
 - Backend: Flyway `V7__samples.sql` — samples (one per physical tube, coded `LAB-YYYYMMDD-####`), append-only chain of custody, permanent rejection records and front-desk notifications; a database trigger allows only legal status moves and blocks deletes. `V8__backfill_samples.sql` gives existing orders their samples. Samples are created when tests are ordered; collection needs the tube and (for blood) the body site, and a wrong tube must be confirmed; the receipt check accepts or rejects — a rejection keeps the sample, notifies the front desk with the patient's phone number and creates the redraw at once. Tests can't be removed once their sample is drawn (ADR-024).
