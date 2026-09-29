@@ -292,18 +292,57 @@ A sample can have several results over time: each return for retest keeps the ol
 
 ## 4. Billing
 
-### `Invoice`
+### `Invoice` (V6)
+One per finished consultation, or one per lab order placed outside a visit (ADR-023). Created by the system. `Doctor` also gains `consultation_fee` (default 500).
+
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
+| invoice_code | string, unique | `INV-000123`, from `invoice_code_seq` |
 | patient_id | UUID (FK → Patient) | |
-| consultation_id | UUID (FK → Consultation), nullable | |
-| lab_order_id | UUID (FK → LabOrder), nullable | |
-| consultation_fee | decimal | |
-| test_charges_total | decimal | |
-| discount | decimal, default 0 | |
-| discount_applied_by_staff_id | UUID (FK → Staff), nullable | required if discount > 0, per [[Rules]] |
-| status | enum | `UNPAID`, `PARTIALLY_PAID`, `PAID` |
+| consultation_id | UUID (FK → Consultation), nullable, unique | the visit this bills |
+| lab_order_id | UUID (FK → LabOrder), nullable, unique | set for a lab-only invoice; one of the two is required |
+| consultation_fee / test_charges_total | decimal | sums of the live lines |
+| discount | decimal, default 0 | ≤ fee + tests |
+| discount_reason / discount_by_user_id / discount_at | nullable | **all required when discount > 0** (check constraint) — [[Rules]] §3 |
+| amount_paid | decimal, default 0 | ≤ fee + tests − discount |
+| status | enum | `UNPAID`, `PARTIALLY_PAID`, `PAID`, `VOID` |
+| created_at / updated_at / paid_at | timestamp | |
+
+### `InvoiceItem` (V6)
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| invoice_id | UUID (FK → Invoice) | |
+| kind | enum | `CONSULTATION`, `LAB_TEST` |
+| description | string | e.g. "Consultation — Dr. Kabir Mehta", the test name |
+| amount | decimal | copied at order time |
+| lab_order_item_id | UUID (FK → LabOrderItem), unique, nullable | set for `LAB_TEST` lines |
+| voided_at | timestamp, nullable | set when the test was removed from the order |
+
+### `Payment` (V6)
+Append-only — a trigger rejects updates and deletes.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| invoice_id | UUID (FK → Invoice) | |
+| amount | decimal | > 0, never more than the balance |
+| method | enum | `CASH`, `CARD`, `UPI` |
+| reference | string, nullable | UPI transaction id, card receipt |
+| received_by_user_id | UUID (FK → User) | |
+| received_at | timestamp | |
+
+### `InvoiceEvent` (V6)
+Append-only history of an invoice.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| invoice_id | UUID (FK → Invoice) | |
+| type | enum | `CREATED`, `LINE_VOIDED`, `DISCOUNT_APPLIED`, `PAYMENT_RECORDED`, `VOIDED` |
+| amount / note | nullable | e.g. the discount and its reason |
+| actor_user_id | UUID (FK → User), nullable | |
 | created_at | timestamp | |
 
 ## 5. Inventory
