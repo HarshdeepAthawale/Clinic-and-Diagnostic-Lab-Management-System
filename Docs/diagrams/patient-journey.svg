@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 590" width="1000" height="590" role="img" aria-labelledby="t d">
+  <title id="t">Patient journey flowchart</title>
+  <desc id="d">From registration and consultation, through ordering tests, billing, sample collection, the receipt check with a redraw loop, testing, pathologist verification with a retest loop, report generation, dispatch and the patient reading the report.</desc>
+  <rect width="1000" height="590" rx="14" fill="#f5f4f1"/>
+
+  <!-- Row 1 -->
+  <rect x="20" y="50" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="32" y="68" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">1</text><text x="100" y="86" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Register patient</text><text x="100" y="104" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Front desk</text>
+  <path d="M180 83 H216" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="216.0,83.0 206.0,88.0 206.0,78.0" fill="#1c1b19"/>
+  <rect x="220" y="50" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="232" y="68" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">2</text><text x="300" y="86" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Book or issue token</text><text x="300" y="104" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Front desk</text>
+  <path d="M380 83 H416" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="416.0,83.0 406.0,88.0 406.0,78.0" fill="#1c1b19"/>
+  <rect x="420" y="50" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="432" y="68" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">3</text><text x="500" y="86" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Consult, prescribe</text><text x="500" y="104" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Doctor</text>
+  <path d="M580 83 H616" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="616.0,83.0 606.0,88.0 606.0,78.0" fill="#1c1b19"/>
+  <rect x="620" y="50" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="632" y="68" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">4</text><text x="700" y="86" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Order lab tests</text><text x="700" y="104" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Doctor</text>
+  <path d="M780 83 H816" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="816.0,83.0 806.0,88.0 806.0,78.0" fill="#1c1b19"/>
+  <rect x="820" y="50" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="832" y="68" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">5</text><text x="900" y="86" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Invoice and payment</text><text x="900" y="104" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Front desk</text>
+  <path d="M900 116 V196" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="900.0,196.0 895.0,186.0 905.0,186.0" fill="#1c1b19"/>
+
+  <!-- Row 2 (right to left) -->
+  <rect x="820" y="200" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="832" y="218" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">6</text><text x="900" y="236" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Collect sample</text><text x="900" y="254" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Lab technician</text>
+  <path d="M820 233 H782" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="782.0,233.0 792.0,228.0 792.0,238.0" fill="#1c1b19"/>
+  <polygon points="695,183 782,233 695,283 608,233" fill="#fbeceb" stroke="#b42318" stroke-width="1.4"/>
+  <text x="695" y="174" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">7</text>
+  <text x="695" y="231" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Sample</text><text x="695" y="246" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">acceptable?</text>
+  <text x="801" y="224" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">yes</text>
+  <path d="M608 233 H572" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="572.0,233.0 582.0,228.0 582.0,238.0" fill="#1c1b19"/>
+  <text x="590" y="224" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">yes</text>
+  <rect x="410" y="200" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="422" y="218" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">8</text><text x="490" y="236" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Test, enter results</text><text x="490" y="254" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Lab technician</text>
+  <path d="M410 233 H372" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="372.0,233.0 382.0,228.0 382.0,238.0" fill="#1c1b19"/>
+  <polygon points="285,183 372,233 285,283 198,233" fill="#fbeceb" stroke="#b42318" stroke-width="1.4"/>
+  <text x="285" y="174" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">9</text>
+  <text x="285" y="231" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Result</text><text x="285" y="246" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">plausible?</text>
+  <text x="285" y="262" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Pathologist</text>
+  <path d="M198 233 H162" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="162.0,233.0 172.0,228.0 172.0,238.0" fill="#1c1b19"/>
+  <text x="180" y="224" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">yes</text>
+  <rect x="20" y="200" width="140" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="32" y="218" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">10</text><text x="90" y="236" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Verify, report</text><text x="90" y="254" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">automatic</text>
+
+  <!-- Loops -->
+  <path d="M695 283 V340" stroke="#b42318" stroke-width="1.6" fill="none"/><polygon points="695.0,340.0 690.0,330.0 700.0,330.0" fill="#b42318"/>
+  <text x="705" y="312" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">no</text>
+  <rect x="615" y="342" width="160" height="60" rx="8" fill="#ffffff" stroke="#b42318" stroke-width="1.4"/>
+  <text x="695" y="366" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Reject, redraw</text><text x="695" y="384" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">front desk calls patient back</text>
+  <path d="M775 372 H900 V268" stroke="#b42318" stroke-width="1.6" fill="none"/><polygon points="900.0,268.0 905.0,278.0 895.0,278.0" fill="#b42318"/>
+  <text x="908" y="330" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">new sample</text>
+
+  <path d="M285 283 V340" stroke="#b42318" stroke-width="1.6" fill="none"/><polygon points="285.0,340.0 280.0,330.0 290.0,330.0" fill="#b42318"/>
+  <text x="295" y="312" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">no</text>
+  <rect x="205" y="342" width="160" height="60" rx="8" fill="#ffffff" stroke="#b42318" stroke-width="1.4"/>
+  <text x="285" y="366" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Return for retest</text><text x="285" y="384" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">attempt kept, reason recorded</text>
+  <path d="M365 372 H490 V268" stroke="#b42318" stroke-width="1.6" fill="none"/><polygon points="490.0,268.0 495.0,278.0 485.0,278.0" fill="#b42318"/>
+  <text x="498" y="330" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">retest</text>
+
+  <!-- Row 3 -->
+  <path d="M90 266 V456" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="90.0,456.0 85.0,446.0 95.0,446.0" fill="#1c1b19"/>
+  <rect x="20" y="460" width="160" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="32" y="478" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">11</text><text x="100" y="496" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Dispatch report</text><text x="100" y="514" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Lab technician</text>
+  <path d="M180 493 H216" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="216.0,493.0 206.0,498.0 206.0,488.0" fill="#1c1b19"/>
+  <rect x="220" y="460" width="170" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="232" y="478" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">12</text><text x="305" y="496" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Patient opens report</text><text x="305" y="514" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Patient</text>
+  <path d="M390 493 H426" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="426.0,493.0 416.0,498.0 416.0,488.0" fill="#1c1b19"/>
+  <rect x="430" y="460" width="170" height="66" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="442" y="478" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#8a867f" font-size="11px" font-weight="700">13</text><text x="515" y="496" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Trends, QR check</text><text x="515" y="514" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="11px" font-weight="600">Patient, doctor, anyone</text>
+
+  <rect x="640" y="456" width="340" height="74" rx="8" fill="#ffffff" stroke="#b42318" stroke-width="1.2" stroke-dasharray="5 4"/>
+  <text x="810" y="480" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="13px" font-weight="700">Critical value at step 10</text>
+  <text x="810" y="500" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">pinned for the ordering doctor until acknowledged;</text>
+  <text x="810" y="515" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">the lab sees it too, dispatch is not blocked</text>
+</svg>
