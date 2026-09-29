@@ -34,6 +34,9 @@ app:
     name: ${CLINIC_NAME:CDLMS Clinic & Diagnostic Lab}
     address: ${CLINIC_ADDRESS:}
     phone: ${CLINIC_PHONE:}
+  billing:
+    # The most the front desk may discount, as a share of the bill. Admins are not capped (ADR-023).
+    reception-discount-cap-percent: ${RECEPTION_DISCOUNT_CAP_PERCENT:20}
   auth:
     jwt-secret: ${JWT_SECRET}
     token-ttl: 8h
