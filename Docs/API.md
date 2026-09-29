@@ -20,6 +20,7 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 | POST | `/auth/register` | Patient self-registration (staff accounts created by Admin, not self-registered) |
 | POST | `/auth/register/claim` | `{ email, password, registrationCode }` — creates a Patient login linked to a record the front desk registered (ADR-018). Unknown/expired/used code → `400 INVALID_REGISTRATION_CODE`; email in use → `409 EMAIL_TAKEN` |
 | POST | `/auth/login` | Sets JWT cookie; returns `{ id, name, role }`. After 5 failures for an email from one address (or 30 from any address) in 15 minutes → `429 TOO_MANY_ATTEMPTS` with the wait; a correct sign-in clears the email's count (ADR-030) |
+| POST | `/auth/change-password` | Signed in — `{ currentPassword, newPassword }` (8–72 characters, different from the current one) → `204`. Wrong current password → `401 INVALID_CREDENTIALS` and counts towards the sign-in limit; `429` when limited (ADR-032) |
 | POST | `/auth/logout` | Clears the cookie |
 | GET | `/auth/me` | Current user + role — used by the frontend to pick the role area |
 
@@ -183,7 +184,9 @@ Consumables and their levels (ADR-026). An item is `{ id, name, category, unit, 
 |---|---|---|
 | GET | `/admin/dashboard?days=` | Admin — the last `days` clinic days (default 30, 1–180, else `400`): `{ days, from, to, kpis, series, topTests, staff, tat, heatmap }`. `series` has one point per day with zeros filled in (`date, patients, registrations, revenue, reports`); `kpis` carry the previous period's figures for comparison, and the median turnaround is omitted until a report exists; `staff` counts what each person recorded |
 | GET | `/admin/analytics/tat?testId=&days=` | Admin — turnaround per test (`samples, avg/median/p90 minutes, toLab/testing/verification minutes, retested`) and the daily median per test for the heatmap; a `testId` that doesn't exist → `404` |
-| POST | `/admin/staff` | Admin (all staff roles, incl. Pathologist with registration details) — not built yet |
+| GET | `/admin/staff?q=&includeInactive=` | Admin — every non-patient account: `{ userId, fullName, email, role, active, detail, createdAt }` (`detail` is the specialization, or qualification and registration number) |
+| POST | `/admin/staff` | Admin — `{ role, fullName, email, specialization? (doctor), qualification? and registrationNumber? (pathologist) }`. `201 { staff, temporaryPassword }`: the password is shown once (`Cache-Control: no-store`). `409 EMAIL_TAKEN` / `REGISTRATION_TAKEN`, `400` for a missing detail or `PATIENT` |
+| PATCH | `/admin/staff/{userId}/active` | Admin — `{ active }`. Takes effect on their next request. `409 CANNOT_DEACTIVATE_SELF`; a patient or unknown ID → `404` |
 | GET | `/admin/access-log?patientId=&userId=&from=&to=` | Admin — record access log, paginated |
 
 ## Dashboards
