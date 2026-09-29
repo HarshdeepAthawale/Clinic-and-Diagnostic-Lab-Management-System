@@ -252,7 +252,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Lab tests: ordered tests with a "Before your test" prep checklist and the order number to show at the lab
 - Sample journey ★ (§5.1), per active sample
 - Reports (reader view + PDF download)
-- Invoices / billing
+- Bills: unpaid amount first, invoices with status and a PDF view/download; the invoice shows the lines, any discount (who gave it and why), payments received and what is still owed
 
 ### Doctor (`/doctor`)
 - Today: schedule timeline + next patient card
@@ -272,7 +272,8 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Live queue ★ (§5.4) with walk-in token issuance
 - Patient registration form
 - Appointments calendar
-- Billing counter (invoice lookup, mark paid, discount with logged staff ID)
+- Billing counter ★: "To collect" list (oldest first) searchable by patient or invoice number; the invoice page has a **Take payment** panel (full balance or half in one tap, cash / card / UPI with a reference, never more than is owed) and a **Discount** panel (presets within the front-desk cap, mandatory reason, recorded with the giver's name). Dashboard widgets: bills to collect and today's takings by method
+- Admins get the same Billing pages for review and larger discounts
 - Sample-rejected inbox
 
 ### Lab Technician (`/lab`)
