@@ -15,7 +15,8 @@ const SAMPLE_TYPES = [
   { value: 'SWAB', label: 'Swab' },
 ];
 const TUBE_OPTIONS = Object.entries(TUBES).map(([value, t]) => ({ value, label: t.label }));
-const blankParameter = { name: '', unit: '', refLow: '', refHigh: '', criticalLow: '', criticalHigh: '' };
+const blankParameter = { name: '', unit: '', valueType: 'NUMERIC', refLow: '', refHigh: '', criticalLow: '', criticalHigh: '' };
+const VALUE_TYPES = [{ value: 'NUMERIC', label: 'Number' }, { value: 'TEXT', label: 'Text' }];
 
 const num = (v) => (v === '' || v === null || v === undefined ? null : Number(v));
 const str = (v) => (v?.trim() ? v.trim() : null);
@@ -34,6 +35,7 @@ function initialValues(test) {
     parameters: (test?.parameters ?? []).map((p) => ({
       name: p.name,
       unit: p.unit ?? '',
+      valueType: p.valueType ?? 'TEXT',
       refLow: p.refLow ?? '',
       refHigh: p.refHigh ?? '',
       criticalLow: p.criticalLow ?? '',
@@ -58,10 +60,12 @@ function toRequest(v) {
       .map((p) => ({
         name: p.name.trim(),
         unit: str(p.unit),
-        refLow: num(p.refLow),
-        refHigh: num(p.refHigh),
-        criticalLow: num(p.criticalLow),
-        criticalHigh: num(p.criticalHigh),
+        valueType: p.valueType,
+        // A text result has no range to check against.
+        refLow: p.valueType === 'TEXT' ? null : num(p.refLow),
+        refHigh: p.valueType === 'TEXT' ? null : num(p.refHigh),
+        criticalLow: p.valueType === 'TEXT' ? null : num(p.criticalLow),
+        criticalHigh: p.valueType === 'TEXT' ? null : num(p.criticalHigh),
       })),
   };
 }
@@ -128,26 +132,30 @@ function Form({ test, categories, onDone }) {
           <Group justify="space-between" mb={6}>
             <div>
               <Text size="sm" fw={600}>Parameters & reference ranges</Text>
-              <Text size="xs" c="var(--text-muted)">Results are checked against these. Leave ranges empty for Positive/Negative results.</Text>
+              <Text size="xs" c="var(--text-muted)">A number is checked against its range when the result is entered. Choose Text for results like Positive / Negative or a blood group.</Text>
             </div>
             <Button size="xs" variant="default" leftSection={<IconPlus size={14} />} onClick={() => form.insertListItem('parameters', { ...blankParameter })}>
               Add
             </Button>
           </Group>
           <Stack gap={6}>
-            {form.values.parameters.map((_, i) => (
-              <Group key={i} gap={6} wrap="nowrap" align="flex-start">
-                <TextInput size="xs" placeholder="Name" style={{ flex: 2 }} {...form.getInputProps(`parameters.${i}.name`)} />
-                <TextInput size="xs" placeholder="Unit" style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.unit`)} />
-                <NumberInput size="xs" placeholder="Low" hideControls style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.refLow`)} />
-                <NumberInput size="xs" placeholder="High" hideControls style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.refHigh`)} />
-                <NumberInput size="xs" placeholder="Crit. low" hideControls style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.criticalLow`)} />
-                <NumberInput size="xs" placeholder="Crit. high" hideControls style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.criticalHigh`)} />
-                <ActionIcon variant="subtle" color="gray" mt={2} onClick={() => form.removeListItem('parameters', i)} aria-label="Remove parameter">
-                  <IconTrash size={15} />
-                </ActionIcon>
-              </Group>
-            ))}
+            {form.values.parameters.map((row, i) => {
+              const text = row.valueType === 'TEXT';
+              return (
+                <Group key={i} gap={6} wrap="nowrap" align="flex-start">
+                  <TextInput size="xs" placeholder="Name" style={{ flex: 2 }} {...form.getInputProps(`parameters.${i}.name`)} />
+                  <Select size="xs" data={VALUE_TYPES} allowDeselect={false} w={82} aria-label="Result type" {...form.getInputProps(`parameters.${i}.valueType`)} />
+                  <TextInput size="xs" placeholder="Unit" style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.unit`)} />
+                  <NumberInput size="xs" placeholder="Low" hideControls disabled={text} style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.refLow`)} />
+                  <NumberInput size="xs" placeholder="High" hideControls disabled={text} style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.refHigh`)} />
+                  <NumberInput size="xs" placeholder="Crit. low" hideControls disabled={text} style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.criticalLow`)} />
+                  <NumberInput size="xs" placeholder="Crit. high" hideControls disabled={text} style={{ flex: 1 }} {...form.getInputProps(`parameters.${i}.criticalHigh`)} />
+                  <ActionIcon variant="subtle" color="gray" mt={2} onClick={() => form.removeListItem('parameters', i)} aria-label="Remove parameter">
+                    <IconTrash size={15} />
+                  </ActionIcon>
+                </Group>
+              );
+            })}
             {form.values.parameters.length === 0 && <Text size="xs" c="var(--text-subtle)">No parameters yet.</Text>}
           </Stack>
         </div>
