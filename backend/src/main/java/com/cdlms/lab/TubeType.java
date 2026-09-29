@@ -6,5 +6,10 @@ package com.cdlms.lab;
  * HEPARIN green.
  */
 public enum TubeType {
-    EDTA, PLAIN, SST, CITRATE, FLUORIDE, HEPARIN, URINE_CUP, STOOL_CUP, SWAB_TUBE
+    EDTA, PLAIN, SST, CITRATE, FLUORIDE, HEPARIN, URINE_CUP, STOOL_CUP, SWAB_TUBE;
+
+    /** Blood tubes are filled from a vein, so collection records the body site. */
+    public boolean isBlood() {
+        return this != URINE_CUP && this != STOOL_CUP && this != SWAB_TUBE;
+    }
 }
