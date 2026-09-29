@@ -240,6 +240,12 @@ Card-first, answers "what do I need to know right now?":
 - Clicking an item opens a side panel: the level, a form (reason chips, quantity, direction for corrections, note) and the history of changes with who made them. Admins also get "Add item" and "Edit details" (including retiring an item).
 - The lab and admin see a "Running low" card on their dashboard and a count on the bell, only when something is below its level.
 
+### 5.9 Phase 10 additions
+
+- **Critical results card** (doctor, lab): pinned above everything else in a red-tinted card — patient, which value ("Haemoglobin — critical low", never the number), how long it has waited (red after an hour), *Open report* and, for the doctor, *Acknowledge*, which opens a small dialog with an optional note. The bell counts them and lists the first few. Admin sees only a count and the longest wait.
+- **Trends** (patient page `/patient/trends`, and the doctor's patient record): one card per parameter that has been measured more than once, grouped by test — the latest value with its flag, whether it went up, down or stayed steady, and a line chart with the normal range and critical limits drawn as reference lines. Every card flips to a data table.
+- **Report check** (`/verify/<code>`, public): a single centred card. Genuine reports say so in green with the report number, patient initials, tests, date and the verifier's stamp; anything else says "We couldn't find this report" and tells the reader not to rely on the printout. The report PDF prints the QR code beside the pathologist's stamp.
+
 ### 5.8 Login
 
 Split screen: left, a warm ink panel with one slow accent glow, a rolling text-reel headline, a pulse line and three product points; right, a focused sign-in form that eases in. The panel hides below 992px. After login the user lands directly in their role's workspace — nobody picks a role. Registration is a short two-step form for patients. In local dev only, a row of demo-account chips fills the form for quick testing.
@@ -260,6 +266,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Lab tests: ordered tests with a "Before your test" prep checklist and the order number to show at the lab
 - Sample journey ★ (§5.1), per active sample — on the Lab tests page, one line per tube; a rejected sample says "We need a new sample" and the redraw starts a new line
 - Reports (reader view + PDF download) — each test's values with a range bar, flag and unit, and the pathologist's verification stamp
+- Trends ★ (§5.9): the same test across visits, with the normal range
 - Bills: unpaid amount first, invoices with status and a PDF view/download; the invoice shows the lines, any discount (who gave it and why), payments received and what is still owed
 
 ### Doctor (`/doctor`)
@@ -269,6 +276,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Consult workspace ★ (§5.5): notes, prescription builder, order tests
 - Order tests directly from a patient's record (patients under their care)
 - Lab reports: verified reports for tests they ordered, with the same reader view and PDF
+- Critical results ★ (§5.9): pinned on Today until acknowledged; lab trends on each patient's record
 
 ### Pathologist (`/pathology`)
 - Verification queue (critical first, then out-of-range, then oldest; retest count shown)
