@@ -44,6 +44,22 @@ describe('journeyFor', () => {
     expect(JOURNEY_STAGES[j.current]).toBe('Testing');
   });
 
+  it('holds a verified sample at Verified until the report is dispatched', () => {
+    const events = [
+      { status: 'ORDERED', occurredAt: at(1) },
+      { status: 'COLLECTED', occurredAt: at(2) },
+      { status: 'RECEIVED_AT_LAB', occurredAt: at(3) },
+      { status: 'IN_TESTING', occurredAt: at(4) },
+      { status: 'RESULT_ENTERED', occurredAt: at(5) },
+      { status: 'VERIFIED', occurredAt: at(6) },
+      { status: 'REPORT_GENERATED', occurredAt: at(6) },
+    ];
+    expect(JOURNEY_STAGES[journeyFor({ events }).current]).toBe('Verified');
+    const dispatched = journeyFor({ events: [...events, { status: 'DISPATCHED', occurredAt: at(7) }] });
+    expect(JOURNEY_STAGES[dispatched.current]).toBe('Report ready');
+    expect(dispatched.times).toHaveLength(5);
+  });
+
   it('leaves a rejected sample where it was', () => {
     const j = journeyFor({
       events: [

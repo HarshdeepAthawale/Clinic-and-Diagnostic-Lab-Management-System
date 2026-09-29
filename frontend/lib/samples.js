@@ -29,7 +29,8 @@ const STAGE_OF = {
   IN_TESTING: 3,
   RESULT_ENTERED: 3,
   VERIFIED: 4,
-  REPORT_GENERATED: 5,
+  // The report exists as soon as it is verified, but the patient can't open it until it is dispatched.
+  REPORT_GENERATED: 4,
   DISPATCHED: 5,
 };
 
@@ -58,8 +59,8 @@ export function plainStatus(status) {
     IN_TESTING: 'Being tested',
     RESULT_ENTERED: 'Being checked',
     VERIFIED: 'Result checked',
-    REPORT_GENERATED: 'Report ready',
-    DISPATCHED: 'Report sent',
+    REPORT_GENERATED: 'Result checked — your report will be sent to you',
+    DISPATCHED: 'Report ready',
     REJECTED: 'A new sample is needed',
     CANCELLED: 'Cancelled',
   }[status] ?? status;
@@ -73,7 +74,7 @@ export const SAMPLE_STATUS_LABEL = {
   IN_TESTING: 'In testing',
   RESULT_ENTERED: 'Result entered',
   VERIFIED: 'Verified',
-  REPORT_GENERATED: 'Report ready',
+  REPORT_GENERATED: 'To dispatch',
   DISPATCHED: 'Dispatched',
   REJECTED: 'Rejected',
   CANCELLED: 'Cancelled',
