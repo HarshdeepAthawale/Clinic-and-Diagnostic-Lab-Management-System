@@ -101,13 +101,15 @@ Samples are created by the system when tests are ordered (ADR-024) — one per t
 | GET | `/lab-orders/{id}/samples` | Same audiences as the order — the order's samples with their journeys |
 | POST | `/samples/{id}/collect` | Lab Technician — body `{ tubeTypeUsed, bodySite?, confirmMismatch? }`. `400 BODY_SITE_REQUIRED` (blood), `409 TUBE_MISMATCH` unless `confirmMismatch`, `409 NOT_WAITING_FOR_COLLECTION` |
 | POST | `/samples/{id}/receive` | Lab Technician — body `{ accepted, reason?, note? }`; accepting gives `RECEIVED_AT_LAB`, rejecting gives `REJECTED` (permanent record, front-desk notification, redraw sample created). `400 REASON_REQUIRED` / `REASON_NOT_ALLOWED` / `NOTE_REQUIRED`, `409 NOT_WAITING_FOR_RECEIPT` |
-| POST | `/samples/{id}/results` | Lab Technician *(Phase 08)* |
-| POST | `/samples/{id}/reject` | Lab Technician *(Phase 08)* — only while `IN_TESTING`; body `{ reason: SAMPLE_EXHAUSTED \| SAMPLE_DEGRADED \| OTHER, note }` |
-| POST | `/samples/{id}/verify` | Pathologist *(Phase 08)* |
-| POST | `/samples/{id}/return-for-retest` | Pathologist *(Phase 08)* — body `{ reason, note }`; moves sample back to `IN_TESTING` |
-| GET | `/samples/{id}/results` | Lab Technician, Pathologist *(Phase 08)* (all attempts, incl. returned ones) |
-| GET | `/samples/pending-verification` | Pathologist *(Phase 08)* |
-| GET | `/samples/verified-by-me` | Pathologist *(Phase 08)* |
+| GET | `/samples/to-test?page=&size=` | Lab Technician — samples at the lab waiting to be tested; returned-for-retest first (with the reason), then urgent, then the longest waiting |
+| POST | `/samples/{id}/start-testing` | Lab Technician — `RECEIVED_AT_LAB → IN_TESTING`; returns the entry sheet. `409 NOT_READY_FOR_TESTING` |
+| POST | `/samples/{id}/results` | Lab Technician — body `{ analyzer?, values: [{ parameterId, value }] }`: a value for **every** parameter of every test on the sample. Numbers are flagged by the server. `400 MISSING_VALUES` / `INVALID_VALUE` / `UNKNOWN_PARAMETER` / `DUPLICATE_VALUE`, `409 NOT_IN_TESTING` |
+| POST | `/samples/{id}/reject` | Lab Technician — only while `IN_TESTING`; body `{ reason: SAMPLE_EXHAUSTED \| SAMPLE_DEGRADED \| OTHER, note }`. Same effects as a receipt rejection (permanent record, front-desk call-back, redraw); results entered so far are kept |
+| POST | `/samples/{id}/verify` | Pathologist — signs off the result and creates the report. `409 CANNOT_VERIFY_OWN`, `409 NOT_AWAITING_VERIFICATION` |
+| POST | `/samples/{id}/return-for-retest` | Pathologist — body `{ reason, note }` (`note` required for `OTHER`); moves the sample back to `IN_TESTING`, keeping the attempt |
+| GET | `/samples/{id}/results` | Lab Technician, Pathologist — the entry sheet, all attempts (returned ones too), retest count, last return reason; for a pathologist also the patient's earlier values per parameter (`trend`) and the read is logged |
+| GET | `/samples/pending-verification?page=&size=` | Pathologist — critical first, then out-of-range, then the longest waiting |
+| GET | `/samples/verified-by-me?page=&size=` | Pathologist — what they have signed off, newest first |
 | GET | `/notifications` | Receptionist — open items (sample-rejected inbox), newest first, with the open count |
 | POST | `/notifications/{id}/handle` | Receptionist — mark an item handled; returns the updated list |
 
@@ -115,10 +117,16 @@ Removing or cancelling a lab test whose sample has been collected answers `409 S
 
 ## Reports
 
+A report is created when a pathologist verifies a result (ADR-025) and is keyed by its sample. Patients can open it only after it has been dispatched.
+
 | Method | Path | Role |
 |---|---|---|
-| GET | `/reports/{sample_id}` | Patient (self), Doctor, Pathologist |
-| GET | `/reports/{sample_id}/pdf` | Patient (self), Doctor |
+| GET | `/reports/mine` | Patient — reports dispatched to them, newest first |
+| GET | `/reports/ordered-by-me?page=&size=` | Doctor — verified reports for tests they ordered |
+| GET | `/reports/to-dispatch?page=&size=` | Lab Technician — verified reports not yet sent, critical first |
+| GET | `/reports/{sample_id}` | Patient (own, once dispatched — the first open records receipt), Doctor (ordered it or care relationship, logged), Pathologist (logged), Lab Technician — values with unit, ranges and flags, the verifier's name, qualification and registration number |
+| GET | `/reports/{sample_id}/pdf?download=` | Same audiences — `application/pdf`, drawn on request, `Cache-Control: private, no-store` |
+| POST | `/reports/{sample_id}/dispatch` | Lab Technician — body `{ channel }`: `EMAIL` (a notice pointing to the patient's account; `400 NO_EMAIL` if they have none) or `DOWNLOAD_LINK`. `SMS` → `400 CHANNEL_UNAVAILABLE`. Once only: `409 ALREADY_DISPATCHED` |
 
 ## Billing
 
@@ -169,7 +177,7 @@ Response (ADR-019):
       "data": [{ "module": "Billing", "phase": 6, "description": "..." }] } ] }
 ```
 
-`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`). Phase 07: `sampleQueue` and `tubesNeeded` (lab technician — samples to collect and receive, tubes still to draw; replace `incomingOrders`), `sampleAlerts` (receptionist — patients to call back, shown only when there are open ones). Phase 06: `outstandingBills` and `collections` (receptionist, admin — bills to collect, today's takings by method), `myBills` (patient — unpaid bills).
+`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`). Phase 08: `verificationQueue` and stats for awaiting / critical / verified / returned (pathologist); the lab's stats change to to collect / receive / test / reports to send and gain `testQueue` and `dispatchQueue`; `myReports` (patient — dispatched reports, right after the queue and tests cards) and `reportsReady` (doctor — verified reports for their orders). Phase 07: `sampleQueue` and `tubesNeeded` (lab technician — samples to collect and receive, tubes still to draw; replace `incomingOrders`), `sampleAlerts` (receptionist — patients to call back, shown only when there are open ones). Phase 06: `outstandingBills` and `collections` (receptionist, admin — bills to collect, today's takings by method), `myBills` (patient — unpaid bills).
 
 ## Status
 
