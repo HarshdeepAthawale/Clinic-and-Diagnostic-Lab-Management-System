@@ -246,6 +246,10 @@ Card-first, answers "what do I need to know right now?":
 - **Trends** (patient page `/patient/trends`, and the doctor's patient record): one card per parameter that has been measured more than once, grouped by test — the latest value with its flag, whether it went up, down or stayed steady, and a line chart with the normal range and critical limits drawn as reference lines. Every card flips to a data table.
 - **Report check** (`/verify/<code>`, public): a single centred card. Genuine reports say so in green with the report number, patient initials, tests, date and the verifier's stamp; anything else says "We couldn't find this report" and tells the reader not to rely on the printout. The report PDF prints the QR code beside the pathologist's stamp.
 
+### 5.10 Staff
+
+Admin's **Staff** page: a searchable table of everyone who works here (name and email, role badge, details such as specialization or registration number, date added) with a *Show deactivated* switch, *Add account* and a *Deactivate / Reactivate* action per person (a confirmation first; your own row says "You"). *Add account* asks for the role, name, email and only the details that role needs; afterwards it shows the **temporary password once**, with a copy button and a plain warning. Everyone's account menu has **Change password**.
+
 ### 5.8 Login
 
 Split screen: left, a warm ink panel with one slow accent glow, a rolling text-reel headline, a pulse line and three product points; right, a focused sign-in form that eases in. The panel hides below 992px. After login the user lands directly in their role's workspace — nobody picks a role. Registration is a short two-step form for patients. In local dev only, a row of demo-account chips fills the form for quick testing.
