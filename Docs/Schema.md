@@ -385,14 +385,33 @@ Append-only history of an invoice.
 
 ## 5. Inventory
 
-### `InventoryItem`
+### `InventoryItem` (V10)
+A consumable the lab tracks (ADR-026). Never deleted (trigger); retire with `is_active = false`.
+
 | Field | Type | Notes |
 |---|---|---|
 | id | UUID (PK) | |
-| name | string | e.g., "EDTA tube", "reagent X" |
-| current_stock | integer | |
-| low_stock_threshold | integer | |
-| unit | string | |
+| name | string | e.g. "EDTA tubes (purple cap)"; unique ignoring case |
+| category | enum | `TUBE`, `REAGENT`, `CONSUMABLE`, `OTHER` |
+| unit | string | "tubes", "packs" |
+| current_stock | integer, `>= 0` | changes only through a movement (one conditional UPDATE) |
+| low_stock_threshold | integer, `>= 0` | low = stock below this while active; 0 = not watched |
+| is_active | boolean | retired items keep their history and raise no alerts |
+| created_at / updated_at | timestamp | |
+
+### `InventoryMovement` (V10)
+Append-only (trigger): one row per change to a level. Corrections are new rows.
+
+| Field | Type | Notes |
+|---|---|---|
+| id | UUID (PK) | |
+| item_id | UUID (FK → InventoryItem) | |
+| delta | integer, `<> 0` | signed change |
+| stock_after | integer, `>= 0` | the level once applied |
+| reason | enum | `OPENING`, `RESTOCK`, `USED`, `WASTAGE`, `CORRECTION` — the database checks the sign: restock `> 0`, used and wastage `< 0` |
+| note | string, nullable | batch number, who used it, why |
+| actor_user_id | UUID (FK → User) | |
+| created_at | timestamp | |
 
 ### `ReagentTestMapping` (only if the reagent-mapping stretch feature is built)
 | Field | Type | Notes |
