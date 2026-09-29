@@ -390,3 +390,17 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 **Decision:** `scripts/demo-walkthrough.mjs` signs in as each demo account and does what the people would: register, take a walk-in token, consult, prescribe, order, bill and pay, collect, reject and redraw, test, retest, verify, dispatch. It stops at the first failing step, so it is also the end-to-end rehearsal. To make history, it runs a round of visits "now" and then moves every timestamp in the local database back (triggers off, dev Postgres only), so the next round can be made "now" too; turnaround is spaced out in the sample status log. It records what it has finished in an ignored state file, so a stopped run resumes. It refuses to run against anything but localhost.
 **Alternatives considered:** SQL seed rows (skips validation and the append-only triggers); a Java runner in the dev profile (would need a clock it can move); Playwright (heavier, and slower to make data).
 **Consequence:** Seeding takes about a minute against a running dev backend. Demo data is only ever produced through paths a real user could take, apart from the time shift.
+
+---
+
+## ADR-032: Staff accounts — created and switched off by the admin, with a one-time temporary password
+
+**Status:** Accepted
+**Context:** Staff accounts existed only as dev seed data, so there was no way to onboard a new doctor or remove someone who left. The admin role owns this (Rules §1), and the "Staff" menu item was waiting for it.
+**Decision:**
+- The admin **creates** doctor, pathologist, receptionist, lab technician and admin accounts (`POST /admin/staff`). Doctors need a specialization; pathologists need a qualification and a registration number (unique) because both are printed on what they sign. Emails are unique ignoring case. Patients are never created here.
+- The server makes a **random 12-character temporary password** (no look-alike characters), returns it **once** with `Cache-Control: no-store`, and stores only its hash. The admin hands it over in person.
+- Every signed-in user can **change their own password** (`POST /auth/change-password`: current password, new one of 8–72 characters, different from the old). Wrong current-password guesses count towards the sign-in limit (ADR-030). A new staff member is expected to replace the temporary password at first sign-in, from the account menu.
+- The admin **deactivates and reactivates** accounts (`PATCH /admin/staff/{id}/active`). It takes effect on the next request, because the sign-in cookie is checked against the account every time; signing in again answers `ACCOUNT_DISABLED`. **Nobody can deactivate themselves**, so the clinic is never left without an admin. Accounts are **never deleted**: everything a person recorded stays attributed to them.
+**Alternatives considered:** the admin choosing the password (the admin would know it); emailing an invite link (needs a reset-token flow and reliable email, which is not set up); deleting accounts (breaks the audit trail); forcing a password change at first sign-in (a sensible next step; today it is expected, not enforced).
+**Consequence:** Changing a password does not sign out sessions already open (the token lives until it expires, at most the configured TTL); deactivation does. There is no "forgot password" flow yet — the admin cannot reset one either; a new temporary password would be the next addition. Staff creation is not yet written to a separate audit log.
