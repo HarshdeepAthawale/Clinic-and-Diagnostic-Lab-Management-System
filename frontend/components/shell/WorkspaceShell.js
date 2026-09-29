@@ -127,7 +127,7 @@ export function WorkspaceShell({ role, children }) {
               </UnstyledButton>
             )}
             <ClinicClock />
-            <NotificationsBell buttonClassName={classes.iconBtn} />
+            <NotificationsBell role={config.key} buttonClassName={classes.iconBtn} />
             {cta && (
               <Link href={cta.href} className={classes.cta}>
                 {cta.label}
