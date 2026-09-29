@@ -554,4 +554,61 @@ class ResultFlowTest extends IntegrationTest {
                 .andExpect(jsonPath("$.content[1].status").value("RECEIVED_AT_LAB"));
         mvc.perform(get("/api/samples/to-test").cookie(pathologist)).andExpect(status().isForbidden());
     }
+
+    // ---------------------------------------------------------------- dashboards
+
+    @Test
+    void thePathologistDashboardShowsTheQueueAndTheDay() throws Exception {
+        consultation();
+        String critical = inTesting("CBC", "EDTA");
+        enter(lab, critical, valuesBody(critical, cbc("Haemoglobin", "6.0"))).andExpect(status().isOk());
+        String other = enteredSample();
+        verify(pathologist, other).andExpect(status().isOk());
+
+        mvc.perform(get("/api/dashboard/pathologist").cookie(pathologist))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.widgets[0].data[0].value").value(1))
+                .andExpect(jsonPath("$.widgets[0].data[1].value").value(1))
+                .andExpect(jsonPath("$.widgets[0].data[2].value").value(1))
+                .andExpect(jsonPath("$.widgets[1].type").value("verificationQueue"))
+                .andExpect(jsonPath("$.widgets[1].data.results", hasSize(1)))
+                .andExpect(jsonPath("$.widgets[1].data.results[0].sampleId").value(critical))
+                .andExpect(jsonPath("$.widgets[1].data.total").value(1));
+    }
+
+    @Test
+    void theLabDashboardShowsWhatToTestAndWhichReportsToSend() throws Exception {
+        consultation();
+        String returned = enteredSample();
+        mvc.perform(json(post("/api/samples/" + returned + "/return-for-retest"), "{\"reason\":\"QC_CONCERN\"}").cookie(pathologist))
+                .andExpect(status().isOk());
+        String verified = enteredSample();
+        verify(pathologist, verified).andExpect(status().isOk());
+
+        mvc.perform(get("/api/dashboard/lab-technician").cookie(lab))
+                .andExpect(jsonPath("$.widgets[0].data[2].value").value(1))
+                .andExpect(jsonPath("$.widgets[0].data[2].hint").value("1 returned for retest"))
+                .andExpect(jsonPath("$.widgets[0].data[3].value").value(1))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'testQueue')].data.samples[0].id").value(returned))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'dispatchQueue')].data.total").value(1));
+    }
+
+    @Test
+    void patientsAndDoctorsSeeReportsOnTheirDashboards() throws Exception {
+        consultation();
+        String sampleId = enteredSample();
+        verify(pathologist, sampleId).andExpect(status().isOk());
+
+        // Verified but not dispatched: the doctor knows, the patient doesn't yet.
+        mvc.perform(get("/api/dashboard/doctor").cookie(doctor))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'reportsReady')].data[0].sampleId").value(sampleId));
+        mvc.perform(get("/api/dashboard/patient").cookie(patient))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'myReports')]", hasSize(0)));
+
+        mvc.perform(json(post("/api/reports/" + sampleId + "/dispatch"), "{\"channel\":\"DOWNLOAD_LINK\"}").cookie(lab))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/dashboard/patient").cookie(patient))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'myReports')].data[0].sampleId").value(sampleId))
+                .andExpect(jsonPath("$.widgets[?(@.type == 'myReports')].data[0].abnormal").value(true));
+    }
 }

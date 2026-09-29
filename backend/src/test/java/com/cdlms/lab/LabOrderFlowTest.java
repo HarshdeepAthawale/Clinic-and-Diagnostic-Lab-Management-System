@@ -371,7 +371,7 @@ class LabOrderFlowTest extends IntegrationTest {
         mvc.perform(get("/api/dashboard/lab-technician").cookie(lab))
                 .andExpect(jsonPath("$.widgets[0].data[0].value").value(2))
                 .andExpect(jsonPath("$.widgets[0].data[1].value").value(0))
-                .andExpect(jsonPath("$.widgets[0].data[2].value").value(2))
+                .andExpect(jsonPath("$.widgets[0].data[2].value").value(0))
                 .andExpect(jsonPath("$.widgets[1].type").value("sampleQueue"))
                 .andExpect(jsonPath("$.widgets[1].data.toCollect", hasSize(2)))
                 .andExpect(jsonPath("$.widgets[2].type").value("tubesNeeded"))
