@@ -193,7 +193,7 @@ Designed for a tablet on the bench, gloves on:
 
 - **Scan-first:** a big, always-focused "Scan or type sample code" field. A QR scan (camera, if the QR stretch feature is built) or typed code jumps straight to that sample's next action.
 - 56px touch targets, large tube chips, one primary action per screen ("Mark received", "Enter result").
-- Tube-type mismatch appears as an amber warning before the sample can be marked received.
+- Tube-type mismatch appears as an amber warning while collecting (it needs an explicit confirmation) and again before the sample can be marked received.
 - Returned-for-retest samples are pinned at the top of the queue with the pathologist's reason.
 
 ### 5.4 Reception Live Queue
@@ -205,7 +205,7 @@ A live board, one column per doctor (built in Phase 03):
 - **Waiting** — token chips in check-in order; the next patient is tinted accent; minutes waited turn amber after 30. Rows slide up (layout animation) when someone is called; other moves (no-show, cancel) sit in a "…" menu.
 - Refreshes every 10 s; the same board appears as a widget on the reception, doctor and admin dashboards.
 - **Waiting-room screen** (TV mode): full screen, large tokens, **no patient names**.
-- Later (Phase 07): a sample-rejected inbox with a "Call patient" action and one-click rebooking.
+- **Sample alerts (Phase 07):** when the lab rejects a sample, a "Patients to call back" card appears right under the tiles and the bell shows the open count. Each item names the patient, the sample and the reason, with the phone number, **Patient called** and **Open record**. The Samples page lists them all.
 
 ### 5.5 Doctor Consult Workspace
 
@@ -250,7 +250,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Medical history (read-only EMR)
 - Prescriptions (list + PDF download)
 - Lab tests: ordered tests with a "Before your test" prep checklist and the order number to show at the lab
-- Sample journey ★ (§5.1), per active sample
+- Sample journey ★ (§5.1), per active sample — on the Lab tests page, one line per tube; a rejected sample says "We need a new sample" and the redraw starts a new line
 - Reports (reader view + PDF download)
 - Bills: unpaid amount first, invoices with status and a PDF view/download; the invoice shows the lines, any discount (who gave it and why), payments received and what is still owed
 
@@ -274,13 +274,13 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Appointments calendar
 - Billing counter ★: "To collect" list (oldest first) searchable by patient or invoice number; the invoice page has a **Take payment** panel (full balance or half in one tap, cash / card / UPI with a reference, never more than is owed) and a **Discount** panel (presets within the front-desk cap, mandatory reason, recorded with the giver's name). Dashboard widgets: bills to collect and today's takings by method
 - Admins get the same Billing pages for review and larger discounts
-- Sample-rejected inbox
+- Samples to redraw (the sample-rejected inbox)
 
 ### Lab Technician (`/lab`)
 - Bench home ★ (§5.3): scan field + incoming orders queue (retests pinned on top) and "Tubes to set out" by cap colour
 - Orders: every open order, urgent first; order detail with tubes to collect, the doctor's note and the prep to check
-- Sample collection (tube type chips, body site, timestamp)
-- Receipt check (accept / reject with reason)
+- Samples ★ (§5.3): the scan field, then "To collect" and "To receive" lists (urgent, then redraws, then oldest)
+- Sample page: **collection** (tube chips with the needed one pre-selected, body site chips, amber wrong-tube warning that needs an explicit confirmation), **receipt check** ("Mark received" or "Reject sample" with a reason), the printable **label with a QR code**, and the chain of custody
 - Result entry per analyzer/test, with range bar preview and a secondary "Reject sample" action (exhausted / degraded / other)
 - My processed samples
 - Inventory (view / restock, low-stock warnings)
