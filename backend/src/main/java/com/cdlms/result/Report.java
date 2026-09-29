@@ -50,6 +50,10 @@ public class Report {
     @Column(name = "receipt_confirmed_at")
     private Instant receiptConfirmedAt;
 
+    /** Printed on the PDF as a QR code; lets anyone check the report is genuine (ADR-027). Fixed once issued. */
+    @Column(name = "verification_code", nullable = false, updatable = false, length = 32)
+    private String verificationCode;
+
     protected Report() {
     }
 
@@ -57,6 +61,14 @@ public class Report {
         this.sampleId = sampleId;
         this.generatedByUserId = generatedByUserId;
         this.generatedAt = generatedAt;
+        this.verificationCode = newVerificationCode();
+    }
+
+    /** 128 random bits as 32 hex characters: unguessable, and short enough for a QR code to stay easy to scan. */
+    static String newVerificationCode() {
+        byte[] bytes = new byte[16];
+        new java.security.SecureRandom().nextBytes(bytes);
+        return java.util.HexFormat.of().formatHex(bytes);
     }
 
     public void dispatch(Channel channel, UUID byUserId, Instant at) {
@@ -98,5 +110,9 @@ public class Report {
 
     public Instant getReceiptConfirmedAt() {
         return receiptConfirmedAt;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
     }
 }

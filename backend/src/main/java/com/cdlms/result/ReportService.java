@@ -210,7 +210,7 @@ public class ReportService {
                 verified.getAttemptNumber(), reportTests,
                 new Verifier(verifier.getFullName(), verifier.getQualification(), verifier.getRegistrationNumber()),
                 verified.getVerifiedAt(), report.getGeneratedAt(), report.getDispatchedChannel(), report.getDispatchedAt(),
-                report.getReceiptConfirmedAt(), verified.isCritical());
+                report.getReceiptConfirmedAt(), verified.isCritical(), report.getVerificationCode());
     }
 
     private List<String> testNames(Sample sample) {

@@ -120,7 +120,16 @@ public final class ResultDtos {
                              String orderingDoctor, TubeType tubeType, Instant collectedAt, Instant receivedAt,
                              int attemptNumber, List<ReportTest> tests, Verifier verifier, Instant verifiedAt,
                              Instant generatedAt, Report.Channel dispatchedChannel, Instant dispatchedAt,
-                             Instant receiptConfirmedAt, boolean critical) {
+                             Instant receiptConfirmedAt, boolean critical, String verificationCode) {
+    }
+
+    /**
+     * What anyone holding a printed report sees after scanning its QR code (ADR-027): that the clinic issued it,
+     * when, which tests, and who verified it — never any results. The patient appears as initials only.
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record ReportAuthenticity(boolean authentic, String clinicName, String reportNumber, String patientInitials,
+                                     List<String> tests, Instant verifiedAt, Verifier verifier) {
     }
 
     /** A row in a list of reports. */
