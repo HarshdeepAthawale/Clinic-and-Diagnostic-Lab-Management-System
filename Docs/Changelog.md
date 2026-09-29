@@ -4,7 +4,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02–08 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02–09 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 09 (Inventory & Admin Analytics)
+- Backend: Flyway `V10__inventory.sql` — inventory items (category, unit, level, low-stock threshold, retire instead of delete) and append-only movements. A level changes only through a recorded movement (restock, used, wastage, correction; opening stock when an item is added): one conditional update that refuses to go below zero, so two people adjusting at once cannot lose a change; the database checks the direction against the reason. Lab and admin record movements; only admins add, edit or retire items. A computed "Running low" card on the lab and admin dashboards (ADR-026).
+- Backend: admin-only `GET /api/admin/dashboard?days=` and `GET /api/admin/analytics/tat` — KPIs with the previous period for comparison, zero-filled daily series (clinic time zone), most-ordered tests, staff activity counted from who recorded each row, and turnaround per test (median, 90th percentile, stage breakdown, retests) measured from the sample event log, plus a test × day heatmap.
+- Frontend: inventory list with search, category and low-stock filters, level bars and badges; a side panel to record a change (reason, quantity, direction for corrections, note) with the history and who made each change; admin add / edit / retire; the running-low card and a low-stock count on the bell. **Insights** page (`/admin/insights`): KPI tiles with change and sparklines, revenue area chart, patients bar chart, most-ordered tests, turnaround table and heatmap, staff activity table, a 7 / 30 / 90-day picker and a data-table toggle on every chart. Admin menu: "Overview" (today) and "Insights".
+- Not built: staff account management and reagent-to-test stock decrement (see OpenQuestions).
+- Tests: 209 backend, 95 frontend.
 
 ### Added — Phase 08 (Result Entry, Verification & Reporting)
 - Backend: Flyway `V9__results_reports.sql` — per-attempt sample results with a value for every parameter (name, unit and ranges copied so flags stay meaningful), a number-or-text type per parameter, and reports. Database triggers: a result is decided once and never edited or deleted, values are append-only, and **a report cannot be created without a verified result**. Testing starts explicitly; the server flags each number (normal, low, high, critical); the pathologist verifies (never the person who entered it) — which creates the report — or returns for retest, keeping the attempt; rejection during testing reuses Phase 07. Report PDF drawn on request with the pathologist's stamp; dispatch by email (a notice with no clinical content, Mailpit locally) or download link, SMS unavailable; receipt recorded by one atomic update on the patient's first open (ADR-025).
