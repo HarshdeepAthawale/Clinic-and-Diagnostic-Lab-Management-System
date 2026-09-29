@@ -8,7 +8,7 @@ Explicitly out of scope for this project. Listed so scope creep has something co
 - **Real barcode/QR scanner hardware integration** — sample QR codes are generated and can be "printed" on a label for demo purposes; actual scanning hardware integration is not built.
 - **Payment gateway integration** — invoices track paid/unpaid status; actual online payment processing (Stripe/Razorpay/etc.) is not implemented unless explicitly promoted from a stretch decision (see [[OpenQuestions]]).
 - **Telemedicine / video consultations** — appointments are in-person/queue-based; no video call feature.
-- **Stretch features not selected** — of the items listed in [[PRD]] section 7, only 2–3 will be built per [[ImplementationPlan]]; the rest remain explicitly out of scope for this iteration, not silently dropped (tracked, not forgotten — that's the point of separating this from a plain backlog).
+- **Stretch features not selected** — of the items listed in [[PRD]] section 7, three were built (critical value alerts, trend graphs, QR-verified reports); the rest — no-show prediction, family account linking, prescription templates, reagent-to-test mapping, a full audit log on edits, digital consent tracking — remain explicitly out of scope for this iteration, not silently dropped.
 - **Full regulatory certification** (e.g., actual NABL accreditation) — the system is designed with accreditation-style audit-trail requirements in mind for realism/domain credibility, but does not claim or pursue real certification.
 
 If something here turns out to be needed, promote it explicitly: add it to [[PRD]] and [[ImplementationPlan]], and remove it from this list with a note in [[Decisions]].
