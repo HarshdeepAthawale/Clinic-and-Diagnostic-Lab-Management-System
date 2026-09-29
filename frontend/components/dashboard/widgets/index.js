@@ -3,9 +3,12 @@
 import { Avatar, Box, Group, Progress, SimpleGrid, Stack, Text } from '@mantine/core';
 import {
   IconActivity,
+  IconAlertOctagon,
+  IconArrowBackUp,
   IconBolt,
   IconCalendarEvent,
   IconCalendarOff,
+  IconCircleCheck,
   IconClockHour4,
   IconDropletFilled,
   IconFileSearch,
@@ -13,7 +16,10 @@ import {
   IconHistory,
   IconInbox,
   IconLink,
+  IconListCheck,
   IconListDetails,
+  IconMicroscope,
+  IconSend,
   IconUserPlus,
   IconUsers,
 } from '@tabler/icons-react';
@@ -31,6 +37,7 @@ import { QueueBoard } from '@/components/appointments/QueueBoard';
 import { OpenConsultation, RecentPrescriptions } from './consultationWidgets';
 import { Collections, MyBills, OutstandingBills } from './billingWidgets';
 import { MyLabOrders, TubesNeeded } from './labWidgets';
+import { DispatchQueue, MyReports, ReportsReady, TestQueue, VerificationQueue } from './resultWidgets';
 import { SampleAlerts, SampleQueue } from './sampleWidgets';
 import { ListRow } from './ListRow';
 
@@ -53,6 +60,12 @@ const STAT_ICONS = {
   activeStaff: IconUsers,
   samplesToCollect: IconFlask,
   samplesToReceive: IconInbox,
+  samplesToTest: IconMicroscope,
+  reportsToSend: IconSend,
+  awaitingVerification: IconListCheck,
+  criticalWaiting: IconAlertOctagon,
+  verifiedToday: IconCircleCheck,
+  returnedToday: IconArrowBackUp,
   urgentWaiting: IconBolt,
   orderedToday: IconCalendarEvent,
   catalogTests: IconListDetails,
@@ -377,6 +390,11 @@ export const WIDGETS = {
   recentPrescriptions: RecentPrescriptions,
   sampleQueue: SampleQueue,
   sampleAlerts: SampleAlerts,
+  verificationQueue: VerificationQueue,
+  testQueue: TestQueue,
+  dispatchQueue: DispatchQueue,
+  myReports: MyReports,
+  reportsReady: ReportsReady,
   tubesNeeded: TubesNeeded,
   myLabOrders: MyLabOrders,
   outstandingBills: OutstandingBills,
