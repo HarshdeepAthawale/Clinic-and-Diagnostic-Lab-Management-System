@@ -110,4 +110,5 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 | P10-3 | End-to-end walkthrough rehearsal | Done | `scripts/demo-walkthrough.mjs` drives every role through the whole journey against the real API |
 | P10-4 | Seed/demo data | Done | Ten patients, three rounds of history, every sample stage, a rejected + redrawn sample, a retest, critical results, stock (ADR-031) |
 | P10-5 | UI polish pass | Done | Checked every new screen in the browser; see the Changelog |
+| P10-7 | Staff account management + change password | Done | Admin Staff page, one-time temporary password, deactivate/reactivate, account-menu password change (ADR-032) |
 | P10-6 | Security/test coverage review | Done | Added sign-in/claim rate limits and turned API docs off by default (ADR-030); priority test cases mapped in [[TestPlan]] |
