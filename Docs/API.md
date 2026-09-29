@@ -113,11 +113,19 @@ An appointment is `{ id, kind (SCHEDULED/WALK_IN), status, scheduledAt, duration
 
 ## Billing
 
+Invoices are created by the system (ADR-023) — when a consultation is finished, or a lab order is placed outside a visit — never through the API.
+
 | Method | Path | Role |
 |---|---|---|
-| GET | `/invoices/{id}` | Patient (self), Receptionist, Admin |
-| GET | `/invoices/{id}/pdf` | Patient (self), Receptionist, Admin |
-| POST | `/invoices/{id}/pay` | Receptionist |
+| GET | `/invoices?status=&q=&page=&size=` | Receptionist, Admin — the counter list. `status` is `OUTSTANDING` (default, oldest first), `PAID` or `ALL`; `q` matches patient name, patient ID or invoice number |
+| GET | `/invoices/mine` | Patient — own invoices |
+| GET | `/invoices/{id}` | Patient (own), Receptionist, Admin — lines, discount (who, why, when), totals, balance and payments |
+| GET | `/invoices/{id}/pdf?download=` | Same as above — `application/pdf`, generated on request, `Cache-Control: private, no-store` |
+| POST | `/invoices/{id}/payments` | Receptionist — body `{ amount, method, reference? }`; part payments allowed. `400 AMOUNT_TOO_HIGH`, `409 INVOICE_CLOSED` |
+| POST | `/invoices/{id}/discount` | Receptionist (up to the front-desk cap), Admin — body `{ amount, reason }`; `0` removes it. `400 REASON_REQUIRED`, `400 DISCOUNT_TOO_HIGH`, `403 DISCOUNT_OVER_LIMIT` |
+| GET | `/patients/{id}/invoices` | Receptionist, Admin — a patient's invoices |
+
+Removing or cancelling a lab test that was already paid for answers `409 ALREADY_PAID` (see Lab Tests & Orders).
 
 ## Inventory
 
@@ -152,7 +160,7 @@ Response (ADR-019):
       "data": [{ "module": "Billing", "phase": 6, "description": "..." }] } ] }
 ```
 
-`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`).
+`span` is `full`, `wide` (2/3) or `narrow` (1/3). The frontend renders each `type` from its widget registry and skips unknown types. Widgets only ever carry real data; an unbuilt module is an `upcoming` widget. Phase 03 widget types: `liveQueue` (the `/queue` board), `visitsByStatus` (today's counts per status, admin), `myQueue` (patient's token, token now being seen, how many ahead — only while checked in). Phase 05: `incomingOrders` and `tubesNeeded` (lab technician — open orders, tube counts by type), `myLabOrders` (patient — open orders with prep, placed right after `myQueue`). Phase 06: `outstandingBills` and `collections` (receptionist, admin — bills to collect, today's takings by method), `myBills` (patient — unpaid bills).
 
 ## Status
 
