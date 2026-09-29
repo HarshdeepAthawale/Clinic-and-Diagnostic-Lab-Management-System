@@ -109,9 +109,10 @@ public class ResultQueries {
 
     /** Results waiting for sign-off: critical first, then any out-of-range, then the longest waiting. */
     public List<VerificationRow> pendingVerification(int limit, int offset) {
-        return jdbc.query(VERIFICATION_SELECT + """
-                WHERE r.status = 'PENDING_VERIFICATION' AND s.status = 'RESULT_ENTERED'
-                ORDER BY critical DESC, (abnormal > 0) DESC, r.entered_at
+        // Wrapped so the computed columns can be used inside ORDER BY expressions.
+        return jdbc.query("SELECT * FROM (" + VERIFICATION_SELECT + """
+                WHERE r.status = 'PENDING_VERIFICATION' AND s.status = 'RESULT_ENTERED') q
+                ORDER BY critical DESC, (abnormal > 0) DESC, entered_at
                 LIMIT :limit OFFSET :offset
                 """, new MapSqlParameterSource("limit", limit).addValue("offset", offset), VERIFICATION);
     }
