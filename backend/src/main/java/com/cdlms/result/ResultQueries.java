@@ -263,6 +263,29 @@ public class ResultQueries {
         return n == null ? 0 : n;
     }
 
+    // ---------------------------------------------------------------- authenticity
+
+    /** What a scan of a report's QR code may show: enough to confirm the clinic issued it, no results. */
+    public record Authenticity(String sampleCode, String patientName, List<String> testNames, Instant verifiedAt,
+                               String verifierName, String qualification, String registrationNumber) {
+    }
+
+    public java.util.Optional<Authenticity> authenticity(String verificationCode) {
+        return jdbc.query("""
+                SELECT s.sample_code, p.full_name AS patient_name, %s AS test_names, r.verified_at,
+                       pa.full_name AS verifier_name, pa.qualification, pa.registration_number
+                FROM reports rep
+                JOIN samples s ON s.id = rep.sample_id
+                JOIN sample_results r ON r.sample_id = s.id AND r.status = 'VERIFIED'
+                JOIN patients p ON p.id = s.patient_id
+                JOIN pathologists pa ON pa.id = r.verified_by_pathologist_id
+                WHERE rep.verification_code = :code
+                """.formatted(TEST_NAMES), new MapSqlParameterSource("code", verificationCode),
+                (rs, i) -> new Authenticity(rs.getString("sample_code"), rs.getString("patient_name"),
+                        strings(rs.getArray("test_names")), instant(rs, "verified_at"), rs.getString("verifier_name"),
+                        rs.getString("qualification"), rs.getString("registration_number"))).stream().findFirst();
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private static Instant instant(java.sql.ResultSet rs, String column) throws SQLException {

@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "/api/auth/register/claim",
                                 "/api/auth/logout").permitAll()
+                        // Report authenticity checks: no sign-in, no results — see ADR-027.
+                        .requestMatchers(HttpMethod.GET, "/api/public/reports/*").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
