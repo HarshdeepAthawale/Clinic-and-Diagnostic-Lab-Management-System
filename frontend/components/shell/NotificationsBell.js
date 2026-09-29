@@ -3,6 +3,7 @@
 import { ActionIcon, Indicator, Popover, ScrollArea, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { IconBell, IconChecks } from '@tabler/icons-react';
 import Link from 'next/link';
+import { parametersText, useCriticalAlerts, waitingFor } from '@/lib/critical';
 import { useInventoryAlerts } from '@/lib/inventory';
 import { useNotifications } from '@/lib/samples';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -30,6 +31,30 @@ function FrontDeskInbox() {
 }
 
 const INVENTORY_PAGE = { ADMIN: '/admin/inventory', LAB_TECHNICIAN: '/lab/inventory' };
+const CRITICAL_HOME = { DOCTOR: '/doctor', LAB_TECHNICIAN: '/lab' };
+
+/** Critical results waiting for a doctor to acknowledge: the most urgent thing any bell can show. */
+function CriticalInbox({ role, alerts }) {
+  const items = alerts.data?.items ?? [];
+  if (items.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <Text fw={700} size="sm" c="var(--critical)" mb={6}>
+        Critical results · {alerts.data.open}
+      </Text>
+      {items.slice(0, 4).map((a) => (
+        <div key={a.sampleId} style={{ padding: '8px 0', borderTop: '1px solid var(--border)' }}>
+          <Text size="sm" fw={600} truncate>{a.patientName}</Text>
+          <Text size="xs" c="var(--critical)">{parametersText(a.parameters)}</Text>
+          <Text size="xs" c="var(--text-muted)">waiting {waitingFor(a.verifiedAt)}</Text>
+        </div>
+      ))}
+      <Link href={CRITICAL_HOME[role]} style={{ display: 'block', marginTop: 6, fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>
+        {role === 'DOCTOR' ? 'Review and acknowledge' : 'See them on the bench'}
+      </Link>
+    </div>
+  );
+}
 
 /** The lab's low-stock inbox: the emptiest items, with a link to record a restock. */
 function StockInbox({ role, alerts }) {
@@ -73,7 +98,11 @@ export function NotificationsBell({ role, buttonClassName, iconClassName, labelC
   const stockKeeper = role === 'LAB_TECHNICIAN' || role === 'ADMIN';
   const inbox = useNotifications(frontDesk);
   const stock = useInventoryAlerts(stockKeeper);
-  const open = frontDesk ? inbox.data?.open ?? 0 : stockKeeper ? stock.data?.lowCount ?? 0 : 0;
+  const criticalWatcher = role === 'DOCTOR' || role === 'LAB_TECHNICIAN';
+  const critical = useCriticalAlerts(role, criticalWatcher);
+  const open = frontDesk
+    ? inbox.data?.open ?? 0
+    : (stockKeeper ? stock.data?.lowCount ?? 0 : 0) + (criticalWatcher ? critical.data?.open ?? 0 : 0);
 
   const icon = (
     <Indicator label={open > 9 ? '9+' : open} disabled={open === 0} size={16} offset={4} color="red" withBorder processing={open > 0}>
@@ -100,15 +129,28 @@ export function NotificationsBell({ role, buttonClassName, iconClassName, labelC
       <Popover.Dropdown>
         {frontDesk ? (
           <FrontDeskInbox />
-        ) : stockKeeper ? (
-          <StockInbox role={role} alerts={stock} />
+        ) : stockKeeper || criticalWatcher ? (
+          <>
+            {criticalWatcher && <CriticalInbox role={role} alerts={critical} />}
+            {stockKeeper && <StockInbox role={role} alerts={stock} />}
+            {!stockKeeper && !critical.data?.open && (
+              <>
+                <Text fw={600} size="sm" mb={4}>
+                  Notifications
+                </Text>
+                <EmptyState icon={IconChecks} title="You’re all caught up" compact>
+                  Critical results waiting for you will appear here.
+                </EmptyState>
+              </>
+            )}
+          </>
         ) : (
           <>
             <Text fw={600} size="sm" mb={4}>
               Notifications
             </Text>
             <EmptyState icon={IconChecks} title="You’re all caught up" compact>
-              Alerts for your role, like critical values, will appear here.
+              Alerts for your role will appear here.
             </EmptyState>
           </>
         )}
