@@ -77,7 +77,11 @@ Full permission enforcement details belong in [[Security]].
   - Keeps the original result as a permanent record marked `RETURNED_FOR_RETEST` — it is never overwritten or deleted. The retest produces a new result row, which goes back to the verification queue.
   - Puts the sample at the top of the lab technician's queue, flagged with the pathologist's reason.
   - Has no limit on repeats, but the retest count is shown to the pathologist and technician.
-- **Tube type rule:** each test type has a required tube type; sample collection must record which tube was used, and a mismatch should be flagged (not silently accepted).
+- **Samples are per tube:** tests of one order that need the same tube share one sample; the system creates the samples when the tests are ordered and gives each a code like `LAB-20260929-0007`. Tests whose sample hasn't been drawn can still come off the order; once it has, they can't (the order can't be cancelled either).
+- **Collection** records the tube used, where the blood was drawn from (blood only) and who/when.
+- **Tube type rule:** each test type has a required tube type; sample collection must record which tube was used, and a mismatch is flagged, not silently accepted — the technician must confirm it, and it is marked on the sample, in the custody log and at the receipt check.
+- **Rejection creates the redraw:** a rejected sample is kept and marked rejected; the front desk gets a notification with the patient's phone number, and a new sample for the same tests is created straight away for the redraw. The patient is told only that a new sample is needed — not the reason.
+- **The database holds the line:** samples can't be deleted, can't skip stages or go backwards except as described, and the custody log and rejection records can't be changed.
 - **Verification gate:** a report can never be generated or released before a pathologist has digitally signed off on the result. This is a hard gate, not a UI suggestion.
 - **Chain of custody:** every stage's timestamp + staff ID combination is immutable once written (append-only log), forming the audit trail.
 
