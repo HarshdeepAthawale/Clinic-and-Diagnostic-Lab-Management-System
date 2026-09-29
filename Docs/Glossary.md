@@ -22,6 +22,12 @@
 | **Pathologist** | Separate system role: a medical specialist who reviews lab results and signs off on them before release (see [[Decisions]] ADR-011) |
 | **Pathologist verification** | The required digital sign-off by a pathologist before any lab report can be released to a patient |
 | **Return for retest** | A pathologist sending an entered result back to the lab to run the test again on the same sample, with a reason; the original result is kept (see [[Rules]] §2) |
+| **Sample (tube)** | One physical tube or cup, covering all the tests of an order that need it; numbered `LAB-20260929-0007` and identified by the QR code on its label |
+| **Collection** | Drawing the sample and recording the tube used, the body site and who did it |
+| **Receipt check** | The lab's quality check when a collected sample arrives: accept it, or reject it |
+| **Redraw** | A new sample taken after one was rejected; created automatically, pointing back at the rejected sample, which stays on record |
+| **Tube mismatch** | A sample drawn into a different tube than its tests need; must be confirmed by the technician and is flagged throughout |
+| **Chain of custody** | (see above) — for samples it is the append-only event log |
 | **Sample rejection** | Flagging a sample as unusable and requesting a redraw — either at receipt (hemolyzed/clotted/insufficient volume) or during testing (sample exhausted/degraded) |
 | **Reagent** | A consumable chemical/substance used in running a lab test — tracked in inventory |
 | **Token / queue number** | A number issued to walk-in patients to manage consultation order without a fixed appointment slot |
