@@ -36,6 +36,7 @@ import { initials } from '@/components/shell/UserMenu';
 import { QueueBoard } from '@/components/appointments/QueueBoard';
 import { OpenConsultation, RecentPrescriptions } from './consultationWidgets';
 import { Collections, MyBills, OutstandingBills } from './billingWidgets';
+import { LowStock } from './inventoryWidgets';
 import { MyLabOrders, TubesNeeded } from './labWidgets';
 import { DispatchQueue, MyReports, ReportsReady, TestQueue, VerificationQueue } from './resultWidgets';
 import { SampleAlerts, SampleQueue } from './sampleWidgets';
@@ -400,4 +401,5 @@ export const WIDGETS = {
   outstandingBills: OutstandingBills,
   collections: Collections,
   myBills: MyBills,
+  lowStock: LowStock,
 };
