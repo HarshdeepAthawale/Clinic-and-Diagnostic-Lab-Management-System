@@ -9,13 +9,14 @@ Give the Admin role its dashboard and give the lab a way to track consumables �
 
 ## Scope
 
-- [ ] `InventoryItem` model: stock level, low-stock threshold (see `Schema.md` §5)
-- [ ] Inventory management screen (Lab Technician, Admin): view/restock
-- [ ] Low-stock warning trigger
-- [ ] Admin dashboard: daily patient count, revenue, most-ordered tests, staff performance
-- [ ] TAT (turnaround time) analytics by test type, computed from `SampleStatusEvent` timestamps (see `Appflow.md` §3)
-- [ ] Admin analytics endpoints returning chart-ready JSON (see `API.md`)
-- [ ] Charts (Mantine Charts / Recharts) for the above — see `Design.md` on avoiding bare/templated screens
+- [x] `InventoryItem` model: stock level, low-stock threshold, and append-only movements (see `Schema.md` §5, ADR-026)
+- [x] Inventory management screen (Lab Technician, Admin): view, restock, use, wastage, correction; admins add, edit and retire
+- [x] Low-stock warning: computed, shown as a dashboard card, a bell count and list filters
+- [x] Admin dashboard: daily patient count, revenue, most-ordered tests, staff performance
+- [x] TAT (turnaround time) analytics by test type, computed from `SampleStatusEvent` timestamps (see `Appflow.md` §3)
+- [x] Admin analytics endpoints returning chart-ready JSON (see `API.md`)
+- [x] Charts (Mantine Charts / Recharts) for the above — see `Design.md` on avoiding bare/templated screens
+- [ ] Staff account management — not part of this phase (see `OpenQuestions.md`)
 
 ## Exit Criteria
 
