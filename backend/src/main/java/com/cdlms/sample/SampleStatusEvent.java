@@ -50,4 +50,20 @@ public class SampleStatusEvent {
         this.occurredAt = occurredAt;
         this.detail = detail;
     }
+
+    public SampleStatus getStatus() {
+        return status;
+    }
+
+    public UUID getActorUserId() {
+        return actorUserId;
+    }
+
+    public Instant getOccurredAt() {
+        return occurredAt;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
 }
