@@ -367,13 +367,15 @@ class LabOrderFlowTest extends IntegrationTest {
         consultation();
         directOrder("URGENT", "CBC", "ESR", "FBS");
 
+        // CBC and ESR share one EDTA tube, FBS needs a fluoride tube: two samples to draw.
         mvc.perform(get("/api/dashboard/lab-technician").cookie(lab))
-                .andExpect(jsonPath("$.widgets[0].data[0].value").value(1))
-                .andExpect(jsonPath("$.widgets[0].data[1].value").value(1))
-                .andExpect(jsonPath("$.widgets[1].type").value("incomingOrders"))
-                .andExpect(jsonPath("$.widgets[1].data.orders", hasSize(1)))
+                .andExpect(jsonPath("$.widgets[0].data[0].value").value(2))
+                .andExpect(jsonPath("$.widgets[0].data[1].value").value(0))
+                .andExpect(jsonPath("$.widgets[0].data[2].value").value(2))
+                .andExpect(jsonPath("$.widgets[1].type").value("sampleQueue"))
+                .andExpect(jsonPath("$.widgets[1].data.toCollect", hasSize(2)))
                 .andExpect(jsonPath("$.widgets[2].type").value("tubesNeeded"))
-                .andExpect(jsonPath("$.widgets[2].data.EDTA").value(2))
+                .andExpect(jsonPath("$.widgets[2].data.EDTA").value(1))
                 .andExpect(jsonPath("$.widgets[2].data.FLUORIDE").value(1));
 
         // The patient is still checked in, so the queue card comes first and the tests right after it.
