@@ -33,5 +33,9 @@
 | **Patient preparation (prep)** | What the patient must do before the sample, e.g. fasting 10–12 hours; shown in the patient's app when the test is ordered |
 | **Tube type** | The collection tube or container a test needs, recognised by cap colour — EDTA (lavender), SST (gold), Fluoride (grey)…; sterile cups for urine and stool |
 | **Reference range / critical limit** | The normal low–high values for a test parameter, and the far-out values that must be flagged at once (Phase 08) |
+| **Invoice** | The bill for one visit (consultation fee plus the tests ordered in it) or for a lab order placed outside a visit, numbered `INV-000123`; created by the system when the visit is finished |
+| **Consultation fee** | The amount a doctor charges per visit; set per doctor and billed on the visit invoice |
+| **Part payment** | Paying an invoice in more than one go; the invoice stays `PARTIALLY_PAID` until the balance is zero |
+| **Front-desk discount cap** | The largest discount (a share of the bill, 20% by default) the receptionist may give without an admin |
 | **Prescription number** | `RX-000123` — issued in sequence when a consultation is finished; the prescription is locked from then on |
 | **Lab order** | A request for one or more tests, created either directly or automatically from a doctor's consultation notes |
