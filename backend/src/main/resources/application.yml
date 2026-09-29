@@ -46,5 +46,9 @@ app:
     cookie-secure: true
 
 springdoc:
+  # The API docs list every endpoint, so they are off unless asked for. The dev profile switches them on.
+  api-docs:
+    enabled: ${API_DOCS_ENABLED:false}
   swagger-ui:
+    enabled: ${API_DOCS_ENABLED:false}
     path: /swagger-ui.html

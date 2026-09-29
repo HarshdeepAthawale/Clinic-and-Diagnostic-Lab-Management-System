@@ -13,6 +13,12 @@ spring:
     # Dev/demo seed data (demo accounts) is loaded only in this profile.
     locations: classpath:db/migration,classpath:db/seed
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+
 app:
   reminders:
     # Check often in dev so a booking made a minute ago gets its reminder quickly.
