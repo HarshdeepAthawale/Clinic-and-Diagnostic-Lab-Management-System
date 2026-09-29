@@ -4,6 +4,7 @@ import { Alert, Box, Grid, Group, Pagination, Skeleton, Stack, Text } from '@man
 import { IconAlertCircle, IconFlask, IconNotes, IconStethoscope } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useLabOrder, useLabQueue, useMyLabOrders } from '@/lib/lab';
+import { useMySamples } from '@/lib/samples';
 import { friendlyMessage } from '@/lib/errors';
 import { ageGender, formatDate, formatDateTime, formatMoney, formatRelative } from '@/lib/format';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -14,7 +15,9 @@ import { Reveal } from '@/components/ui/Reveal';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TubeChip } from '@/components/ui/TubeChip';
 import { ListRow } from '@/components/dashboard/widgets/ListRow';
-import { OrderCode, OrderLines, TubeRow, UrgentBadge } from './OrderLines';
+import { OrderCode, OrderLines, UrgentBadge } from './OrderLines';
+import { OrderSamples } from './OrderSamples';
+import { PatientSamples } from './PatientSamples';
 import { PrepChecklist } from './PrepChecklist';
 
 function ListSkeleton({ rows = 3, height = 56 }) {
@@ -29,7 +32,7 @@ function OrderStatus({ order }) {
 // ------------------------------------------------------------------ patient
 
 /** One order as the patient sees it: prep first, then the tests and what they cost. */
-function PatientOrderCard({ order, index }) {
+function PatientOrderCard({ order, index, samples }) {
   const open = order.status === 'ORDERED';
   return (
     <Reveal delay={Math.min(index, 6) * 0.04}>
@@ -51,6 +54,7 @@ function PatientOrderCard({ order, index }) {
         </Group>
         <Stack gap="md">
           {open && <PrepChecklist items={order.items} />}
+          {open && <PatientSamples samples={samples} />}
           <OrderLines order={order} showPrep={!open} showTubes={false} />
           {open && (
             <Text size="xs" c="var(--text-subtle)">
@@ -68,6 +72,8 @@ function PatientOrderCard({ order, index }) {
 
 export function PatientLabOrdersView() {
   const orders = useMyLabOrders();
+  const mySamples = useMySamples();
+  const samplesOf = (orderId) => (mySamples.data ?? []).filter((s) => s.labOrderId === orderId);
   const open = orders.data?.filter((o) => o.status === 'ORDERED') ?? [];
   const past = orders.data?.filter((o) => o.status !== 'ORDERED') ?? [];
   return (
@@ -85,7 +91,7 @@ export function PatientLabOrdersView() {
         </GlowCard>
       ) : (
         <Stack gap="lg">
-          {open.map((o, i) => <PatientOrderCard key={o.id} order={o} index={i} />)}
+          {open.map((o, i) => <PatientOrderCard key={o.id} order={o} index={i} samples={samplesOf(o.id)} />)}
           {past.length > 0 && (
             <>
               <Text size="xs" fw={700} tt="uppercase" c="var(--text-subtle)" style={{ letterSpacing: '0.06em' }} mt="sm">Cancelled</Text>
@@ -165,7 +171,7 @@ export function LabQueueView() {
 }
 
 /** One order in full, for the lab (and doctors): who, what, which tubes, the doctor's note, the prep. */
-export function LabOrderDetailView({ id, back }) {
+export function LabOrderDetailView({ id, back, labView = false }) {
   const query = useLabOrder(id);
   if (query.isPending) return <ListSkeleton rows={2} height={180} />;
   if (query.isError) {
@@ -212,9 +218,7 @@ export function LabOrderDetailView({ id, back }) {
               </Panel>
             </Reveal>
             <Reveal delay={0.08}>
-              <Panel title="Collect in" subtitle="One tube per type unless the lab's volume guide says otherwise">
-                <TubeRow items={order.items} />
-              </Panel>
+              <OrderSamples orderId={order.id} labView={labView} />
             </Reveal>
             {order.clinicalNotes && (
               <Reveal delay={0.1}>
