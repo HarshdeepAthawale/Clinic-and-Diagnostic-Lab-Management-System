@@ -99,7 +99,9 @@ Full permission enforcement details belong in [[Security]].
 
 ## 4. Inventory Rules
 
-- Low-stock warning triggers when a consumable (reagent, tube, etc.) drops below its configured threshold.
+- Low-stock warning triggers when a consumable (reagent, tube, etc.) drops **below** its configured threshold. A threshold of 0 means the item isn't watched; retired items never raise a warning.
+- **A level changes only by recording a movement** — restock, used, wastage or correction, with who did it and an optional note. The direction must match the reason, and a level can never go below zero (two people adjusting at once can't break this). Movements are never edited or deleted.
+- Lab technicians and admins record movements; **only admins add, edit or retire items**. Nobody else sees inventory.
 - If reagent-to-test mapping (stretch feature) is implemented, completing a test automatically decrements the linked reagent's stock — never manual-only in that case.
 
 ## 5. Reporting & Audit Rules
