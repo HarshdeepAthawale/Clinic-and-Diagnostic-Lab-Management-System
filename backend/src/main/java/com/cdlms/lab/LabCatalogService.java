@@ -84,8 +84,15 @@ public class LabCatalogService {
         for (ParameterRange p : parameters) {
             requireOrdered(p.name(), p.refLow(), p.refHigh(), "normal range");
             requireOrdered(p.name(), p.criticalLow(), p.criticalHigh(), "critical limits");
+            ValueType type = p.valueType() != null ? p.valueType()
+                    : ValueType.inferred(p.refLow(), p.refHigh(), p.criticalLow(), p.criticalHigh());
+            if (type == ValueType.TEXT && (p.refLow() != null || p.refHigh() != null
+                    || p.criticalLow() != null || p.criticalHigh() != null)) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR",
+                        p.name() + ": a text result can't have a normal range — make it numeric or clear the range");
+            }
             test.addParameter(new LabTestParameter.Range(p.name().trim(), trim(p.unit()), p.refLow(), p.refHigh(),
-                    p.criticalLow(), p.criticalHigh()));
+                    p.criticalLow(), p.criticalHigh(), type));
         }
     }
 
@@ -101,7 +108,7 @@ public class LabCatalogService {
                 t.getRequiredTubeType(), t.getPrice(), t.getTurnaroundHours(), t.getPrepInstructions(), t.isActive(),
                 t.getParameters().stream().map(p -> {
                     LabTestParameter.Range r = p.range();
-                    return new ParameterRange(r.name(), r.unit(), r.refLow(), r.refHigh(), r.criticalLow(), r.criticalHigh());
+                    return new ParameterRange(r.name(), r.unit(), r.refLow(), r.refHigh(), r.criticalLow(), r.criticalHigh(), r.valueType());
                 }).toList(),
                 t.getUpdatedAt());
     }

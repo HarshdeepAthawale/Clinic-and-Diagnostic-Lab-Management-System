@@ -33,7 +33,9 @@ public final class LabDtos {
             BigDecimal refLow,
             BigDecimal refHigh,
             BigDecimal criticalLow,
-            BigDecimal criticalHigh) {
+            BigDecimal criticalHigh,
+            /** How the result is entered; when left out it follows the ranges (a number if there are any). */
+            ValueType valueType) {
     }
 
     /** Admin create/update. {@code code} is only read on create; codes never change once orders use them. */
