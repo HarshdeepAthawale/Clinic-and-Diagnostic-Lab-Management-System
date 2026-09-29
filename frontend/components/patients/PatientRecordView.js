@@ -9,6 +9,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { SafetyBanner } from '@/components/ui/SafetyBanner';
 import { initials } from '@/components/shell/UserMenu';
 import { LabOrderHistory } from '@/components/lab/LabOrderHistory';
+import { TrendGrid } from '@/components/trends/TrendCharts';
 import { VisitHistory } from './VisitHistory';
 
 function Field({ label, children, mono = false }) {
@@ -28,7 +29,7 @@ function Field({ label, children, mono = false }) {
  * The full medical record (EMR) — for the patient themself and doctors with a care relationship.
  * Allergies are always pinned at the top in a safety banner (Design.md §4).
  */
-export function PatientRecordView({ record, actions, audience = 'staff' }) {
+export function PatientRecordView({ record, actions, audience = 'staff', withTrends = false }) {
   return (
     <Stack gap="lg">
       <Reveal y={10}>
@@ -126,6 +127,14 @@ export function PatientRecordView({ record, actions, audience = 'staff' }) {
           </Reveal>
         </Grid.Col>
       </Grid>
+
+      {withTrends && (
+        <Reveal delay={0.14}>
+          <Panel title="Lab trends" subtitle="The same test across visits. Viewing this is logged.">
+            <TrendGrid patientId={record.id} />
+          </Panel>
+        </Reveal>
+      )}
     </Stack>
   );
 }

@@ -253,6 +253,7 @@ export function DoctorPatientView({ id }) {
       />
       <PatientRecordView
         record={record.data}
+        withTrends
         actions={
           <Group gap="sm">
             <Button variant="default" leftSection={<IconEdit size={16} />} onClick={edit.open}>Update clinical details</Button>
