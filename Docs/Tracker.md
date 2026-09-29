@@ -68,15 +68,15 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P7-1 | `Sample` model + sample code generation | Not Started | |
-| P7-2 | QR code rendering | Not Started | |
-| P7-3 | `SampleStatusEvent` append-only log | Not Started | |
-| P7-4 | State machine transition enforcement | Not Started | |
-| P7-5 | Collection screen (tube type, body site) | Not Started | |
-| P7-6 | Tube-type mismatch flag | Not Started | |
-| P7-7 | Receipt/quality-check screen | Not Started | |
-| P7-8 | Rejection flow + front-desk notification | Not Started | |
-| P7-9 | Redraw path (new Sample row) | Not Started | |
+| P7-1 | `Sample` model + sample code generation | Done | One sample per tube; `LAB-YYYYMMDD-####` from a daily counter (ADR-024); V8 backfills existing orders |
+| P7-2 | QR code rendering | Done | On the printable label, drawn as SVG |
+| P7-3 | `SampleStatusEvent` append-only log | Done | Trigger-enforced; shown as the chain of custody |
+| P7-4 | State machine transition enforcement | Done | In the database (trigger) and in Java |
+| P7-5 | Collection screen (tube type, body site) | Done | Sample page with tube chips and body site |
+| P7-6 | Tube-type mismatch flag | Done | Needs confirmation; flagged on the sample, log and receipt check |
+| P7-7 | Receipt/quality-check screen | Done | Accept or reject with a reason |
+| P7-8 | Rejection flow + front-desk notification | Done | Permanent record, notification with phone number, bell + dashboard + inbox |
+| P7-9 | Redraw path (new Sample row) | Done | Created at rejection, linked back to the rejected sample |
 
 ## Phase 08 — Result Entry, Verification & Report Generation
 
