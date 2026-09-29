@@ -105,9 +105,9 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P10-1 | Select 2–3 stretch features | Not Started | See [[OpenQuestions]] |
-| P10-2 | Build selected stretch features | Not Started | |
-| P10-3 | End-to-end walkthrough rehearsal | Not Started | |
-| P10-4 | Seed/demo data | Not Started | |
-| P10-5 | UI polish pass | Not Started | |
-| P10-6 | Security/test coverage review | Not Started | |
+| P10-1 | Select 2–3 stretch features | Done | Critical value alerts, trend graphs across visits, QR-verified reports |
+| P10-2 | Build selected stretch features | Done | ADR-027 QR-verified reports, ADR-028 critical alerts, ADR-029 trends |
+| P10-3 | End-to-end walkthrough rehearsal | Done | `scripts/demo-walkthrough.mjs` drives every role through the whole journey against the real API |
+| P10-4 | Seed/demo data | Done | Ten patients, three rounds of history, every sample stage, a rejected + redrawn sample, a retest, critical results, stock (ADR-031) |
+| P10-5 | UI polish pass | Done | Checked every new screen in the browser; see the Changelog |
+| P10-6 | Security/test coverage review | Done | Added sign-in/claim rate limits and turned API docs off by default (ADR-030); priority test cases mapped in [[TestPlan]] |
