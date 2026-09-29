@@ -167,8 +167,8 @@ export function CounterInvoiceView({ id, role }) {
         {open && (
           <Grid.Col span={{ base: 12, md: 5 }}>
             <Stack gap="lg">
-              {role === 'RECEPTIONIST' && <Reveal delay={0.04}><PaymentPanel invoice={invoice} /></Reveal>}
-              <Reveal delay={0.08}><DiscountPanel invoice={invoice} role={role} /></Reveal>
+              {role === 'RECEPTIONIST' && <Reveal delay={0.04}><PaymentPanel key={invoice.balance} invoice={invoice} /></Reveal>}
+              <Reveal delay={0.08}><DiscountPanel key={invoice.discount?.amount ?? 0} invoice={invoice} role={role} /></Reveal>
             </Stack>
           </Grid.Col>
         )}
