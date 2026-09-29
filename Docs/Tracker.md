@@ -58,11 +58,11 @@ Status values: `Not Started`, `In Progress`, `Blocked`, `Done`.
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| P6-1 | `Invoice` model + auto-generation | Not Started | |
-| P6-2 | Payment status tracking | Not Started | |
-| P6-3 | Discount with logged staff ID | Not Started | |
-| P6-4 | Receptionist counter billing screen | Not Started | |
-| P6-5 | Patient-facing invoice view | Not Started | |
+| P6-1 | `Invoice` model + auto-generation | Done | Created when a visit is finished or a direct lab order is placed (ADR-023) |
+| P6-2 | Payment status tracking | Done | Append-only payments; part payments; UNPAID → PARTIALLY_PAID → PAID |
+| P6-3 | Discount with logged staff ID | Done | Mandatory reason, who and when, front-desk cap, DB check |
+| P6-4 | Receptionist counter billing screen | Done | Billing counter with take-payment and discount panels; dashboard widgets |
+| P6-5 | Patient-facing invoice view | Done | Bills pages, PDF view/download, dashboard card |
 
 ## Phase 07 — Sample Lifecycle: Collection Through Rejection
 
