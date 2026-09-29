@@ -324,3 +324,69 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - Analytics endpoints are **admin only** and return aggregates plus staff names and counts; they never return patient details.
 **Alternatives considered:** editing the level directly (loses who and why, and races); a stored "low" flag or scheduled job (can be stale; the comparison is cheap); a separate analytics table or nightly rollup (one more thing to keep correct at this scale); averaging turnaround (skewed by outliers); reagent-to-test auto-decrement (a stretch feature — see OpenQuestions).
 **Consequence:** Staff account management (`POST /admin/staff`) is not part of this phase and stays off the admin menu until it is built. Reagent-to-test mapping, if built later, would write `USED` movements.
+
+---
+
+## ADR-027: QR-verified reports — a random code on the printout and a public page that shows no results
+
+**Status:** Accepted
+**Context:** A printed report can be altered or forged, and patients hand it to employers, insurers or other doctors. Anyone holding one should be able to check the clinic really issued it — without signing in, and without the check itself leaking the results.
+**Decision:**
+- Every report gets a **verification code**: 128 random bits, 32 hex characters, unique and fixed once issued (database trigger). It is not derived from anything guessable such as the sample number.
+- The report PDF prints a **QR code** of `<public-url>/verify/<code>` with the address in words beside it. The QR image is drawn on the server (ZXing) as a PNG and embedded in the PDF.
+- The public page calls `GET /api/public/reports/{code}` (no sign-in) and shows: that the clinic issued it, the report number, the **patient's initials only**, the test names, when it was verified, and who verified it (name, qualification, registration number). It never returns results, flags, IDs, dates of birth or the patient's name. Anything that is not a real code — wrong shape, unknown — gets the same `404`, and shape-invalid input never reaches the database.
+- The response is `Cache-Control: no-store`. The page tells the reader to compare the report number, initials and tests with the printout.
+**Alternatives considered:** a signed URL or JWT in the QR (longer, harder to scan, and no way to withdraw a report); the sample code as the identifier (sequential, guessable); showing the results on the verify page (turns a public link into a data leak); storing the generated PDF and its hash (extra storage and an access surface, see ADR-021 and ADR-025).
+**Consequence:** The check proves the clinic issued a report with those details; it does not stop someone photocopying a genuine printout. The code is not secret from whoever holds the paper — it only ever reveals the minimal details above. There is no rate limit on the public endpoint: at 128 bits, guessing a code is not feasible, and the endpoint reads one row.
+
+---
+
+## ADR-028: Critical value alerts — the ordering doctor must see and acknowledge
+
+**Status:** Accepted
+**Context:** A critical result (say haemoglobin 6.5) is the one thing that cannot sit unnoticed in a list. Phase 08 already surfaces it (top of the queue, red banner), but nothing made sure the doctor who ordered the test had seen it.
+**Decision:**
+- A report is **critical** when any verified value is at a critical limit. This is copied onto the report when it is created (`is_critical`, fixed) so "critical and not yet acknowledged" is a cheap indexed lookup.
+- The **ordering doctor** sees it pinned to the top of their dashboard and as a count on the bell until they **acknowledge** it, with an optional note (phoned the patient, sent to ED). The acknowledgement records who and when, is set **once** by a single conditional update (two requests at once record exactly one; the rest get `409 ALREADY_ACKNOWLEDGED`), and can never be edited or cleared (trigger).
+- The list shows the **parameter and direction** ("Haemoglobin — critical low"), not the number: the number is on the report, and opening the report is what gets logged. Acknowledging counts as reading the report and is logged (`LAB_REPORT`).
+- The **lab** sees every waiting critical result (it may need to phone the doctor); the **admin** sees only how many are waiting and since when — admins don't see reports (ADR-025). Nobody else does.
+- It **does not block** anything. Dispatching the report to the patient is a separate step; the alert is about the doctor's awareness, not about withholding the result. Waiting over an hour is shown as overdue.
+**Alternatives considered:** blocking dispatch until acknowledged (delays a patient's own result on a doctor's schedule); alerting every doctor (nobody owns it); SMS or email alerts (no provider, ADR-007, and clinical content in an inbox); a separate alerts table (the report already is the fact).
+**Consequence:** If the ordering doctor leaves or is unavailable there is no escalation yet; the lab and admin views exist so a person can notice. Adding escalation (a covering doctor, a timer) would build on the same fields.
+
+---
+
+## ADR-029: Trends across visits — computed from verified results, seen by the people who may see the results
+
+**Status:** Accepted
+**Context:** Phase 08 keeps every value with the range it was judged against. A repeat test is much more useful with its history (haemoglobin recovering, sugar creeping up), and the data is already there.
+**Decision:**
+- `GET /patients/{id}/trends` returns, per numeric parameter measured at least **twice**, up to the latest **12** verified values oldest first, each with its flag, and the range and limits it was last judged against. Text results and single measurements make no trend. Nothing new is stored.
+- **Who:** a patient sees values only from reports already sent to them (the same rule as reading a report); a doctor needs a care relationship and the read is logged as `LAB_HISTORY`; a pathologist sees everything verified, logged. The lab, reception and admin get `403`. Someone else's patient ID looks exactly like one that doesn't exist for a patient, and `NO_CARE_RELATIONSHIP` for a doctor.
+- The charts draw the normal range and critical limits as reference lines, show the latest value with how it moved ("Steady" when it changed by under 2%), and every chart has a data-table view.
+**Alternatives considered:** a materialised trend table (a second copy to keep right); joining trends into the report (mixes "this report" with "all reports" and makes the PDF depend on other visits); showing single values as a one-point chart (looks like a trend and isn't).
+**Consequence:** Parameters are matched by catalog parameter, so renaming a test's parameter keeps its history but replacing it with a new one starts a new series. Ranges drawn are the latest, so an old point may sit outside today's range while carrying an older, correct flag.
+
+---
+
+## ADR-030: Limits on sign-in and registration-code guessing; API docs off by default
+
+**Status:** Accepted
+**Context:** The Phase 10 security review found two gaps that the Security doc already listed or implied: nothing slowed password or registration-code guessing, and the Swagger UI and the API description were served openly to anyone in every profile.
+**Decision:**
+- **Failed** sign-ins are counted in a sliding 15-minute window: **5 per email from one address**, and **30 per address** across all emails. Registration-code claims are limited to a third of the address cap. Over the limit gets `429 TOO_MANY_ATTEMPTS` with the minutes to wait — even for the correct password, until the window passes. A correct sign-in clears that email's count.
+- The email limit is **per address**, so a stranger guessing at someone's account cannot lock the real person out from their own address.
+- Counters are in memory: they reset on restart and are per server. That fits the single-instance deployment; scaling out would need a shared store. Behind a reverse proxy the real client address must be passed through (`server.forward-headers-strategy`), otherwise every caller looks like the proxy.
+- `springdoc` is **off unless enabled** (`API_DOCS_ENABLED`); the dev profile turns it on.
+**Alternatives considered:** a global or per-email lockout without the address (lets anyone lock anyone out); CAPTCHA (out of scope, and blocks automation-based demos); an account-lock flag in the database (an admin task for a problem that clears itself).
+**Consequence:** Tests lift the address cap so classes sharing the mock client's address don't trip it; the limiter itself is covered by a unit test with a fake clock and an API test.
+
+---
+
+## ADR-031: Demo data is made by driving the real API, not by inserting rows
+
+**Status:** Accepted
+**Context:** The demo needs history (three visits for a patient, reports, payments, a rejected and redrawn sample, a retest, a critical result) and the bench at every stage. Writing that as SQL would bypass the rules the system exists to enforce, and would go stale as they change.
+**Decision:** `scripts/demo-walkthrough.mjs` signs in as each demo account and does what the people would: register, take a walk-in token, consult, prescribe, order, bill and pay, collect, reject and redraw, test, retest, verify, dispatch. It stops at the first failing step, so it is also the end-to-end rehearsal. To make history, it runs a round of visits "now" and then moves every timestamp in the local database back (triggers off, dev Postgres only), so the next round can be made "now" too; turnaround is spaced out in the sample status log. It records what it has finished in an ignored state file, so a stopped run resumes. It refuses to run against anything but localhost.
+**Alternatives considered:** SQL seed rows (skips validation and the append-only triggers); a Java runner in the dev profile (would need a clock it can move); Playwright (heavier, and slower to make data).
+**Consequence:** Seeding takes about a minute against a running dev backend. Demo data is only ever produced through paths a real user could take, apart from the time shift.
