@@ -39,7 +39,11 @@
     .flag-low, .flag-high { color: #b7791f; font-weight: bold; }
     .flag-critical { color: #b42318; font-weight: bold; }
 
-    .stamp { margin-top: 26px; padding: 10px 12px; border: 1.5px solid #0f766e; width: 62%; }
+    .seal { margin-top: 26px; }
+    .seal td { vertical-align: top; }
+    .stamp { padding: 10px 12px; border: 1.5px solid #0f766e; }
+    .qr { text-align: right; font-size: 8pt; }
+    .qr .mono { font-size: 6.5pt; word-wrap: break-word; }
     .stamp .title-line { color: #0f766e; font-weight: bold; letter-spacing: 0.8pt; font-size: 8.5pt; text-transform: uppercase; }
     .stamp .name { font-size: 11pt; font-weight: bold; margin-top: 4px; }
 
@@ -117,12 +121,23 @@
     </table>
   </div>
 
-  <div class="stamp">
-    <div class="title-line">Digitally verified</div>
-    <div class="name" th:text="${r.verifier.name}">Dr. Meera Iyer</div>
-    <div class="muted" th:if="${r.verifier.qualification != null}" th:text="${r.verifier.qualification}">MD Pathology</div>
-    <div class="muted small" th:if="${r.verifier.registrationNumber != null}" th:text="'Reg. no. ' + ${r.verifier.registrationNumber}">Reg</div>
-    <div class="muted small" th:text="'Verified on ' + ${verifiedAt}">date</div>
-  </div>
+  <table class="seal">
+    <tr>
+      <td style="width: 62%;">
+        <div class="stamp">
+          <div class="title-line">Digitally verified</div>
+          <div class="name" th:text="${r.verifier.name}">Dr. Meera Iyer</div>
+          <div class="muted" th:if="${r.verifier.qualification != null}" th:text="${r.verifier.qualification}">MD Pathology</div>
+          <div class="muted small" th:if="${r.verifier.registrationNumber != null}" th:text="'Reg. no. ' + ${r.verifier.registrationNumber}">Reg</div>
+          <div class="muted small" th:text="'Verified on ' + ${verifiedAt}">date</div>
+        </div>
+      </td>
+      <td class="qr">
+        <img th:src="${qr}" width="86" height="86" alt="QR code to check this report" />
+        <div class="small muted">Scan to check this report is genuine</div>
+        <div class="small mono" th:text="${verifyUrl}">https://clinic.example/verify/code</div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

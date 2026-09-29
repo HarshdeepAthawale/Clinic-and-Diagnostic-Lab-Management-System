@@ -2,10 +2,12 @@ package com.cdlms.result;
 
 import com.cdlms.common.ClinicTime;
 import com.cdlms.common.pdf.PdfRenderer;
+import com.cdlms.common.qr.QrCodes;
 import com.cdlms.lab.ValueType;
 import com.cdlms.result.RangeCheck.Flag;
 import com.cdlms.result.ResultDtos.ReportView;
 import com.cdlms.result.ResultDtos.ValueView;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -29,10 +31,17 @@ public class ReportPdf {
 
     private final PdfRenderer renderer;
     private final ClinicTime time;
+    private final String publicUrl;
 
-    public ReportPdf(PdfRenderer renderer, ClinicTime time) {
+    public ReportPdf(PdfRenderer renderer, ClinicTime time, @Value("${app.public-url}") String publicUrl) {
         this.renderer = renderer;
         this.time = time;
+        this.publicUrl = publicUrl.endsWith("/") ? publicUrl.substring(0, publicUrl.length() - 1) : publicUrl;
+    }
+
+    /** The page a scan of the report's QR code opens (ADR-027). */
+    public String verifyUrl(String verificationCode) {
+        return publicUrl + "/verify/" + verificationCode;
     }
 
     public byte[] render(ReportView report) {
@@ -46,6 +55,9 @@ public class ReportPdf {
         model.put("collectedOn", report.collectedAt() == null ? "—" : format(report.collectedAt(), DATE));
         model.put("verifiedOn", format(report.verifiedAt(), DATE));
         model.put("verifiedAt", format(report.verifiedAt(), DATE_TIME));
+        String verifyUrl = verifyUrl(report.verificationCode());
+        model.put("verifyUrl", verifyUrl);
+        model.put("qr", QrCodes.pngDataUri(verifyUrl, 240));
         model.put("tests", report.tests().stream().map(t -> Map.of(
                 "name", t.testName(),
                 "code", t.testCode(),
