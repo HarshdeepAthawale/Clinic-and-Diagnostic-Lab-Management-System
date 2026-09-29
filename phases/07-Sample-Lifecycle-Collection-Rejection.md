@@ -2,6 +2,7 @@
 
 **Depends on:** Phase 05 (Lab Test Catalog & Ordering) — needs a real `LabOrderItem` to attach samples to
 **Feeds into:** Phase 08 (Result Entry, Verification & Reporting)
+**Status:** Done (ADR-024)
 
 This phase is the start of the project's differentiator feature — replaces any placeholder status field with the real state machine.
 
@@ -11,15 +12,15 @@ Model a sample's journey from order through collection and the lab's quality che
 
 ## Scope
 
-- [ ] `Sample` model + `sample_code` generation (`LAB-YYYYMMDD-####`, see `Schema.md` §3)
-- [ ] QR code rendering for the sample code
-- [ ] `SampleStatusEvent` append-only log (staff ID + timestamp per transition — never update/delete)
-- [ ] State machine enforcement: `ORDERED → COLLECTED → RECEIVED_AT_LAB → ...`, no skipping, no going backward except via rejection
-- [ ] Collection screen (Lab Technician): tube type, body site, timestamp
-- [ ] Tube-type mismatch flag against `LabTest.required_tube_type` (see `Rules.md`)
-- [ ] Receipt/quality-check screen: accept → `RECEIVED_AT_LAB`, or reject
-- [ ] Rejection flow: `RejectionRecord` (hemolyzed / clotted / insufficient volume / other), automatic front-desk notification, sample kept as permanent record. Build it with `rejected_at_stage` from the start — Phase 08 adds rejection during testing on top of it
-- [ ] Redraw path: new `Sample` row linked to the same `LabOrderItem`, rejected sample untouched
+- [x] `Sample` model + `sample_code` generation (`LAB-YYYYMMDD-####`, see `Schema.md` §3) — one sample per physical tube
+- [x] QR code rendering for the sample code
+- [x] `SampleStatusEvent` append-only log (staff ID + timestamp per transition — never update/delete)
+- [x] State machine enforcement: `ORDERED → COLLECTED → RECEIVED_AT_LAB → ...`, no skipping, no going backward except via rejection
+- [x] Collection screen (Lab Technician): tube type, body site, timestamp
+- [x] Tube-type mismatch flag against `LabTest.required_tube_type` (see `Rules.md`)
+- [x] Receipt/quality-check screen: accept → `RECEIVED_AT_LAB`, or reject
+- [x] Rejection flow: `RejectionRecord` (hemolyzed / clotted / insufficient volume / other), automatic front-desk notification, sample kept as permanent record. Build it with `rejected_at_stage` from the start — Phase 08 adds rejection during testing on top of it
+- [x] Redraw path: new `Sample` row linked to the same `LabOrderItem`, rejected sample untouched
 
 ## Exit Criteria
 
