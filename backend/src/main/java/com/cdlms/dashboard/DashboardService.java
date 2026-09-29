@@ -12,6 +12,8 @@ import com.cdlms.inventory.InventoryService;
 import com.cdlms.consultation.ConsultationQueries;
 import com.cdlms.dashboard.DashboardQueries.Window;
 import com.cdlms.dashboard.Widget.Stat;
+import com.cdlms.result.CriticalAlertService;
+import com.cdlms.result.ResultDtos.CriticalAlerts;
 import com.cdlms.result.ResultDtos.ReportRow;
 import com.cdlms.result.ResultQueries;
 import com.cdlms.user.Pathologist;
@@ -64,6 +66,7 @@ public class DashboardService {
     private final ResultQueries resultQueries;
     private final PathologistRepository pathologists;
     private final InventoryService inventory;
+    private final CriticalAlertService criticalAlerts;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
@@ -72,6 +75,7 @@ public class DashboardService {
                             LabOrderService labOrders, BillingQueries billingQueries,
                             SampleQueries sampleQueries, NotificationService notifications,
                             ResultQueries resultQueries, PathologistRepository pathologists, InventoryService inventory,
+                            CriticalAlertService criticalAlerts,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
@@ -87,6 +91,7 @@ public class DashboardService {
         this.resultQueries = resultQueries;
         this.pathologists = pathologists;
         this.inventory = inventory;
+        this.criticalAlerts = criticalAlerts;
         this.zone = ZoneId.of(zone);
     }
 
@@ -96,12 +101,12 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardResponse forUser(AuthUser user) {
         List<Widget> widgets = switch (user.role()) {
-            case DOCTOR -> doctor(user);
+            case DOCTOR -> withCritical(doctor(user), criticalAlerts.forDoctor(user));
             case RECEPTIONIST -> reception(user);
-            case ADMIN -> withLowStock(admin(user));
+            case ADMIN -> withLowStock(withCriticalSummary(admin(user)));
             case PATIENT -> patient(user);
             case PATHOLOGIST -> pathologist(user);
-            case LAB_TECHNICIAN -> withLowStock(lab());
+            case LAB_TECHNICIAN -> withLowStock(withCritical(lab(), criticalAlerts.forLab()));
         };
         return new DashboardResponse(user.role(), widgets);
     }
@@ -156,6 +161,31 @@ public class DashboardService {
                         "samples", resultQueries.toTest(5, 0), "total", resultQueries.countToTest())),
                 new Widget("dispatchQueue", "Reports to send", "narrow", Map.of(
                         "reports", resultQueries.toDispatch(5, 0), "total", resultQueries.countToDispatch())));
+    }
+
+    /**
+     * Critical results waiting for their doctor, pinned to the top: the doctor's own list (with an acknowledge
+     * button) or, for the lab, everyone's. Nothing when none are waiting (ADR-028).
+     */
+    private List<Widget> withCritical(List<Widget> widgets, CriticalAlerts alerts) {
+        if (alerts.open() == 0) {
+            return widgets;
+        }
+        List<Widget> all = new ArrayList<>();
+        all.add(new Widget("criticalResults", "Critical results", "full", alerts));
+        all.addAll(widgets);
+        return all;
+    }
+
+    /** The admin sees only a count and how long the oldest has waited: admins don't see reports. */
+    private List<Widget> withCriticalSummary(List<Widget> widgets) {
+        var summary = criticalAlerts.summary();
+        if (summary.open() == 0) {
+            return widgets;
+        }
+        List<Widget> all = new ArrayList<>(widgets);
+        all.add(new Widget("criticalSummary", "Critical results waiting", "narrow", summary));
+        return all;
     }
 
     /** The low-stock card for the lab and admin dashboards; nothing when every item is above its threshold. */
