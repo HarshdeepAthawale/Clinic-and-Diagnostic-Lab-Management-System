@@ -83,9 +83,12 @@ Full permission enforcement details belong in [[Security]].
 
 ## 3. Billing Rules
 
-- One invoice combines consultation fee + all ordered test charges for a visit.
-- Invoices track paid/unpaid/partially-paid status.
-- Discounts must be logged with who applied them (ties into audit requirements).
+- **One invoice per visit**, created by the system when the consultation is finished: the doctor's consultation fee plus every test ordered in that consultation. A lab order placed outside a visit gets its own invoice at once. Invoices are numbered `INV-000001`, `INV-000002`, …
+- Each test is billed at the price it was ordered at; later catalog changes never change an invoice.
+- A test removed from an order comes off its invoice. A test the patient **has already paid for can't be removed** until the front desk settles it. An invoice with nothing left to bill is void.
+- Payments are recorded at the counter by the front desk — **cash, card or UPI**, part payments allowed, **never more than the balance**. An invoice is `UNPAID`, `PARTIALLY_PAID` or `PAID`. Payments can't be edited or deleted.
+- **Discounts must be logged with who applied them, and why.** A reason is mandatory; the front desk may discount up to **20% of the bill**, an admin more; a discount can't be more than the bill or leave it below what was already paid. Every discount change is kept in the invoice's history.
+- **Who can see billing:** the patient their own invoices; the front desk and admins all invoices. Doctors, the lab and pathologists see no billing.
 
 ## 4. Inventory Rules
 
