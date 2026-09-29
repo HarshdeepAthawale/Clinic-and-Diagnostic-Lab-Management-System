@@ -37,6 +37,11 @@
 | **Receipt** | The moment a patient first opens their dispatched report |
 | **Sample rejection** | Flagging a sample as unusable and requesting a redraw — either at receipt (hemolyzed/clotted/insufficient volume) or during testing (sample exhausted/degraded) |
 | **Reagent** | A consumable chemical/substance used in running a lab test — tracked in inventory |
+| **Critical result** | A verified report with a value at or beyond a critical limit. It stays pinned for the ordering doctor until they acknowledge it |
+| **Acknowledge** | The ordering doctor confirming they have seen a critical result, with an optional note of what was done. Recorded once with who and when; never blocks sending the report |
+| **Trend** | One test parameter across visits — needs at least two verified values; drawn with its normal range |
+| **Report check (QR)** | The public page a report's QR code opens: confirms the clinic issued it, shows the report number, patient initials, tests and verifier — never results |
+| **Verification code** | The random 32-character code behind a report's QR code; not related to the sample number |
 | **Low stock** | An item whose level is below its low-stock threshold; a threshold of 0 means the item isn't watched. **Out of stock** is level 0 on a watched item |
 | **Stock movement** | One recorded change to a level — opening, restock, used, wastage or correction — with who made it; the only way a level changes |
 | **Turnaround (TAT)** | Time from collecting a sample to its report being ready; the insights show the median, the slowest 1 in 10 (90th percentile) and where the time goes |
