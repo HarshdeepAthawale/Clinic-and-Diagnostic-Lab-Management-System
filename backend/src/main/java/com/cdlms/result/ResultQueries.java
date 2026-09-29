@@ -263,6 +263,42 @@ public class ResultQueries {
         return n == null ? 0 : n;
     }
 
+    // ---------------------------------------------------------------- trends across visits
+
+    /** One verified numeric value with the test and parameter it belongs to. */
+    public record TrendRow(UUID parameterId, String parameterName, String unit, String testCode, String testName,
+                           java.math.BigDecimal value, RangeCheck.Flag flag, java.math.BigDecimal refLow,
+                           java.math.BigDecimal refHigh, java.math.BigDecimal criticalLow, java.math.BigDecimal criticalHigh,
+                           UUID sampleId, String sampleCode, Instant verifiedAt) {
+    }
+
+    /**
+     * Every verified numeric value for the patient, grouped by test then parameter and oldest first within each.
+     * {@code dispatchedOnly} limits it to reports already sent to the patient (what the patient may see).
+     */
+    public List<TrendRow> trendRows(UUID patientId, boolean dispatchedOnly) {
+        return jdbc.query("""
+                SELECT v.parameter_id, v.parameter_name, v.unit, t.code AS test_code, t.name AS test_name, v.numeric_value,
+                       v.flag, v.ref_low, v.ref_high, v.critical_low, v.critical_high, s.id AS sample_id, s.sample_code,
+                       r.verified_at
+                FROM result_values v
+                JOIN sample_results r ON r.id = v.sample_result_id AND r.status = 'VERIFIED'
+                JOIN samples s ON s.id = r.sample_id
+                JOIN lab_order_items i ON i.id = v.lab_order_item_id
+                JOIN lab_tests t ON t.id = i.lab_test_id
+                JOIN reports rep ON rep.sample_id = s.id
+                WHERE s.patient_id = :patientId AND v.numeric_value IS NOT NULL
+                  AND (NOT :dispatchedOnly OR rep.dispatched_at IS NOT NULL)
+                ORDER BY t.name, v.parameter_name, v.parameter_id, r.verified_at
+                """, new MapSqlParameterSource("patientId", patientId).addValue("dispatchedOnly", dispatchedOnly),
+                (rs, i) -> new TrendRow(rs.getObject("parameter_id", UUID.class), rs.getString("parameter_name"), rs.getString("unit"),
+                        rs.getString("test_code"), rs.getString("test_name"), rs.getBigDecimal("numeric_value"),
+                        rs.getString("flag") == null ? null : RangeCheck.Flag.valueOf(rs.getString("flag")),
+                        rs.getBigDecimal("ref_low"), rs.getBigDecimal("ref_high"), rs.getBigDecimal("critical_low"),
+                        rs.getBigDecimal("critical_high"), rs.getObject("sample_id", UUID.class), rs.getString("sample_code"),
+                        instant(rs, "verified_at")));
+    }
+
     // ---------------------------------------------------------------- critical alerts
 
     /** Unacknowledged critical reports, longest waiting first; {@code doctorId} narrows it to one doctor's orders. */

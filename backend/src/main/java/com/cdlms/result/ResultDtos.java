@@ -124,6 +124,25 @@ public final class ResultDtos {
                              Instant criticalAcknowledgedAt, String criticalAcknowledgedBy) {
     }
 
+    // ---------------------------------------------------------------- trends across visits (ADR-029)
+
+    /** One verified value of a parameter on one visit. */
+    public record TrendValue(UUID sampleId, String sampleCode, Instant verifiedAt, BigDecimal value, Flag flag) {
+    }
+
+    /**
+     * One parameter over time, oldest first, with the range it was last judged against. Only numbers, and only
+     * parameters measured at least twice: a single value makes no trend.
+     */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record TrendSeries(UUID parameterId, String name, String unit, String testCode, String testName,
+                              BigDecimal refLow, BigDecimal refHigh, BigDecimal criticalLow, BigDecimal criticalHigh,
+                              List<TrendValue> points) {
+    }
+
+    public record PatientTrends(UUID patientId, List<TrendSeries> series) {
+    }
+
     // ---------------------------------------------------------------- critical alerts (ADR-028)
 
     /** Which value is at a critical limit — the name and direction only; the number is on the report. */
