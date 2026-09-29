@@ -229,9 +229,16 @@ Card-first, answers "what do I need to know right now?":
 
 ### 5.7 Admin Insight Dashboard
 
-- KPI tiles (today's patients, revenue, samples in progress, avg TAT) with sparkline trends and count-up on load.
-- **TAT heatmap** (test type × day), revenue area chart, most-ordered tests bar chart, staff throughput table.
-- One global date-range picker drives every widget. Every chart has an accessible data-table toggle.
+- KPI tiles (patients seen, revenue, reports issued, median TAT) with the change against the previous period, sparkline trends and count-up on load.
+- **TAT heatmap** (test type × day), revenue area chart, patients bar chart, most-ordered tests bar chart, a turnaround table with a bar for where the time goes, and a staff activity table.
+- One global date-range picker (7 / 30 / 90 days) drives every widget. Every chart has an accessible data-table toggle. Charts use the accent colour and ink only; the heatmap is one accent ramp with empty days left blank.
+- Built at `/admin/insights`; the admin's home (`/admin`, "Overview") keeps today's live queue, access log and running-low card.
+
+### 5.7a Inventory
+
+- A table of items: name and category, level with a bar (half full at the threshold, amber when low, red when out), threshold and a badge. Out-of-stock and low items sort first; a healthy row stays quiet.
+- Clicking an item opens a side panel: the level, a form (reason chips, quantity, direction for corrections, note) and the history of changes with who made them. Admins also get "Add item" and "Edit details" (including retiring an item).
+- The lab and admin see a "Running low" card on their dashboard and a count on the bell, only when something is below its level.
 
 ### 5.8 Login
 
@@ -285,7 +292,7 @@ Route prefixes from [[TechSpecifications]] §3. ★ = signature experience from 
 - Sample page: **collection** (tube chips with the needed one pre-selected, body site chips, amber wrong-tube warning that needs an explicit confirmation), **receipt check** ("Mark received" or "Reject sample" with a reason), the printable **label with a QR code**, and the chain of custody
 - Result entry per analyzer/test, with range bar preview and a secondary "Reject sample" action (exhausted / degraded / other)
 - My processed samples
-- Inventory (view / restock, low-stock warnings)
+- Inventory ★ (§5.7a): view, record restock / use / wastage / correction, low-stock warnings
 
 ### Admin (`/admin`)
 - Insight dashboard ★ (§5.7)
