@@ -191,6 +191,8 @@ public class ReportService {
         Patient p = patients.findById(sample.getPatientId()).orElseThrow();
         Pathologist verifier = pathologists.findById(verified.getVerifiedByPathologistId()).orElseThrow();
         String doctorName = doctors.findById(order.getOrderingDoctorId()).map(Doctor::getFullName).orElse(null);
+        String acknowledgedBy = report.getCriticalAcknowledgedByUserId() == null ? null
+                : doctors.findByUserId(report.getCriticalAcknowledgedByUserId()).map(Doctor::getFullName).orElse(null);
 
         Map<UUID, LabOrderItem> items = order.getItems().stream().collect(Collectors.toMap(LabOrderItem::getId, Function.identity()));
         Map<UUID, LabTest> catalog = tests.findByIdIn(items.values().stream().map(LabOrderItem::getLabTestId).toList())
@@ -210,7 +212,8 @@ public class ReportService {
                 verified.getAttemptNumber(), reportTests,
                 new Verifier(verifier.getFullName(), verifier.getQualification(), verifier.getRegistrationNumber()),
                 verified.getVerifiedAt(), report.getGeneratedAt(), report.getDispatchedChannel(), report.getDispatchedAt(),
-                report.getReceiptConfirmedAt(), verified.isCritical(), report.getVerificationCode());
+                report.getReceiptConfirmedAt(), verified.isCritical(), report.getVerificationCode(),
+                report.getCriticalAcknowledgedAt(), acknowledgedBy);
     }
 
     private List<String> testNames(Sample sample) {
