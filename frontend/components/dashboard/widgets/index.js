@@ -11,6 +11,7 @@ import {
   IconFileSearch,
   IconFlask,
   IconHistory,
+  IconInbox,
   IconLink,
   IconListDetails,
   IconUserPlus,
@@ -29,7 +30,8 @@ import { initials } from '@/components/shell/UserMenu';
 import { QueueBoard } from '@/components/appointments/QueueBoard';
 import { OpenConsultation, RecentPrescriptions } from './consultationWidgets';
 import { Collections, MyBills, OutstandingBills } from './billingWidgets';
-import { IncomingOrders, MyLabOrders, TubesNeeded } from './labWidgets';
+import { MyLabOrders, TubesNeeded } from './labWidgets';
+import { SampleAlerts, SampleQueue } from './sampleWidgets';
 import { ListRow } from './ListRow';
 
 /** Where a staff member opens a patient's page, if their role has one. */
@@ -49,7 +51,8 @@ const STAT_ICONS = {
   pendingCodes: IconLink,
   recordOpensToday: IconFileSearch,
   activeStaff: IconUsers,
-  ordersWaiting: IconFlask,
+  samplesToCollect: IconFlask,
+  samplesToReceive: IconInbox,
   urgentWaiting: IconBolt,
   orderedToday: IconCalendarEvent,
   catalogTests: IconListDetails,
@@ -372,7 +375,8 @@ export const WIDGETS = {
   myQueue: MyQueue,
   openConsultation: OpenConsultation,
   recentPrescriptions: RecentPrescriptions,
-  incomingOrders: IncomingOrders,
+  sampleQueue: SampleQueue,
+  sampleAlerts: SampleAlerts,
   tubesNeeded: TubesNeeded,
   myLabOrders: MyLabOrders,
   outstandingBills: OutstandingBills,

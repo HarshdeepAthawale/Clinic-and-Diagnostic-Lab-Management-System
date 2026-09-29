@@ -10,38 +10,15 @@ import { Panel } from '@/components/ui/Panel';
 import { TUBES, TubeChip } from '@/components/ui/TubeChip';
 import { OrderCode, UrgentBadge } from '@/components/lab/OrderLines';
 import { PrepChecklist } from '@/components/lab/PrepChecklist';
-import { QueueRow } from '@/components/lab/views';
 
 const linkStyle = { fontSize: 13, fontWeight: 600, color: 'var(--accent)' };
 
-/** Lab: the newest part of the queue, urgent first. */
-export function IncomingOrders({ widget }) {
-  const { orders, total } = widget.data;
-  return (
-    <Panel
-      title={widget.title}
-      subtitle={total ? `${total} waiting · urgent first` : 'Nothing waiting'}
-      right={<Link href="/lab/orders" style={linkStyle}>All orders</Link>}
-    >
-      {orders.length === 0 ? (
-        <EmptyState icon={IconFlask} title="No orders waiting" compact>
-          Orders arrive here the moment a doctor requests tests.
-        </EmptyState>
-      ) : (
-        <Stack gap={2}>
-          {orders.map((o) => <QueueRow key={o.id} order={o} href={`/lab/orders/${o.id}`} />)}
-        </Stack>
-      )}
-    </Panel>
-  );
-}
-
-/** Lab: how many of each tube the open orders need, as bars in the tubes' own cap colours. */
+/** Lab: how many tubes of each kind still have to be drawn, as bars in the tubes' own cap colours. */
 export function TubesNeeded({ widget }) {
   const entries = Object.entries(widget.data);
   const max = Math.max(1, ...entries.map(([, n]) => n));
   return (
-    <Panel title={widget.title} subtitle="Across all open orders">
+    <Panel title={widget.title} subtitle="Tubes still to draw">
       {entries.length === 0 ? (
         <EmptyState icon={IconTestPipe} title="No tubes needed" compact>
           Tubes to prepare show up as tests are ordered.
