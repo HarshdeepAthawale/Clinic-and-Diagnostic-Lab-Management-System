@@ -1,9 +1,9 @@
 'use client';
 
 import { Alert, Box, Button, Grid, Group, Skeleton, Stack, Text } from '@mantine/core';
-import { IconAlertCircle, IconArrowRight, IconCircleCheck } from '@tabler/icons-react';
+import { IconAlertCircle, IconArrowRight } from '@tabler/icons-react';
 import Link from 'next/link';
-import { REJECTION_REASON_LABEL, SAMPLE_STATUS_LABEL, useSample } from '@/lib/samples';
+import { REJECTION_REASON_LABEL, useSample } from '@/lib/samples';
 import { friendlyMessage } from '@/lib/errors';
 import { ageGender, formatDateTime } from '@/lib/format';
 import { PageTitle } from '@/components/ui/PageTitle';
@@ -12,6 +12,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { TUBES, TubeChip } from '@/components/ui/TubeChip';
 import { CollectForm } from './CollectForm';
 import { OrderCode, UrgentBadge } from './OrderLines';
+import { TestingStep } from '@/components/results/TestingPanels';
 import { ReceiptCheck } from './ReceiptCheck';
 import { CustodyLog, MismatchFlag, RedrawBadge, SampleStatusBadge } from './SampleBits';
 import { SampleLabel } from './SampleLabel';
@@ -49,14 +50,7 @@ function NextStep({ sample }) {
         <Panel title="Cancelled" subtitle="Every test on this sample was taken off the order before it was drawn" />
       );
     default:
-      return (
-        <Panel title={SAMPLE_STATUS_LABEL[sample.status]} subtitle="Nothing to do here">
-          <Group gap={8}>
-            <IconCircleCheck size={18} color="var(--success)" />
-            <Text size="sm">This sample is past the receipt check.</Text>
-          </Group>
-        </Panel>
-      );
+      return <TestingStep sample={sample} />;
   }
 }
 
