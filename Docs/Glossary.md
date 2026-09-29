@@ -28,6 +28,13 @@
 | **Redraw** | A new sample taken after one was rejected; created automatically, pointing back at the rejected sample, which stays on record |
 | **Tube mismatch** | A sample drawn into a different tube than its tests need; must be confirmed by the technician and is flagged throughout |
 | **Chain of custody** | (see above) — for samples it is the append-only event log |
+| **Attempt** | One go at entering a sample's results. A retest is a new attempt; earlier attempts stay on record |
+| **Reference range / critical limit** | (see above) — the server flags each number as Normal, Low, High, Critical low or Critical high when it is entered |
+| **Verification** | A pathologist's sign-off on a result; the only way to get a report. Whoever entered the result can't do it |
+| **Return for retest** | The pathologist sends a doubtful result back; the same sample is tested again and the first attempt is kept |
+| **Report** | The verified results as a document, with the pathologist's name, qualification and registration number; drawn as a PDF when asked for |
+| **Dispatch** | The lab sending a verified report to the patient — by email or a download link — after which the patient can open it |
+| **Receipt** | The moment a patient first opens their dispatched report |
 | **Sample rejection** | Flagging a sample as unusable and requesting a redraw — either at receipt (hemolyzed/clotted/insufficient volume) or during testing (sample exhausted/degraded) |
 | **Reagent** | A consumable chemical/substance used in running a lab test — tracked in inventory |
 | **Token / queue number** | A number issued to walk-in patients to manage consultation order without a fixed appointment slot |
