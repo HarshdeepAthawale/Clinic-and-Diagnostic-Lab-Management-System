@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" width="1000" height="400" role="img" aria-labelledby="t d">
+  <title id="t">Layers that protect a request</title>
+  <desc id="d">A request passes four layers. The browser proxy only redirects. Spring Security checks the JWT cookie, the CSRF header, rate limits and the role. Services check ownership and care relationships. PostgreSQL enforces the last rules with constraints and triggers.</desc>
+  <rect width="1000" height="400" rx="14" fill="#f5f4f1"/>
+
+  <rect x="20" y="40" width="215" height="250" rx="10" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <circle cx="44" cy="64" r="11" fill="#8a867f"/><text x="44" y="68" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#ffffff" font-size="11px" font-weight="700">1</text>
+  <text x="62" y="69" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="14px" font-weight="700">Browser and proxy</text>
+  <text x="36" y="102" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">proxy.js redirects to the</text><text x="36" y="118" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">right workspace</text>
+  <text x="36" y="146" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">Hidden buttons and redirects</text><text x="36" y="162" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">are convenience only.</text>
+  <text x="36" y="190" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#b42318" font-size="12px" font-weight="700">Not a security boundary</text>
+
+  <path d="M235 165 H262" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="262.0,165.0 252.0,170.0 252.0,160.0" fill="#1c1b19"/>
+
+  <rect x="266" y="40" width="215" height="250" rx="10" fill="#fbeceb" stroke="#b42318" stroke-width="1.4"/>
+  <circle cx="290" cy="64" r="11" fill="#b42318"/><text x="290" y="68" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#ffffff" font-size="11px" font-weight="700">2</text>
+  <text x="308" y="69" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="14px" font-weight="700">Spring Security</text>
+  <text x="282" y="102" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">JWT in an httpOnly cookie</text>
+  <text x="282" y="122" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">X-CSRF-Protection header</text><text x="282" y="138" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">on every change</text>
+  <text x="282" y="158" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">sign-in and code-guess limits</text>
+  <text x="282" y="178" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">role check on every endpoint</text>
+  <text x="282" y="198" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">deactivated accounts refused</text>
+  <text x="282" y="218" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">on the next request</text>
+
+  <path d="M481 165 H508" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="508.0,165.0 498.0,170.0 498.0,160.0" fill="#1c1b19"/>
+
+  <rect x="512" y="40" width="215" height="250" rx="10" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <circle cx="536" cy="64" r="11" fill="#8a867f"/><text x="536" y="68" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#ffffff" font-size="11px" font-weight="700">3</text>
+  <text x="554" y="69" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="14px" font-weight="700">Service rules</text>
+  <text x="528" y="102" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">a patient sees only their own</text><text x="528" y="118" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">records and sent reports</text>
+  <text x="528" y="146" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">a doctor needs a care</text><text x="528" y="162" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">relationship for a full record</text>
+  <text x="528" y="190" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">every doctor read is logged</text>
+  <text x="528" y="218" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">one-step conditional updates:</text><text x="528" y="234" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">stock, receipt, acknowledgement</text>
+
+  <path d="M727 165 H754" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="754.0,165.0 744.0,170.0 744.0,160.0" fill="#1c1b19"/>
+
+  <rect x="758" y="40" width="222" height="250" rx="10" fill="#fbeceb" stroke="#b42318" stroke-width="1.4"/>
+  <circle cx="782" cy="64" r="11" fill="#b42318"/><text x="782" y="68" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#ffffff" font-size="11px" font-weight="700">4</text>
+  <text x="800" y="69" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="14px" font-weight="700">PostgreSQL</text>
+  <text x="774" y="102" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">no report without a verified</text><text x="774" y="118" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">result (trigger)</text>
+  <text x="774" y="146" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">status moves checked</text>
+  <text x="774" y="174" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">history tables append-only</text>
+  <text x="774" y="202" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">stock cannot go below zero</text>
+  <text x="774" y="230" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">acknowledgement set once</text>
+  <text x="774" y="258" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">roles must match profiles</text>
+
+  <rect x="20" y="316" width="960" height="52" rx="10" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="500" y="338" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="14px" font-weight="700">A request has to pass every layer.</text>
+  <text x="500" y="357" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#3d3b37" font-size="12px">A bug or a forgotten check in one layer is caught by the next, so the rules that matter do not depend on the UI.</text>
+</svg>
