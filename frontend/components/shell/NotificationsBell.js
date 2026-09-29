@@ -3,9 +3,11 @@
 import { ActionIcon, Indicator, Popover, ScrollArea, Text, Tooltip, UnstyledButton } from '@mantine/core';
 import { IconBell, IconChecks } from '@tabler/icons-react';
 import Link from 'next/link';
+import { useInventoryAlerts } from '@/lib/inventory';
 import { useNotifications } from '@/lib/samples';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { RedrawAlerts } from '@/components/lab/RedrawAlerts';
+import { StockBadge, StockCount } from '@/components/inventory/InventoryBits';
 
 /** The front desk's live inbox: patients to call back after a rejected sample. */
 function FrontDeskInbox() {
@@ -27,15 +29,51 @@ function FrontDeskInbox() {
   );
 }
 
+const INVENTORY_PAGE = { ADMIN: '/admin/inventory', LAB_TECHNICIAN: '/lab/inventory' };
+
+/** The lab's low-stock inbox: the emptiest items, with a link to record a restock. */
+function StockInbox({ role, alerts }) {
+  const items = alerts.data?.items ?? [];
+  return (
+    <>
+      <Text fw={600} size="sm" mb={8}>
+        Running low{alerts.data?.lowCount ? ` · ${alerts.data.lowCount}` : ''}
+      </Text>
+      {items.length === 0 ? (
+        <EmptyState icon={IconChecks} title="Stock looks fine" compact>
+          Items appear here when they fall below their low-stock level.
+        </EmptyState>
+      ) : (
+        <ScrollArea.Autosize mah={360} type="auto" offsetScrollbars>
+          {items.map((item) => (
+            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: '1px solid var(--border)' }}>
+              <Text size="sm" fw={600} truncate>{item.name}</Text>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flex: 'none' }}>
+                <StockCount item={item} />
+                <StockBadge item={item} size="xs" />
+              </div>
+            </div>
+          ))}
+        </ScrollArea.Autosize>
+      )}
+      <Link href={INVENTORY_PAGE[role]} style={{ display: 'block', marginTop: 10, fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>
+        Open inventory
+      </Link>
+    </>
+  );
+}
+
 /**
- * Notification center. The front desk gets sample rejections (with a count on the bell); other roles
- * get their alerts here as later phases add them.
+ * Notification center. The front desk gets sample rejections and the lab and admin get low-stock items
+ * (each with a count on the bell); other roles get their alerts here as later phases add them.
  * Inside the dock, `buttonClassName` / `iconClassName` / `labelClassName` give it the dock's look.
  */
 export function NotificationsBell({ role, buttonClassName, iconClassName, labelClassName }) {
   const frontDesk = role === 'RECEPTIONIST';
+  const stockKeeper = role === 'LAB_TECHNICIAN' || role === 'ADMIN';
   const inbox = useNotifications(frontDesk);
-  const open = frontDesk ? inbox.data?.open ?? 0 : 0;
+  const stock = useInventoryAlerts(stockKeeper);
+  const open = frontDesk ? inbox.data?.open ?? 0 : stockKeeper ? stock.data?.lowCount ?? 0 : 0;
 
   const icon = (
     <Indicator label={open > 9 ? '9+' : open} disabled={open === 0} size={16} offset={4} color="red" withBorder processing={open > 0}>
@@ -62,6 +100,8 @@ export function NotificationsBell({ role, buttonClassName, iconClassName, labelC
       <Popover.Dropdown>
         {frontDesk ? (
           <FrontDeskInbox />
+        ) : stockKeeper ? (
+          <StockInbox role={role} alerts={stock} />
         ) : (
           <>
             <Text fw={600} size="sm" mb={4}>
