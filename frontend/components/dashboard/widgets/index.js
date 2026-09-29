@@ -28,6 +28,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { initials } from '@/components/shell/UserMenu';
 import { QueueBoard } from '@/components/appointments/QueueBoard';
 import { OpenConsultation, RecentPrescriptions } from './consultationWidgets';
+import { Collections, MyBills, OutstandingBills } from './billingWidgets';
 import { IncomingOrders, MyLabOrders, TubesNeeded } from './labWidgets';
 import { ListRow } from './ListRow';
 
@@ -374,4 +375,7 @@ export const WIDGETS = {
   incomingOrders: IncomingOrders,
   tubesNeeded: TubesNeeded,
   myLabOrders: MyLabOrders,
+  outstandingBills: OutstandingBills,
+  collections: Collections,
+  myBills: MyBills,
 };
