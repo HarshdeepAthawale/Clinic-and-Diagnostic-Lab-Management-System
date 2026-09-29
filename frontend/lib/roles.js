@@ -63,9 +63,8 @@ export const ROLES = {
     dashboardEndpoint: '/dashboard/pathologist',
     nav: [
       { label: 'Today', href: '/pathology', icon: IconHome },
-      { label: 'Verification queue', href: '/pathology/queue', icon: IconListCheck, phase: 8 },
-      { label: 'My verifications', href: '/pathology/history', icon: IconHistory, phase: 8 },
-      { label: 'Profile', href: '/pathology/profile', icon: IconId, phase: 8 },
+      { label: 'Verification queue', href: '/pathology/queue', icon: IconListCheck },
+      { label: 'My verifications', href: '/pathology/history', icon: IconHistory },
     ],
   },
   RECEPTIONIST: {
