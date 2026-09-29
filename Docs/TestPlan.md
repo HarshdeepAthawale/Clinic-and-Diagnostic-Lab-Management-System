@@ -48,9 +48,18 @@
 - Low-stock warning fires exactly at/below the configured threshold.
 - (If reagent mapping is built) completing a test decrements the correct linked reagent by the correct quantity.
 
+### Phase 10 (stretch features and hardening)
+- A report gets a random 32-hex verification code, unique and never changeable; the PDF prints its address and a QR image (`ReportVerificationTest`).
+- The public report check works without signing in, returns the report number, patient initials, tests and verifier — and no results, name or IDs; wrong, malformed and injected codes are all the same `404`.
+- A report with a critical value is marked critical and listed for its ordering doctor only; the lab sees all, the admin sees a count; nobody else gets in (`CriticalAlertTest`).
+- Acknowledging a critical result records who and when, only once, only by the ordering doctor; four simultaneous requests record exactly one; the database refuses to clear or edit it, or to acknowledge a non-critical report.
+- Trends need at least two verified values, are oldest first, capped at twelve, and a patient sees only values from reports already sent to them; a doctor needs a care relationship and is logged; other roles get 403 (`TrendTest`).
+- Five wrong passwords for an email from one address block that address (even for the right password); the real user elsewhere is unaffected; a correct sign-in resets the count; the window lets go; the per-address and claim caps hold (`AttemptLimiterTest`, `LoginRateLimitTest`).
+- The API documentation endpoints are not served unless turned on (`ApiDocsTest`).
+
 ### Cross-Cutting Integration
 - Doctor orders a test during consultation → a `LabOrder`/`LabOrderItem` appears with no duplicate patient data entry.
-- Full walkthrough: register patient → book appointment → consult → order test → collect → receive → test → verify → report → dispatch → invoice paid.
+- Full walkthrough: register patient → book appointment → consult → order test → collect → receive → test → verify → report → dispatch → invoice paid. Run as `scripts/demo-walkthrough.mjs` against a dev backend: it signs in as each role and stops at the first failing step (a rejected + redrawn sample and a retest are included).
 
 ## 3. Edge Cases
 
