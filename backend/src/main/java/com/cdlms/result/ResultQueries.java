@@ -263,6 +263,60 @@ public class ResultQueries {
         return n == null ? 0 : n;
     }
 
+    // ---------------------------------------------------------------- critical alerts
+
+    /** Unacknowledged critical reports, longest waiting first; {@code doctorId} narrows it to one doctor's orders. */
+    public List<ResultDtos.CriticalAlert> criticalOpen(UUID doctorId, int limit) {
+        return jdbc.query("""
+                SELECT s.id AS sample_id, s.sample_code, p.id AS patient_id, p.patient_code, p.full_name AS patient_name,
+                       d.full_name AS doctor_name, %s AS test_names, r.verified_at,
+                       COALESCE((SELECT array_agg(v.parameter_name || '|' || v.flag ORDER BY v.position)
+                                 FROM result_values v WHERE v.sample_result_id = r.id
+                                   AND v.flag IN ('CRITICAL_LOW', 'CRITICAL_HIGH')), '{}') AS critical_values
+                FROM reports rep
+                JOIN samples s ON s.id = rep.sample_id
+                JOIN lab_orders o ON o.id = s.lab_order_id
+                JOIN sample_results r ON r.sample_id = s.id AND r.status = 'VERIFIED'
+                JOIN patients p ON p.id = s.patient_id
+                JOIN doctors d ON d.id = o.ordering_doctor_id
+                WHERE rep.is_critical AND rep.critical_acknowledged_at IS NULL
+                  AND (CAST(:doctorId AS uuid) IS NULL OR o.ordering_doctor_id = CAST(:doctorId AS uuid))
+                ORDER BY r.verified_at LIMIT :limit
+                """.formatted(TEST_NAMES),
+                new MapSqlParameterSource("doctorId", doctorId).addValue("limit", limit),
+                (rs, i) -> new ResultDtos.CriticalAlert(rs.getObject("sample_id", UUID.class), rs.getString("sample_code"),
+                        rs.getObject("patient_id", UUID.class), rs.getString("patient_code"), rs.getString("patient_name"),
+                        rs.getString("doctor_name"), strings(rs.getArray("test_names")), criticalParameters(rs.getArray("critical_values")),
+                        instant(rs, "verified_at")));
+    }
+
+    public long countCriticalOpen(UUID doctorId) {
+        Long n = jdbc.queryForObject("""
+                SELECT count(*) FROM reports rep JOIN samples s ON s.id = rep.sample_id
+                JOIN lab_orders o ON o.id = s.lab_order_id
+                WHERE rep.is_critical AND rep.critical_acknowledged_at IS NULL
+                  AND (CAST(:doctorId AS uuid) IS NULL OR o.ordering_doctor_id = CAST(:doctorId AS uuid))
+                """, new MapSqlParameterSource("doctorId", doctorId), Long.class);
+        return n == null ? 0 : n;
+    }
+
+    /** When the longest-waiting unacknowledged critical result was verified. */
+    public Instant oldestCriticalOpen() {
+        Timestamp t = jdbc.queryForObject("""
+                SELECT min(r.verified_at) FROM reports rep
+                JOIN sample_results r ON r.sample_id = rep.sample_id AND r.status = 'VERIFIED'
+                WHERE rep.is_critical AND rep.critical_acknowledged_at IS NULL
+                """, new MapSqlParameterSource(), Timestamp.class);
+        return t == null ? null : t.toInstant();
+    }
+
+    private static List<ResultDtos.CriticalParameter> criticalParameters(Array array) throws SQLException {
+        return strings(array).stream().map(s -> {
+            int bar = s.lastIndexOf('|');
+            return new ResultDtos.CriticalParameter(s.substring(0, bar), RangeCheck.Flag.valueOf(s.substring(bar + 1)));
+        }).toList();
+    }
+
     // ---------------------------------------------------------------- authenticity
 
     /** What a scan of a report's QR code may show: enough to confirm the clinic issued it, no results. */

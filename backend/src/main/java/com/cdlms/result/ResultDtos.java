@@ -120,7 +120,34 @@ public final class ResultDtos {
                              String orderingDoctor, TubeType tubeType, Instant collectedAt, Instant receivedAt,
                              int attemptNumber, List<ReportTest> tests, Verifier verifier, Instant verifiedAt,
                              Instant generatedAt, Report.Channel dispatchedChannel, Instant dispatchedAt,
-                             Instant receiptConfirmedAt, boolean critical, String verificationCode) {
+                             Instant receiptConfirmedAt, boolean critical, String verificationCode,
+                             Instant criticalAcknowledgedAt, String criticalAcknowledgedBy) {
+    }
+
+    // ---------------------------------------------------------------- critical alerts (ADR-028)
+
+    /** Which value is at a critical limit — the name and direction only; the number is on the report. */
+    public record CriticalParameter(String name, Flag flag) {
+    }
+
+    /** A verified report with a critical value that its ordering doctor has not acknowledged yet. */
+    public record CriticalAlert(UUID sampleId, String sampleCode, UUID patientId, String patientCode, String patientName,
+                                String orderingDoctor, List<String> testNames, List<CriticalParameter> parameters,
+                                Instant verifiedAt) {
+    }
+
+    public record CriticalAlerts(long open, List<CriticalAlert> items) {
+    }
+
+    /** All the admin gets: how many are waiting and since when. */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public record CriticalSummary(long open, Instant oldestVerifiedAt) {
+    }
+
+    public record AcknowledgeRequest(@jakarta.validation.constraints.Size(max = 300) String note) {
+    }
+
+    public record Acknowledgement(UUID sampleId, Instant acknowledgedAt, String acknowledgedBy) {
     }
 
     /**
