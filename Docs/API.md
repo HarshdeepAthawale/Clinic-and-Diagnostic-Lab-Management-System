@@ -6,7 +6,7 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 
 - All paths below are relative to `/api` (e.g. `POST /api/auth/login`). The frontend calls them on its own origin; Next.js rewrites forward them to Spring Boot.
 - JSON request/response bodies; field names in `camelCase`; timestamps in ISO-8601 UTC.
-- Auth via the JWT `httpOnly` cookie (ADR-009). All endpoints require it except `/auth/login`, `/auth/register` and `/auth/register/claim`.
+- Auth via the JWT `httpOnly` cookie (ADR-009). All endpoints require it except `/auth/login`, `/auth/register`, `/auth/register/claim` and the `/public/*` report check.
 - Every `POST`/`PUT`/`PATCH`/`DELETE` must send `X-CSRF-Protection: 1` (ADR-014), including login and register; missing header → `403` with code `CSRF_HEADER_MISSING`. `GET` requests never change data.
 - List endpoints are paginated: `?page=0&size=20`, response `{ "content": [...], "page": n, "size": n, "totalElements": n }`.
 - PDF endpoints return `application/pdf` and run the same authorization check as the record they belong to (see [[Security]] §4).
@@ -19,7 +19,7 @@ The Next.js frontend talks to the Spring Boot backend **only** through this REST
 |---|---|---|
 | POST | `/auth/register` | Patient self-registration (staff accounts created by Admin, not self-registered) |
 | POST | `/auth/register/claim` | `{ email, password, registrationCode }` — creates a Patient login linked to a record the front desk registered (ADR-018). Unknown/expired/used code → `400 INVALID_REGISTRATION_CODE`; email in use → `409 EMAIL_TAKEN` |
-| POST | `/auth/login` | Sets JWT cookie; returns `{ id, name, role }` |
+| POST | `/auth/login` | Sets JWT cookie; returns `{ id, name, role }`. After 5 failures for an email from one address (or 30 from any address) in 15 minutes → `429 TOO_MANY_ATTEMPTS` with the wait; a correct sign-in clears the email's count (ADR-030) |
 | POST | `/auth/logout` | Clears the cookie |
 | GET | `/auth/me` | Current user + role — used by the frontend to pick the role area |
 
@@ -127,6 +127,26 @@ A report is created when a pathologist verifies a result (ADR-025) and is keyed 
 | GET | `/reports/{sample_id}` | Patient (own, once dispatched — the first open records receipt), Doctor (ordered it or care relationship, logged), Pathologist (logged), Lab Technician — values with unit, ranges and flags, the verifier's name, qualification and registration number |
 | GET | `/reports/{sample_id}/pdf?download=` | Same audiences — `application/pdf`, drawn on request, `Cache-Control: private, no-store` |
 | POST | `/reports/{sample_id}/dispatch` | Lab Technician — body `{ channel }`: `EMAIL` (a notice pointing to the patient's account; `400 NO_EMAIL` if they have none) or `DOWNLOAD_LINK`. `SMS` → `400 CHANNEL_UNAVAILABLE`. Once only: `409 ALREADY_DISPATCHED` |
+
+Critical results and trends (ADR-028, ADR-029):
+
+| Method | Path | Role |
+|---|---|---|
+| GET | `/reports/critical` | Doctor — their own unacknowledged critical results, longest waiting first: `{ open, items: [{ sampleId, sampleCode, patientId, patientCode, patientName, orderingDoctor, testNames, parameters: [{ name, flag }], verifiedAt }] }`. The numbers are on the report |
+| GET | `/reports/critical/all` | Lab Technician — every unacknowledged critical result |
+| GET | `/reports/critical/summary` | Admin — `{ open, oldestVerifiedAt }` only |
+| POST | `/reports/{sample_id}/acknowledge-critical` | Doctor who ordered it — body `{ note? }` (max 300). Once only: `409 ALREADY_ACKNOWLEDGED`; not critical → `409 NOT_CRITICAL`; someone else's order → `404`. Logged as `LAB_REPORT` |
+| GET | `/patients/{id}/trends` | Patient (self; values from reports already sent to them), Doctor with a care relationship (`403 NO_CARE_RELATIONSHIP` otherwise; logged as `LAB_HISTORY`), Pathologist (logged) — `{ patientId, series: [{ parameterId, name, unit, testCode, testName, refLow, refHigh, criticalLow, criticalHigh, points: [{ sampleId, sampleCode, verifiedAt, value, flag }] }] }`: numeric parameters measured at least twice, latest 12 values, oldest first |
+
+The report itself (`GET /reports/{sample_id}`) also carries `verificationCode`, `critical`, and — once acknowledged — `criticalAcknowledgedAt` and `criticalAcknowledgedBy`.
+
+## Public
+
+No sign-in. Nothing here returns results.
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/public/reports/{code}` | The report's QR check (ADR-027): `{ authentic, clinicName, reportNumber, patientInitials, tests, verifiedAt, verifier: { name, qualification, registrationNumber } }`. A wrong or unknown code → `404`. `Cache-Control: no-store` |
 
 ## Billing
 
