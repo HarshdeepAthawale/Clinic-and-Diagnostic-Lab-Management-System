@@ -90,4 +90,28 @@ public class Notification {
     public Role getAudienceRole() {
         return audienceRole;
     }
+
+    public Type getType() {
+        return type;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public UUID getPatientId() {
+        return patientId;
+    }
+
+    public UUID getSampleId() {
+        return sampleId;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }
