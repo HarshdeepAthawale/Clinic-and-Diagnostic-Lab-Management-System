@@ -2,6 +2,7 @@ package com.cdlms.lab;
 
 import com.cdlms.auth.AuthUser;
 import com.cdlms.billing.BillingService;
+import com.cdlms.sample.SampleService;
 import com.cdlms.common.ApiException;
 import com.cdlms.common.ClinicTime;
 import com.cdlms.common.PageResponse;
@@ -25,10 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -58,11 +61,13 @@ public class LabOrderService {
     private final DoctorRepository doctors;
     private final PatientAccessLogRepository accessLog;
     private final BillingService billing;
+    private final SampleService samples;
     private final ClinicTime time;
 
     public LabOrderService(LabOrderRepository orders, LabTestRepository tests, LabQueries queries,
                            ConsultationRepository consultations, PatientRepository patients, DoctorRepository doctors,
-                           PatientAccessLogRepository accessLog, BillingService billing, ClinicTime time) {
+                           PatientAccessLogRepository accessLog, BillingService billing, SampleService samples,
+                           ClinicTime time) {
         this.orders = orders;
         this.tests = tests;
         this.queries = queries;
@@ -71,6 +76,7 @@ public class LabOrderService {
         this.doctors = doctors;
         this.accessLog = accessLog;
         this.billing = billing;
+        this.samples = samples;
         this.time = time;
     }
 
@@ -119,8 +125,12 @@ public class LabOrderService {
         }
 
         boolean added = false;
+        Set<UUID> addedTestIds = new HashSet<>();
         for (LabTest test : ordered) {
-            added |= order.addTest(test);
+            if (order.addTest(test)) {
+                added = true;
+                addedTestIds.add(test.getId());
+            }
         }
         if (!added && order.getId() != null) {
             throw conflict("ALREADY_ORDERED", ordered.size() == 1
@@ -128,6 +138,9 @@ public class LabOrderService {
                     : "These tests are already on this order");
         }
         LabOrder saved = orders.saveAndFlush(order);
+        // Every ordered test gets a sample to be drawn (one per tube, shared by tests that need it).
+        samples.createFor(saved, saved.liveItems().stream().filter(i -> addedTestIds.contains(i.getLabTestId())).toList(),
+                doctor.id());
         // Outside a visit the order is billed at once; in a visit, finishing the consultation bills it.
         if (saved.getConsultationId() == null) {
             billing.invoiceLabOrder(saved, doctor.id());
@@ -141,7 +154,10 @@ public class LabOrderService {
         LabOrder order = ownOpenOrder(doctor, orderId);
         LabOrderItem item = order.liveItems().stream().filter(i -> i.getId().equals(itemId)).findFirst()
                 .orElseThrow(() -> notFound("That test isn't on this order"));
+        // Once the sample has been drawn the test can no longer come off (checked before anything changes).
+        samples.requireRemovable(List.of(item));
         billing.voidTests(List.of(item), doctor.id(), "Removed from order " + order.getOrderCode());
+        samples.release(List.of(item), doctor.id(), "Removed from order " + order.getOrderCode());
         order.cancelItem(item, doctor.id(), time.now());
         return view(orders.saveAndFlush(order), true);
     }
@@ -149,7 +165,9 @@ public class LabOrderService {
     @Transactional
     public LabOrderView cancel(AuthUser doctor, UUID orderId, String reason) {
         LabOrder order = ownOpenOrder(doctor, orderId);
+        samples.requireRemovable(order.liveItems());
         billing.voidTests(order.liveItems(), doctor.id(), "Order " + order.getOrderCode() + " cancelled");
+        samples.release(order.liveItems(), doctor.id(), "Order " + order.getOrderCode() + " cancelled");
         order.cancel(doctor.id(), time.now(), trim(reason) == null ? "Cancelled by the doctor" : trim(reason));
         return view(orders.saveAndFlush(order), true);
     }
