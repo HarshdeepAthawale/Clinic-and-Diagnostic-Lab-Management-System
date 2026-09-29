@@ -8,6 +8,7 @@ import com.cdlms.auth.AuthUser;
 import com.cdlms.billing.BillingDtos.InvoiceSummary;
 import com.cdlms.billing.BillingQueries;
 import com.cdlms.common.ApiException;
+import com.cdlms.inventory.InventoryService;
 import com.cdlms.consultation.ConsultationQueries;
 import com.cdlms.dashboard.DashboardQueries.Window;
 import com.cdlms.dashboard.Widget.Stat;
@@ -62,6 +63,7 @@ public class DashboardService {
     private final NotificationService notifications;
     private final ResultQueries resultQueries;
     private final PathologistRepository pathologists;
+    private final InventoryService inventory;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
@@ -69,7 +71,7 @@ public class DashboardService {
                             ConsultationQueries consultationQueries, LabQueries labQueries,
                             LabOrderService labOrders, BillingQueries billingQueries,
                             SampleQueries sampleQueries, NotificationService notifications,
-                            ResultQueries resultQueries, PathologistRepository pathologists,
+                            ResultQueries resultQueries, PathologistRepository pathologists, InventoryService inventory,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
@@ -84,6 +86,7 @@ public class DashboardService {
         this.notifications = notifications;
         this.resultQueries = resultQueries;
         this.pathologists = pathologists;
+        this.inventory = inventory;
         this.zone = ZoneId.of(zone);
     }
 
@@ -95,10 +98,10 @@ public class DashboardService {
         List<Widget> widgets = switch (user.role()) {
             case DOCTOR -> doctor(user);
             case RECEPTIONIST -> reception(user);
-            case ADMIN -> admin(user);
+            case ADMIN -> withLowStock(admin(user));
             case PATIENT -> patient(user);
             case PATHOLOGIST -> pathologist(user);
-            case LAB_TECHNICIAN -> lab();
+            case LAB_TECHNICIAN -> withLowStock(lab());
         };
         return new DashboardResponse(user.role(), widgets);
     }
@@ -153,6 +156,17 @@ public class DashboardService {
                         "samples", resultQueries.toTest(5, 0), "total", resultQueries.countToTest())),
                 new Widget("dispatchQueue", "Reports to send", "narrow", Map.of(
                         "reports", resultQueries.toDispatch(5, 0), "total", resultQueries.countToDispatch())));
+    }
+
+    /** The low-stock card for the lab and admin dashboards; nothing when every item is above its threshold. */
+    private List<Widget> withLowStock(List<Widget> widgets) {
+        var alerts = inventory.alerts();
+        if (alerts.lowCount() == 0) {
+            return widgets;
+        }
+        List<Widget> all = new ArrayList<>(widgets);
+        all.add(new Widget("lowStock", "Running low", "narrow", alerts));
+        return all;
     }
 
     /** The pathologist's day: what is waiting for sign-off (critical first) and what they have done today. */
