@@ -134,12 +134,13 @@ export function qrRows(text) {
 // ------------------------------------------------------------------ lab lists and lookup
 
 /** Samples waiting at one step: ORDERED (to collect) or COLLECTED (to receive); refreshed every 20 s. */
-export function useWaitingSamples(status, page = 0, size = 20) {
+export function useWaitingSamples(status, page = 0, size = 20, enabled = true) {
   return useQuery({
     queryKey: sampleKeys.waiting(status, page),
     queryFn: ({ signal }) => api(`/samples?${new URLSearchParams({ status, page: String(page), size: String(size) })}`, { signal }),
     placeholderData: keepPreviousData,
     refetchInterval: 20_000,
+    enabled,
   });
 }
 
