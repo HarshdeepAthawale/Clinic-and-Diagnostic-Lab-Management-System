@@ -250,3 +250,20 @@ Each entry: what was chosen, why, and what alternatives were considered. Add a n
 - **Who sees what:** the patient their own orders with prep, **without the doctor's note for the lab**; doctors orders they placed or for patients under their care (logged as `LAB_HISTORY`); lab technicians and pathologists all orders. Orders are numbered `LO-000123`.
 **Alternatives considered:** one range per test (as first planned — can't represent multi-value tests); a new order per "Order tests" click (splits one visit's tests across several orders and several lab tickets); price looked up at billing time (a price change would silently change old bills).
 **Consequence:** Phase 07 attaches samples to order lines and will stop cancellation once a sample is collected. Phase 08 checks results against `lab_test_parameters`. Phase 06 bills from the snapshot prices.
+
+---
+
+## ADR-023: Billing — one invoice per visit, created by the system, with accountable discounts
+
+**Status:** Accepted
+**Context:** Phase 06 turns a finished visit into a bill. The planned schema had one invoice with a single discount staff field and a three-value status. It didn't say when the invoice is created, how tests removed from an order affect it, how part payments are kept, or who may give how much discount.
+**Decision:**
+- **Created by the system, never typed in.** Finishing a consultation creates the visit invoice in the same transaction: the doctor's **consultation fee** (a per-doctor setting, default ₹500) plus the tests on the consultation's open lab order. A lab order placed outside a visit is billed straight away on its own invoice. Numbers are `INV-000123`; one invoice per consultation, one per direct order.
+- **Lines with snapshots.** Each charge is an invoice line whose amount was copied from the order line's price at order time. A test removed from an order **voids its line** (kept, struck through); if nothing is left, the invoice becomes `VOID`. A test the patient has **already paid for** can't be removed (`409 ALREADY_PAID`) — that needs settling at the counter first.
+- **Payments are separate, append-only rows** (amount, method `CASH`/`CARD`/`UPI`, optional reference, who received it). Part payments are allowed, never more than the balance. The status follows them: `UNPAID` → `PARTIALLY_PAID` → `PAID`.
+- **Discounts are accountable.** A discount needs a **reason** and records **who applied it and when**; the database rejects a discount without them. The **front desk is capped** at a configurable share of the bill (`app.billing.reception-discount-cap-percent`, default 20%); an **admin can go further**. A discount can't exceed the bill or leave it below what is already paid. Every step (created, line voided, discount, payment) is also written to an append-only `invoice_events` history, so a changed discount stays traceable.
+- **Who sees what:** patients their own invoices and PDFs; the front desk and admins all invoices; only the front desk takes payments; doctors, lab and pathologists see no billing.
+- **PDF** through the same renderer as prescriptions. The built-in PDF fonts have no ₹ sign, so the PDF prints `Rs. 1,25,000.00` with Indian digit grouping; the web app shows ₹.
+- **No payment gateway.** Payments are recorded by staff at the counter. Online payment stays out of scope ([[NonGoals]], [[OpenQuestions]]).
+**Alternatives considered:** creating the invoice at first order or at check-in (would change while the visit is still going); one mutable "amount paid" number (loses who took what and when); a free discount for the front desk (no control over leakage); storing PDFs (extra storage and an access surface, as in ADR-021).
+**Consequence:** Phase 07/08 don't affect billing. GST/tax and refunds are not modelled — a refund would be a new payment type with its own event, added when needed.
