@@ -11,7 +11,7 @@ Unresolved design/product questions. Tracked here rather than dropped — resolv
 
 - **Which 2–3 stretch features** (from [[PRD]] section 7) will actually be built? Needs a decision once core + differentiator modules are stable — feeds [[ImplementationPlan]].
 - **Payment handling:** billing is "record payment" by staff at the counter (cash, card or UPI) — built in Phase 06 (ADR-023). Whether a real online payment gateway is ever needed is still open; it stays out of scope (see [[NonGoals]]).
-- **QR code scope:** is the sample QR code purely visual (printed on a demo label, not scanned), or does the demo need actual scan-to-lookup capability?
+- **QR code scope:** decided in Phase 07 (ADR-024) — the label prints a QR of the sample code, and the bench's scan field accepts a typed code or a barcode scanner (which types the code). Camera scanning in the browser isn't built; add it only if the demo needs it.
 
 ## Ops
 
