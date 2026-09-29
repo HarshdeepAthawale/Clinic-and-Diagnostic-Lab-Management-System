@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ageGender, APPOINTMENT_STATUS, formatMoney, formatRelative } from './format';
+import { ageGender, APPOINTMENT_STATUS, formatMoney, formatRelative, formatShort } from './format';
 
 describe('formatRelative', () => {
   const now = Date.parse('2026-09-27T10:00:00Z');
@@ -33,5 +33,12 @@ describe('formatMoney', () => {
     expect(formatMoney(1250)).toBe('₹1,250');
     expect(formatMoney('125000.00')).toBe('₹1,25,000');
     expect(formatMoney(99.5)).toBe('₹99.50');
+  });
+});
+
+describe('formatShort', () => {
+  it('gives a compact day and clinic-time clock', () => {
+    // 06:26 UTC is 11:56 in Asia/Kolkata.
+    expect(formatShort('2026-09-29T06:26:00Z')).toMatch(/^29 Sep(t)?, 11:56/i);
   });
 });

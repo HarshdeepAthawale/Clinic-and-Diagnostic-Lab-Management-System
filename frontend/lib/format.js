@@ -14,6 +14,13 @@ export function formatDateTime(iso) {
   return `${formatDate(iso)}, ${formatTime(iso)}`;
 }
 
+/** "29 Sept, 11:56 am": a compact date and time for small spaces, like the stops on a journey line. */
+export function formatShort(iso) {
+  const d = new Date(iso);
+  const day = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: CLINIC_TIME_ZONE });
+  return `${day}, ${formatTime(iso)}`;
+}
+
 /** "just now", "12 min ago", "3 h ago", else the date. */
 export function formatRelative(iso, now = Date.now()) {
   const minutes = Math.round((now - new Date(iso).getTime()) / 60_000);
