@@ -38,7 +38,7 @@ export const ROLES = {
       { label: 'Prescriptions', href: '/patient/prescriptions', icon: IconPrescription },
       { label: 'Lab tests', href: '/patient/lab-tests', icon: IconFlask },
       { label: 'Reports', href: '/patient/reports', icon: IconFileText, phase: 8 },
-      { label: 'Bills', href: '/patient/bills', icon: IconReceipt, phase: 6 },
+      { label: 'Bills', href: '/patient/bills', icon: IconReceipt },
       { label: 'My record', href: '/patient/profile', icon: IconId },
     ],
   },
@@ -79,7 +79,7 @@ export const ROLES = {
       { label: 'Live queue', href: '/reception/queue', icon: IconTicket },
       { label: 'Patients', href: '/reception/patients', icon: IconUsers },
       { label: 'Appointments', href: '/reception/appointments', icon: IconCalendarEvent },
-      { label: 'Billing', href: '/reception/billing', icon: IconCash, phase: 6 },
+      { label: 'Billing', href: '/reception/billing', icon: IconCash },
     ],
   },
   LAB_TECHNICIAN: {
@@ -102,6 +102,7 @@ export const ROLES = {
     nav: [
       { label: 'Insights', href: '/admin', icon: IconChartBar },
       { label: 'Live queue', href: '/admin/queue', icon: IconTicket },
+      { label: 'Billing', href: '/admin/billing', icon: IconCash },
       { label: 'Test catalog', href: '/admin/lab-tests', icon: IconFlask },
       { label: 'Staff', href: '/admin/staff', icon: IconUsers, phase: 9 },
       { label: 'Inventory', href: '/admin/inventory', icon: IconPackage, phase: 9 },
