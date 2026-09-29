@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 510" width="1000" height="510" role="img" aria-labelledby="t d">
+  <title id="t">System architecture</title>
+  <desc id="d">A browser talks to a Next.js frontend, which forwards API calls to a Spring Boot backend made of four layers, which reads and writes PostgreSQL. The backend also uses a PDF engine and SMTP mail.</desc>
+  <rect width="1000" height="510" rx="14" fill="#f5f4f1"/>
+
+  <rect x="20" y="175" width="140" height="80" rx="10" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="90" y="208" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="15px" font-weight="700">Browser</text>
+  <text x="90" y="228" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">one workspace</text>
+  <text x="90" y="243" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">per role</text>
+
+  <path d="M160 215 H206" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="206.0,215.0 196.0,220.0 196.0,210.0" fill="#1c1b19"/>
+  <text x="183" y="205" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">HTTPS</text>
+
+  <rect x="210" y="140" width="200" height="150" rx="10" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="310" y="170" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="15px" font-weight="700">Next.js 16 frontend</text>
+  <text x="310" y="198" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">React 19 · Mantine 9</text>
+  <text x="310" y="216" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">TanStack Query · charts</text>
+  <text x="310" y="234" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">proxy.js: role redirects</text>
+  <text x="310" y="252" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">rewrites /api to the backend</text>
+
+  <path d="M410 215 H446" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="446.0,215.0 436.0,220.0 436.0,210.0" fill="#1c1b19"/>
+  <text x="428" y="200" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">/api</text>
+  <text x="428" y="236" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">JSON</text>
+
+  <rect x="450" y="30" width="310" height="380" rx="12" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="605" y="56" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="15px" font-weight="700">Spring Boot 4.1 · Java 21</text>
+
+  <rect x="470" y="72" width="270" height="62" rx="8" fill="#fbeceb" stroke="#b42318" stroke-width="1.4"/>
+  <text x="605" y="97" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Security filter chain</text>
+  <text x="605" y="117" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">JWT cookie · CSRF header · rate limits</text>
+  <path d="M605 134 V158" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="605.0,158.0 600.0,148.0 610.0,148.0" fill="#1c1b19"/>
+
+  <rect x="470" y="160" width="270" height="62" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="605" y="185" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Controllers</text>
+  <text x="605" y="205" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">role check on every endpoint</text>
+  <path d="M605 222 V246" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="605.0,246.0 600.0,236.0 610.0,236.0" fill="#1c1b19"/>
+
+  <rect x="470" y="248" width="270" height="62" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="605" y="273" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Services</text>
+  <text x="605" y="293" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">business rules · ownership · atomic updates</text>
+  <path d="M605 310 V334" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="605.0,334.0 600.0,324.0 610.0,324.0" fill="#1c1b19"/>
+
+  <rect x="470" y="336" width="270" height="62" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="605" y="361" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Repositories</text>
+  <text x="605" y="381" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">JPA entities · JDBC aggregate queries</text>
+
+  <path d="M760 215 H806" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="806.0,215.0 796.0,220.0 796.0,210.0" fill="#1c1b19"/>
+  <text x="783" y="205" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">JDBC</text>
+
+  <rect x="810" y="120" width="170" height="190" rx="10" fill="#fbeceb" stroke="#b42318" stroke-width="1.4"/>
+  <text x="895" y="150" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="15px" font-weight="700">PostgreSQL 17</text>
+  <text x="895" y="178" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">Flyway migrations V1–V12</text>
+  <text x="895" y="198" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">constraints and triggers</text>
+  <text x="895" y="218" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">append-only history</text>
+  <text x="895" y="238" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">verified-result gate</text>
+  <text x="895" y="258" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">stock never below zero</text>
+  <text x="895" y="278" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="12px">one-time acknowledgement</text>
+
+  <path d="M525 410 V444" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="525.0,444.0 520.0,434.0 530.0,434.0" fill="#1c1b19"/>
+  <path d="M685 410 V444" stroke="#1c1b19" stroke-width="1.6" fill="none"/><polygon points="685.0,444.0 680.0,434.0 690.0,434.0" fill="#1c1b19"/>
+  <rect x="450" y="446" width="150" height="50" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="525" y="468" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">PDF engine</text>
+  <text x="525" y="485" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">OpenHTMLtoPDF · ZXing QR</text>
+  <rect x="610" y="446" width="150" height="50" rx="8" fill="#ffffff" stroke="#c9c6bf" stroke-width="1.4"/>
+  <text x="685" y="468" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#1c1b19" font-size="13px" font-weight="700">Mail (SMTP)</text>
+  <text x="685" y="485" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">Mailpit in development</text>
+
+  <text x="895" y="342" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">Local: Docker Compose runs</text>
+  <text x="895" y="357" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" fill="#5c5954" font-size="11px">PostgreSQL and Mailpit</text>
+</svg>
