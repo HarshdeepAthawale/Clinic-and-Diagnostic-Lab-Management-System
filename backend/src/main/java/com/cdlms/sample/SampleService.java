@@ -169,7 +169,7 @@ public class SampleService {
         }
         boolean mismatch = request.tubeTypeUsed() != sample.getRequiredTubeType();
         if (mismatch && !request.confirmMismatch()) {
-            throw conflict("TUBE_MISMATCH", "These tests need a " + label(sample.getRequiredTubeType()) + " tube, not "
+            throw conflict("TUBE_MISMATCH", "These tests need the " + label(sample.getRequiredTubeType()) + " tube, not "
                     + label(request.tubeTypeUsed()) + ". Use the right tube, or confirm to record the mismatch.");
         }
         sample.collect(request.tubeTypeUsed(), mismatch, site, tech.id(), time.now());

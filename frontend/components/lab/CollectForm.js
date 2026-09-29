@@ -45,7 +45,7 @@ export function CollectForm({ sample }) {
   };
 
   return (
-    <Panel title="Collect the sample" subtitle={`These tests need a ${TUBES[sample.requiredTubeType]?.label ?? sample.requiredTubeType} tube`}>
+    <Panel title="Collect the sample" subtitle={`These tests need the ${TUBES[sample.requiredTubeType]?.label ?? sample.requiredTubeType} tube`}>
       <Stack gap="lg">
         <div>
           <Text size="sm" fw={500} mb={8}>Tube or container used</Text>
@@ -70,7 +70,7 @@ export function CollectForm({ sample }) {
         {mismatch && (
           <Alert color="yellow" variant="light" radius="md" icon={<IconAlertTriangle size={18} />} title="This isn’t the right tube">
             <Text size="sm" mb="sm">
-              These tests need a {TUBES[sample.requiredTubeType]?.label} tube. Using {TUBES[tube]?.label} may give unreliable results —
+              These tests need the {TUBES[sample.requiredTubeType]?.label} tube. Using {TUBES[tube]?.label} may give unreliable results —
               switch tubes if you can.
             </Text>
             <Checkbox
