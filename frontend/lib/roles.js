@@ -90,7 +90,7 @@ export const ROLES = {
     nav: [
       { label: 'Bench', href: '/lab', icon: IconHome },
       { label: 'Orders', href: '/lab/orders', icon: IconFlask },
-      { label: 'Samples', href: '/lab/samples', icon: IconTestPipe, phase: 7 },
+      { label: 'Samples', href: '/lab/samples', icon: IconTestPipe },
       { label: 'Inventory', href: '/lab/inventory', icon: IconPackage, phase: 9 },
     ],
   },
