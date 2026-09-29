@@ -134,6 +134,33 @@ public class Sample {
         receivedAt = at;
     }
 
+    /** Testing begins on an accepted sample (Phase 08). */
+    public void startTesting() {
+        moveTo(SampleStatus.IN_TESTING);
+    }
+
+    /** A result has been entered and now waits for the pathologist. */
+    public void resultEntered() {
+        moveTo(SampleStatus.RESULT_ENTERED);
+    }
+
+    /** The pathologist returned the result: the same sample goes back to testing. */
+    public void returnToTesting() {
+        moveTo(SampleStatus.IN_TESTING);
+    }
+
+    public void verified() {
+        moveTo(SampleStatus.VERIFIED);
+    }
+
+    public void reportGenerated() {
+        moveTo(SampleStatus.REPORT_GENERATED);
+    }
+
+    public void dispatched() {
+        moveTo(SampleStatus.DISPATCHED);
+    }
+
     public void reject() {
         moveTo(SampleStatus.REJECTED);
     }
