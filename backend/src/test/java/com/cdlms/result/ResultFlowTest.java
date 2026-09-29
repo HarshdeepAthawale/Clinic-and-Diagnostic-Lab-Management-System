@@ -32,6 +32,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Phase 08: results, range flags, the verification gate, retests, rejection in testing, reports (ADR-025). */
 class ResultFlowTest extends IntegrationTest {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private ReportRepository reportRepository;
+
     private Cookie reception;
     private Cookie doctor;
     private Cookie patient;
@@ -610,5 +613,49 @@ class ResultFlowTest extends IntegrationTest {
         mvc.perform(get("/api/dashboard/patient").cookie(patient))
                 .andExpect(jsonPath("$.widgets[?(@.type == 'myReports')].data[0].sampleId").value(sampleId))
                 .andExpect(jsonPath("$.widgets[?(@.type == 'myReports')].data[0].abnormal").value(true));
+    }
+
+    @Test
+    void openingAReportAtTheSameTimeRecordsReceiptOnceWithoutErrors() throws Exception {
+        consultation();
+        String sampleId = enteredSample();
+        verify(pathologist, sampleId).andExpect(status().isOk());
+        mvc.perform(json(post("/api/reports/" + sampleId + "/dispatch"), "{\"channel\":\"DOWNLOAD_LINK\"}").cookie(lab))
+                .andExpect(status().isOk());
+
+        // Two tabs (or devices) opening the same report together used to make one of them fail.
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(8);
+        java.util.concurrent.CountDownLatch go = new java.util.concurrent.CountDownLatch(1);
+        List<java.util.concurrent.Future<Integer>> calls = new java.util.ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            calls.add(pool.submit(() -> {
+                go.await();
+                return mvc.perform(get("/api/reports/" + sampleId).cookie(patient)).andReturn().getResponse().getStatus();
+            }));
+        }
+        go.countDown();
+        for (java.util.concurrent.Future<Integer> call : calls) {
+            assertThat(call.get()).isEqualTo(200);
+        }
+        pool.shutdown();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM reports WHERE receipt_confirmed_at IS NOT NULL", Long.class)).isEqualTo(1);
+    }
+
+    @Test
+    void confirmingReceiptIsAtomicAndOnlyTheFirstCallCounts() throws Exception {
+        consultation();
+        String sampleId = enteredSample();
+        verify(pathologist, sampleId).andExpect(status().isOk());
+        UUID id = UUID.fromString(sampleId);
+
+        // Nothing to confirm until the report has been dispatched.
+        assertThat(reportRepository.confirmReceipt(id, java.time.Instant.now())).isZero();
+        mvc.perform(json(post("/api/reports/" + sampleId + "/dispatch"), "{\"channel\":\"DOWNLOAD_LINK\"}").cookie(lab))
+                .andExpect(status().isOk());
+
+        assertThat(reportRepository.confirmReceipt(id, java.time.Instant.now())).isEqualTo(1);
+        String first = jdbc.queryForObject("SELECT receipt_confirmed_at::text FROM reports", String.class);
+        assertThat(reportRepository.confirmReceipt(id, java.time.Instant.now().plusSeconds(60))).isZero();
+        assertThat(jdbc.queryForObject("SELECT receipt_confirmed_at::text FROM reports", String.class)).isEqualTo(first);
     }
 }
