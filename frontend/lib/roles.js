@@ -79,6 +79,7 @@ export const ROLES = {
       { label: 'Live queue', href: '/reception/queue', icon: IconTicket },
       { label: 'Patients', href: '/reception/patients', icon: IconUsers },
       { label: 'Appointments', href: '/reception/appointments', icon: IconCalendarEvent },
+      { label: 'Samples', href: '/reception/samples', icon: IconTestPipe },
       { label: 'Billing', href: '/reception/billing', icon: IconCash },
     ],
   },
