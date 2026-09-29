@@ -11,7 +11,10 @@ import com.cdlms.common.ApiException;
 import com.cdlms.consultation.ConsultationQueries;
 import com.cdlms.dashboard.DashboardQueries.Window;
 import com.cdlms.dashboard.Widget.Stat;
-import com.cdlms.dashboard.Widget.Upcoming;
+import com.cdlms.result.ResultDtos.ReportRow;
+import com.cdlms.result.ResultQueries;
+import com.cdlms.user.Pathologist;
+import com.cdlms.user.PathologistRepository;
 import com.cdlms.lab.LabDtos.LabOrderView;
 import com.cdlms.lab.LabOrderService;
 import com.cdlms.lab.LabQueries;
@@ -57,6 +60,8 @@ public class DashboardService {
     private final BillingQueries billingQueries;
     private final SampleQueries sampleQueries;
     private final NotificationService notifications;
+    private final ResultQueries resultQueries;
+    private final PathologistRepository pathologists;
     private final ZoneId zone;
 
     public DashboardService(DashboardQueries queries, DoctorRepository doctors, PatientRepository patients,
@@ -64,6 +69,7 @@ public class DashboardService {
                             ConsultationQueries consultationQueries, LabQueries labQueries,
                             LabOrderService labOrders, BillingQueries billingQueries,
                             SampleQueries sampleQueries, NotificationService notifications,
+                            ResultQueries resultQueries, PathologistRepository pathologists,
                             @Value("${app.clinic.zone:Asia/Kolkata}") String zone) {
         this.queries = queries;
         this.doctors = doctors;
@@ -76,6 +82,8 @@ public class DashboardService {
         this.billingQueries = billingQueries;
         this.sampleQueries = sampleQueries;
         this.notifications = notifications;
+        this.resultQueries = resultQueries;
+        this.pathologists = pathologists;
         this.zone = ZoneId.of(zone);
     }
 
@@ -89,10 +97,7 @@ public class DashboardService {
             case RECEPTIONIST -> reception(user);
             case ADMIN -> admin(user);
             case PATIENT -> patient(user);
-            case PATHOLOGIST -> List.of(Widget.upcoming("Your workspace", List.of(
-                    new Upcoming("Verification queue", 8, "Results waiting for your sign-off, critical values first."),
-                    new Upcoming("Focus mode", 8, "Review one result at a time and sign off from the keyboard."),
-                    new Upcoming("Return for retest", 8, "Send doubtful results back to the bench with a reason."))));
+            case PATHOLOGIST -> pathologist(user);
             case LAB_TECHNICIAN -> lab();
         };
         return new DashboardResponse(user.role(), widgets);
@@ -108,6 +113,7 @@ public class DashboardService {
         List<Widget> widgets = new ArrayList<>();
         queries.openConsultation(doctorId)
                 .ifPresent(open -> widgets.add(new Widget("openConsultation", "In consultation", "full", open)));
+        List<ReportRow> ready = resultQueries.orderedBy(doctorId, 5, 0);
         widgets.addAll(List.of(
                 Widget.stats(List.of(
                         new Stat("appointmentsToday", "Appointments today", queries.appointmentsBetween(today, doctorId), null),
@@ -118,6 +124,9 @@ public class DashboardService {
                 new Widget("recentRecords", "Records you opened", "narrow", queries.recentAccess(user.id(), 6)),
                 new Widget("schedule", "Today's schedule", "full",
                         queries.schedule(today, doctorId).stream().map(e -> scheduleRow(e, date)).toList())));
+        if (!ready.isEmpty()) {
+            widgets.add(new Widget("reportsReady", "Lab reports for your patients", "full", ready));
+        }
         return widgets;
     }
 
@@ -127,20 +136,41 @@ public class DashboardService {
         return List.of(
                 Widget.stats(List.of(
                         new Stat("samplesToCollect", "To collect", sampleQueries.countWaiting(SampleStatus.ORDERED),
-                                "Waiting to be drawn"),
+                                sampleQueries.countUrgentToCollect() + " urgent"),
                         new Stat("samplesToReceive", "To receive", sampleQueries.countWaiting(SampleStatus.COLLECTED),
                                 "Drawn, awaiting the receipt check"),
-                        new Stat("urgentWaiting", "Urgent", sampleQueries.countUrgentToCollect(), "Urgent samples to collect"),
-                        new Stat("orderedToday", "Ordered today", labQueries.countOrderedBetween(today.from(), today.to()), null))),
+                        new Stat("samplesToTest", "To test", resultQueries.countToTest(),
+                                resultQueries.countReturned() + " returned for retest"),
+                        new Stat("reportsToSend", "Reports to send", resultQueries.countToDispatch(),
+                                "Verified, not yet sent to the patient"))),
                 new Widget("sampleQueue", "Sample bench", "wide", Map.of(
                         "toCollect", sampleQueries.waiting(SampleStatus.ORDERED, 5, 0),
                         "collectTotal", sampleQueries.countWaiting(SampleStatus.ORDERED),
                         "toReceive", sampleQueries.waiting(SampleStatus.COLLECTED, 5, 0),
                         "receiveTotal", sampleQueries.countWaiting(SampleStatus.COLLECTED))),
                 new Widget("tubesNeeded", "Tubes to set out", "narrow", sampleQueries.tubesToCollect()),
-                Widget.upcoming("Coming next", List.of(
-                        new Upcoming("Result entry", 8, "Enter results with the reference range beside each value."),
-                        new Upcoming("Reject during testing", 8, "Flag a used-up or degraded sample while it is being tested."))));
+                new Widget("testQueue", "To test", "wide", Map.of(
+                        "samples", resultQueries.toTest(5, 0), "total", resultQueries.countToTest())),
+                new Widget("dispatchQueue", "Reports to send", "narrow", Map.of(
+                        "reports", resultQueries.toDispatch(5, 0), "total", resultQueries.countToDispatch())));
+    }
+
+    /** The pathologist's day: what is waiting for sign-off (critical first) and what they have done today. */
+    private List<Widget> pathologist(AuthUser user) {
+        UUID pathologistId = pathologists.findByUserId(user.id()).map(Pathologist::getId)
+                .orElseThrow(() -> new ApiException(HttpStatus.FORBIDDEN, "FORBIDDEN", "No pathologist profile for this account"));
+        Window today = today();
+        long waiting = resultQueries.countPendingVerification();
+        return List.of(
+                Widget.stats(List.of(
+                        new Stat("awaitingVerification", "Awaiting verification", waiting, "Results to sign off"),
+                        new Stat("criticalWaiting", "Critical", resultQueries.countPendingCritical(), "Waiting with a critical value"),
+                        new Stat("verifiedToday", "Verified today",
+                                resultQueries.countVerifiedBetween(pathologistId, today.from(), today.to()), null),
+                        new Stat("returnedToday", "Returned today",
+                                resultQueries.countReturnedBetween(pathologistId, today.from(), today.to()), "Sent back for retest"))),
+                new Widget("verificationQueue", "Verification queue", "full", Map.of(
+                        "results", resultQueries.pendingVerification(6, 0), "total", waiting)));
     }
 
     private List<Widget> reception(AuthUser user) {
@@ -225,6 +255,12 @@ public class DashboardService {
             // Tests to get done come right after the queue card: prep (fasting etc.) is time-sensitive.
             int at = widgets.getFirst().type().equals("myQueue") ? 1 : 0;
             widgets.add(at, new Widget("myLabOrders", "Tests to get done", "full", tests));
+        }
+        List<ReportRow> reportRows = resultQueries.dispatchedForPatient(patient.getId(), 3);
+        if (!reportRows.isEmpty()) {
+            // New results matter more than the rest of the page: right after the queue card and any tests to do.
+            int at = widgets.stream().takeWhile(w -> w.type().equals("myQueue") || w.type().equals("myLabOrders")).toList().size();
+            widgets.add(at, new Widget("myReports", "Your reports", "full", reportRows));
         }
         List<InvoiceSummary> bills = billingQueries.outstandingForPatient(patient.getId(), 3);
         if (!bills.isEmpty()) {
