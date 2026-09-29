@@ -59,6 +59,11 @@ export function ReportBody({ report }) {
       {report.critical && (
         <Alert color="red" variant="light" radius="md" icon={<IconAlertOctagon size={18} />} title="Critical value reported">
           One or more values are at a critical limit. Please act on these results promptly.
+          {report.criticalAcknowledgedAt && (
+            <Text size="xs" mt={4}>
+              Acknowledged{report.criticalAcknowledgedBy ? ` by ${report.criticalAcknowledgedBy}` : ''} {formatDateTime(report.criticalAcknowledgedAt)}
+            </Text>
+          )}
         </Alert>
       )}
       <ResultTable groups={groups} />
