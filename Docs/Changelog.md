@@ -4,7 +4,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/): grouped by versi
 
 ## [Unreleased]
 
-Phase 01 is complete except creating the shared Supabase project; Phases 02–09 are complete. See [[Tracker]] for current status.
+Phase 01 is complete except creating the shared Supabase project; Phases 02–10 are complete. See [[Tracker]] for current status.
+
+### Added — Phase 10 (Stretch Features & Demo Readiness)
+- **QR-verified reports** (ADR-027): Flyway `V11__report_verification.sql` gives every report a random 128-bit code, fixed once issued. The PDF prints a QR code and the address beside the pathologist's stamp; a public page (`/verify/<code>`, `GET /api/public/reports/{code}`) confirms the clinic issued it — report number, patient initials, tests, verifier — and never shows results; anything that isn't a real code is the same 404.
+- **Critical value alerts** (ADR-028): `V12__critical_alerts.sql` marks a report critical when it is created and records the ordering doctor's acknowledgement (who, when, note) once, by a single conditional update; the database keeps it fixed. The doctor sees a pinned "Critical results" card and a count on the bell until they acknowledge; the lab sees every waiting one; the admin only a count and the longest wait. It never blocks dispatch.
+- **Trends across visits** (ADR-029): `GET /api/patients/{id}/trends` — numeric parameters measured at least twice, latest 12 values, with their range. Charts with the normal range and critical limits as reference lines and a data-table view, on the patient's new Trends page and the doctor's patient record (a doctor needs a care relationship and the view is logged; a patient sees only reports already sent to them).
+- **Security review** (ADR-030): failed sign-ins and registration-code guesses are limited (5 per email from one address, 30 per address, 15-minute window; `429 TOO_MANY_ATTEMPTS`), and the API docs are off unless enabled.
+- **Demo readiness** (ADR-031): `scripts/demo-walkthrough.mjs` drives every role through the whole journey on the real API — register, consult, order, collect, reject and redraw, test, retest, verify, dispatch, bill, pay — leaving ten patients, three rounds of history and the bench at every stage. Resumable; local development only.
+- **Changed:** the notification bell's badge is cleaner (accent colour, no pulsing halo).
+- Tests: 248 backend, 113 frontend.
 
 ### Added — Phase 09 (Inventory & Admin Analytics)
 - Backend: Flyway `V10__inventory.sql` — inventory items (category, unit, level, low-stock threshold, retire instead of delete) and append-only movements. A level changes only through a recorded movement (restock, used, wastage, correction; opening stock when an item is added): one conditional update that refuses to go below zero, so two people adjusting at once cannot lose a change; the database checks the direction against the reason. Lab and admin record movements; only admins add, edit or retire items. A computed "Running low" card on the lab and admin dashboards (ADR-026).
