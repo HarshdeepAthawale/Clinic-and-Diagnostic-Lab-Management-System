@@ -105,7 +105,16 @@ export function NotificationsBell({ role, buttonClassName, iconClassName, labelC
     : (stockKeeper ? stock.data?.lowCount ?? 0 : 0) + (criticalWatcher ? critical.data?.open ?? 0 : 0);
 
   const icon = (
-    <Indicator label={open > 9 ? '9+' : open} disabled={open === 0} size={16} offset={4} color="red" withBorder processing={open > 0}>
+    <Indicator
+      label={open > 9 ? '9+' : open}
+      disabled={open === 0}
+      size={17}
+      offset={2}
+      position="top-end"
+      color="var(--accent)"
+      withBorder
+      styles={{ indicator: { fontSize: 10, fontWeight: 700, fontFamily: 'var(--font-mono)', padding: '0 4px', minWidth: 17, lineHeight: 1, borderColor: 'var(--surface, #fff)', boxShadow: '0 1px 3px rgba(28, 27, 25, 0.25)' } }}
+    >
       <IconBell size={buttonClassName ? 20 : 19} stroke={1.7} className={iconClassName} />
     </Indicator>
   );
