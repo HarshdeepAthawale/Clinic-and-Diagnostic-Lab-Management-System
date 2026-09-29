@@ -75,14 +75,17 @@ Full permission enforcement details belong in [[Security]].
   - Moves the sample back to `In Testing` — the only allowed backward transition. The same physical sample is retested; no redraw.
   - Requires a reason from a fixed list (implausible value, inconsistent with patient history, critical value needs confirmation, QC concern, other) plus a note when the reason is "other".
   - Keeps the original result as a permanent record marked `RETURNED_FOR_RETEST` — it is never overwritten or deleted. The retest produces a new result row, which goes back to the verification queue.
-  - Puts the sample at the top of the lab technician's queue, flagged with the pathologist's reason.
+  - Puts the sample at the top of the lab technician's queue, flagged with the pathologist's reason. The retest is entered as the next attempt and goes back to the verification queue.
   - Has no limit on repeats, but the retest count is shown to the pathologist and technician.
 - **Samples are per tube:** tests of one order that need the same tube share one sample; the system creates the samples when the tests are ordered and gives each a code like `LAB-20260929-0007`. Tests whose sample hasn't been drawn can still come off the order; once it has, they can't (the order can't be cancelled either).
 - **Collection** records the tube used, where the blood was drawn from (blood only) and who/when.
 - **Tube type rule:** each test type has a required tube type; sample collection must record which tube was used, and a mismatch is flagged, not silently accepted — the technician must confirm it, and it is marked on the sample, in the custody log and at the receipt check.
 - **Rejection creates the redraw:** a rejected sample is kept and marked rejected; the front desk gets a notification with the patient's phone number, and a new sample for the same tests is created straight away for the redraw. The patient is told only that a new sample is needed — not the reason.
 - **The database holds the line:** samples can't be deleted, can't skip stages or go backwards except as described, and the custody log and rejection records can't be changed.
-- **Verification gate:** a report can never be generated or released before a pathologist has digitally signed off on the result. This is a hard gate, not a UI suggestion.
+- **Results:** testing starts on an accepted sample. The technician enters a value for **every** parameter of every test on the sample; the server flags each number against its normal range and critical limits (critical wins and includes the limit itself). Text results (Positive, blood group) have no flag. Entering results sends the sample to the pathologist; the technician can't verify.
+- **Verification gate:** a report can never be generated or released before a pathologist has digitally signed off on the result. This is a hard gate, not a UI suggestion — the database refuses to create a report without a verified result. **Whoever entered a result can't verify it.**
+- **Reports and dispatch:** verifying creates the report at once (with the pathologist's name, qualification and registration number). The lab technician then **dispatches** it — by email or a download link (SMS isn't available yet). A patient can open a report only after it is dispatched; the first time they do is recorded as receipt. Doctors can see verified reports for their patients straight away. A report is never edited.
+- **Rejection during testing** (used up or degraded, by the lab technician) works like a receipt rejection: permanent record, call-back to the front desk, redraw — and any results already entered stay on record.
 - **Chain of custody:** every stage's timestamp + staff ID combination is immutable once written (append-only log), forming the audit trail.
 
 ## 3. Billing Rules
