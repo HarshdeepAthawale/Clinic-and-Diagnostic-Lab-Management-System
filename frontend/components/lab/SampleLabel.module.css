@@ -1,0 +1,54 @@
+.label {
+  padding: 16px 18px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  max-width: 420px;
+}
+
+.qr {
+  flex: none;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.code {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.urgent {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--critical);
+  background: var(--critical-soft);
+}
+
+/* Print only the label */
+@media print {
+  :global(body *) {
+    visibility: hidden;
+  }
+
+  .label,
+  .label * {
+    visibility: visible;
+  }
+
+  .label {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 1px solid #000;
+    border-radius: 0;
+  }
+
+  .noPrint {
+    display: none;
+  }
+}
