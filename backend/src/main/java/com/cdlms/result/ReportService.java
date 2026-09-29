@@ -99,8 +99,11 @@ public class ReportService {
         Report report = reports.findBySampleId(sampleId).orElseThrow(() -> notFound());
         Sample sample = samples.findById(sampleId).orElseThrow(() -> notFound());
         checkCanRead(caller, sample, report);
-        if (caller.role() == com.cdlms.user.Role.PATIENT && report.confirmReceipt(time.now())) {
-            reports.saveAndFlush(report);
+        if (caller.role() == com.cdlms.user.Role.PATIENT && report.getReceiptConfirmedAt() == null
+                && reports.confirmReceipt(sampleId, time.now()) > 0) {
+            // First open: reload so the response shows the time just recorded.
+            report = reports.findBySampleId(sampleId).orElseThrow(() -> notFound());
+            sample = samples.findById(sampleId).orElseThrow(() -> notFound());
         }
         return view(sample, report);
     }

@@ -68,15 +68,6 @@ public class Report {
         dispatchedAt = at;
     }
 
-    /** First time the patient opens it after dispatch. Later opens change nothing. */
-    public boolean confirmReceipt(Instant at) {
-        if (dispatchedAt == null || receiptConfirmedAt != null) {
-            return false;
-        }
-        receiptConfirmedAt = at;
-        return true;
-    }
-
     public boolean isDispatched() {
         return dispatchedAt != null;
     }
