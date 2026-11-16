@@ -7,7 +7,7 @@ A web application that runs a clinic and its diagnostic laboratory as one system
 | **Status** | All 10 planned phases implemented (see [Tracker](Docs/Tracker.md)) |
 | **Users** | 6 roles: patient, doctor, pathologist, receptionist, lab technician, admin |
 | **Backend** | Java 21, Spring Boot 4.1, Spring Security (JWT), JPA, Flyway |
-| **Frontend** | Next.js 16 (App Router), React 19, Mantine 9, TanStack Query. **JavaScript only, no TypeScript** (217 `.js` files, no `.ts`/`.tsx`) |
+| **Frontend** | Next.js 16 (App Router), React 19, Mantine 9, TanStack Query. **JavaScript only |
 | **Database** | PostgreSQL 17, 12 migrations |
 | **Tests** | 259 backend (JUnit, MockMvc, Testcontainers) and 119 frontend (Vitest), all passing |
 
