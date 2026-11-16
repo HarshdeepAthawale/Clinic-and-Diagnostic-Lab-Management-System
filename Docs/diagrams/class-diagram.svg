@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 780" width="1000" height="780" role="img" aria-labelledby="t d">
+  <title id="t">Class diagram of the core domain</title>
+  <desc id="d">The main JPA entity classes with their key attributes and methods, the SampleStatus enumeration, and their associations; plus the ApiException hierarchy used for error handling.</desc>
+  <style>
+    text { font-family: 'Courier New', Courier, monospace; fill: #1c1b19; }
+    .n { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; }
+    .s { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10.5px; font-style: italic; fill: #5c5954; }
+    .a { font-size: 10.5px; }
+    .m { font-size: 10.5px; fill: #0f5c55; }
+    .k { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10.5px; font-weight: 700; fill: #5c5954; }
+    .box { fill: #ffffff; stroke: #8a867f; stroke-width: 1.3; }
+    .hd { fill: #efede8; stroke: #8a867f; stroke-width: 1.3; }
+    .hdr { fill: #fbeceb; stroke: #b42318; stroke-width: 1.3; }
+    .sep { stroke: #c9c6bf; stroke-width: 1; }
+    .ln { stroke: #1c1b19; stroke-width: 1.3; fill: none; }
+  </style>
+  <rect width="1000" height="780" rx="14" fill="#f5f4f1"/>
+
+  <!-- Patient -->
+  <rect class="box" x="20" y="20" width="220" height="150" rx="4"/><rect class="hd" x="20" y="20" width="220" height="26" rx="4"/>
+  <text class="n" x="130" y="38" text-anchor="middle">Patient</text>
+  <text class="a" x="28" y="62">- patientCode : String</text><text class="a" x="28" y="76">- fullName : String</text><text class="a" x="28" y="90">- dob : LocalDate</text><text class="a" x="28" y="104">- knownAllergies : String</text>
+  <line class="sep" x1="20" y1="112" x2="240" y2="112"/>
+  <text class="m" x="28" y="128">+ ageOn(LocalDate) : int</text><text class="m" x="28" y="142">+ updateClinical(...)</text><text class="m" x="28" y="156">+ linkToUser(UUID)</text>
+
+  <!-- Appointment -->
+  <rect class="box" x="270" y="20" width="220" height="150" rx="4"/><rect class="hd" x="270" y="20" width="220" height="26" rx="4"/>
+  <text class="n" x="380" y="38" text-anchor="middle">Appointment</text>
+  <text class="a" x="278" y="62">- kind : Kind</text><text class="a" x="278" y="76">- status : AppointmentStatus</text><text class="a" x="278" y="90">- scheduledAt : Instant</text><text class="a" x="278" y="104">- queueToken : String</text>
+  <line class="sep" x1="270" y1="112" x2="490" y2="112"/>
+  <text class="m" x="278" y="128">+ booked(...) : Appointment</text><text class="m" x="278" y="142">+ walkIn(...) : Appointment</text><text class="s" x="278" y="160">static factory methods</text>
+
+  <!-- Consultation -->
+  <rect class="box" x="520" y="20" width="220" height="150" rx="4"/><rect class="hd" x="520" y="20" width="220" height="26" rx="4"/>
+  <text class="n" x="630" y="38" text-anchor="middle">Consultation</text>
+  <text class="a" x="528" y="62">- chiefComplaint : String</text><text class="a" x="528" y="76">- diagnosis : String</text><text class="a" x="528" y="90">- vitals : Short / BigDecimal</text><text class="a" x="528" y="104">- completedAt : Instant</text>
+  <line class="sep" x1="520" y1="112" x2="740" y2="112"/>
+  <text class="m" x="528" y="128">+ apply(Content)</text><text class="m" x="528" y="142">+ complete(Instant)</text><text class="m" x="528" y="156">+ isDraft() : boolean</text>
+
+  <!-- Invoice -->
+  <rect class="box" x="770" y="20" width="210" height="164" rx="4"/><rect class="hd" x="770" y="20" width="210" height="26" rx="4"/>
+  <text class="n" x="875" y="38" text-anchor="middle">Invoice</text>
+  <text class="a" x="778" y="62">- invoiceCode : String</text><text class="a" x="778" y="76">- discount : BigDecimal</text><text class="a" x="778" y="90">- amountPaid : BigDecimal</text>
+  <line class="sep" x1="770" y1="98" x2="980" y2="98"/>
+  <text class="m" x="778" y="114">+ forConsultation(...)</text><text class="m" x="778" y="128">+ applyDiscount(...)</text><text class="m" x="778" y="142">+ recordPayment(...)</text><text class="m" x="778" y="156">+ net() : BigDecimal</text><text class="m" x="778" y="170">+ balance() : BigDecimal</text>
+
+  <!-- LabOrder -->
+  <rect class="box" x="520" y="225" width="220" height="136" rx="4"/><rect class="hd" x="520" y="225" width="220" height="26" rx="4"/>
+  <text class="n" x="630" y="243" text-anchor="middle">LabOrder</text>
+  <text class="a" x="528" y="267">- orderCode : String</text><text class="a" x="528" y="281">- priority : Priority</text><text class="a" x="528" y="295">- items : List&lt;LabOrderItem&gt;</text>
+  <line class="sep" x1="520" y1="303" x2="740" y2="303"/>
+  <text class="m" x="528" y="319">+ addTest(LabTest) : boolean</text><text class="m" x="528" y="333">+ cancelItem(...)</text><text class="m" x="528" y="347">+ liveItems() : List</text>
+
+  <!-- Sample -->
+  <rect class="box" x="520" y="410" width="220" height="190" rx="4"/><rect class="hdr" x="520" y="410" width="220" height="26" rx="4"/>
+  <text class="n" x="630" y="428" text-anchor="middle">Sample</text>
+  <text class="a" x="528" y="452">- sampleCode : String</text><text class="a" x="528" y="466">- status : SampleStatus</text><text class="a" x="528" y="480">- requiredTubeType : TubeType</text><text class="a" x="528" y="494">- redrawOfSampleId : UUID</text>
+  <line class="sep" x1="520" y1="502" x2="740" y2="502"/>
+  <text class="m" x="528" y="518">+ collect(...)</text><text class="m" x="528" y="532">+ receive(UUID, Instant)</text><text class="m" x="528" y="546">+ startTesting()</text><text class="m" x="528" y="560">+ verified()</text><text class="m" x="528" y="574">+ reject()</text><text class="s" x="528" y="592">each move checks the status first</text>
+
+  <!-- SampleStatus enum -->
+  <rect class="box" x="770" y="410" width="210" height="190" rx="4"/><rect class="hd" x="770" y="410" width="210" height="40" rx="4"/>
+  <text class="k" x="875" y="424" text-anchor="middle">&#171;enumeration&#187;</text><text class="n" x="875" y="442" text-anchor="middle">SampleStatus</text>
+  <text class="a" x="778" y="466">ORDERED, COLLECTED,</text><text class="a" x="778" y="480">RECEIVED_AT_LAB, IN_TESTING,</text><text class="a" x="778" y="494">RESULT_ENTERED, VERIFIED,</text><text class="a" x="778" y="508">REPORT_GENERATED, DISPATCHED,</text><text class="a" x="778" y="522">REJECTED, CANCELLED</text>
+  <line class="sep" x1="770" y1="532" x2="980" y2="532"/>
+  <text class="m" x="778" y="548">+ next() : Set&lt;SampleStatus&gt;</text><text class="m" x="778" y="562">+ canMoveTo(target) : boolean</text>
+
+  <!-- SampleResult -->
+  <rect class="box" x="270" y="410" width="220" height="164" rx="4"/><rect class="hd" x="270" y="410" width="220" height="26" rx="4"/>
+  <text class="n" x="380" y="428" text-anchor="middle">SampleResult</text>
+  <text class="a" x="278" y="452">- attemptNumber : int</text><text class="a" x="278" y="466">- status : Status</text><text class="a" x="278" y="480">- values : List&lt;ResultValue&gt;</text>
+  <line class="sep" x1="270" y1="488" x2="490" y2="488"/>
+  <text class="m" x="278" y="504">+ addValue(Entry)</text><text class="m" x="278" y="518">+ verify(UUID, Instant)</text><text class="m" x="278" y="532">+ returnForRetest(...)</text><text class="m" x="278" y="546">+ isCritical() : boolean</text><text class="s" x="278" y="564">uses RangeCheck.flag(...)</text>
+
+  <!-- Report -->
+  <rect class="box" x="20" y="410" width="220" height="164" rx="4"/><rect class="hdr" x="20" y="410" width="220" height="26" rx="4"/>
+  <text class="n" x="130" y="428" text-anchor="middle">Report</text>
+  <text class="a" x="28" y="452">- verificationCode : String</text><text class="a" x="28" y="466">- critical : boolean</text><text class="a" x="28" y="480">- dispatchedAt : Instant</text><text class="a" x="28" y="494">- receiptConfirmedAt : Instant</text>
+  <line class="sep" x1="20" y1="502" x2="240" y2="502"/>
+  <text class="m" x="28" y="518">+ dispatch(Channel, UUID, Instant)</text><text class="m" x="28" y="532">+ isDispatched() : boolean</text><text class="s" x="28" y="550">created only after verification</text><text class="s" x="28" y="564">(enforced by a DB trigger)</text>
+
+  <!-- InventoryItem -->
+  <rect class="box" x="20" y="225" width="220" height="136" rx="4"/><rect class="hd" x="20" y="225" width="220" height="26" rx="4"/>
+  <text class="n" x="130" y="243" text-anchor="middle">InventoryItem</text>
+  <text class="a" x="28" y="267">- currentStock : int</text><text class="a" x="28" y="281">- lowStockThreshold : int</text><text class="a" x="28" y="295">- category : Category</text>
+  <line class="sep" x1="20" y1="303" x2="240" y2="303"/>
+  <text class="m" x="28" y="319">+ isLow() : boolean</text><text class="m" x="28" y="333">+ isOut() : boolean</text><text class="s" x="28" y="351">stock changes only via movements</text>
+
+  <!-- Exceptions -->
+  <rect class="box" x="270" y="640" width="220" height="56" rx="4"/><rect class="hd" x="270" y="640" width="220" height="26" rx="4"/>
+  <text class="n" x="380" y="658" text-anchor="middle">RuntimeException</text><text class="s" x="278" y="684">java.lang</text>
+  <rect class="box" x="520" y="640" width="220" height="110" rx="4"/><rect class="hdr" x="520" y="640" width="220" height="26" rx="4"/>
+  <text class="n" x="630" y="658" text-anchor="middle">ApiException</text>
+  <text class="a" x="528" y="682">- status : HttpStatus</text><text class="a" x="528" y="696">- code : String</text>
+  <line class="sep" x1="520" y1="704" x2="740" y2="704"/>
+  <text class="m" x="528" y="720">+ getStatus() : HttpStatus</text><text class="m" x="528" y="734">+ getCode() : String</text>
+  <rect class="box" x="770" y="640" width="210" height="110" rx="4"/><rect class="hd" x="770" y="640" width="210" height="40" rx="4"/>
+  <text class="k" x="875" y="654" text-anchor="middle">&#171;RestControllerAdvice&#187;</text><text class="n" x="875" y="672" text-anchor="middle">GlobalExceptionHandler</text>
+  <text class="m" x="778" y="698">+ handleApi(ApiException)</text><text class="m" x="778" y="712">+ handleValidation(...)</text><text class="m" x="778" y="726">+ handleUnexpected(Exception)</text>
+
+  <!-- Associations -->
+  <path class="ln" d="M240 95 H270"/><text class="k" x="244" y="89">1</text><text class="k" x="258" y="89">*</text>
+  <path class="ln" d="M490 95 H520"/><text class="k" x="494" y="89">1</text><text class="k" x="497" y="110">0..1</text>
+  <path class="ln" d="M740 95 H770"/><text class="k" x="744" y="89">1</text><text class="k" x="758" y="89">1</text>
+  <path class="ln" d="M630 170 V225"/><text class="k" x="636" y="186">1</text><text class="k" x="636" y="219">0..1</text>
+  <path class="ln" d="M630 361 V410"/><text class="k" x="636" y="377">1</text><text class="k" x="636" y="404">*</text>
+  <path class="ln" d="M520 505 H490"/><text class="k" x="510" y="499">1</text><text class="k" x="494" y="499">*</text>
+  <path class="ln" d="M740 505 H770"/><text class="k" x="744" y="499">uses</text>
+  <path class="ln" d="M270 492 H240"/><text class="k" x="260" y="486">1</text><text class="k" x="244" y="508">0..1</text>
+  <!-- Inheritance: ApiException extends RuntimeException -->
+  <path class="ln" d="M520 668 H502"/><polygon points="490,668 502,661 502,675" fill="#ffffff" stroke="#1c1b19" stroke-width="1.3"/>
+  <path class="ln" d="M740 695 H770"/><text class="k" x="744" y="689">handles</text>
+</svg>
