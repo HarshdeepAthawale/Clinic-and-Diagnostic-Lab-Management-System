@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 720" width="1000" height="720" role="img" aria-labelledby="t d">
+  <title id="t">Use case diagram</title>
+  <desc id="d">Six actors and the use cases each one performs inside the CDLMS system boundary, plus a public verifier who checks a printed report.</desc>
+  <style>
+    text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; fill: #1c1b19; }
+    .actor { font-size: 13px; font-weight: 700; }
+    .uc { font-size: 12px; }
+    .t { font-size: 15px; font-weight: 700; }
+    .uce { fill: #ffffff; stroke: #8a867f; stroke-width: 1.3; }
+    .ucr { fill: #fbeceb; stroke: #b42318; stroke-width: 1.3; }
+    .stick { stroke: #1c1b19; stroke-width: 1.8; fill: none; }
+    .head { fill: #ffffff; stroke: #1c1b19; stroke-width: 1.8; }
+    .assoc { stroke: #8a867f; stroke-width: 1.1; fill: none; }
+    .inc { stroke: #b42318; stroke-width: 1.1; fill: none; stroke-dasharray: 5 4; }
+    .lbl { font-size: 10.5px; fill: #b42318; font-style: italic; }
+  </style>
+  <rect width="1000" height="720" rx="14" fill="#f5f4f1"/>
+
+  <!-- System boundary -->
+  <rect x="190" y="20" width="620" height="680" rx="12" fill="#ffffff" fill-opacity="0.55" stroke="#1c1b19" stroke-width="1.6"/>
+  <text class="t" x="500" y="46" text-anchor="middle">CDLMS (Clinic and Diagnostic Lab Management System)</text>
+
+  <!-- Actors: left -->
+  <g transform="translate(95,95)"><circle class="head" cx="0" cy="0" r="12"/><path class="stick" d="M0 12 V44 M-18 24 H18 M0 44 L-14 66 M0 44 L14 66"/></g>
+  <text class="actor" x="95" y="185" text-anchor="middle">Receptionist</text>
+  <g transform="translate(95,300)"><circle class="head" cx="0" cy="0" r="12"/><path class="stick" d="M0 12 V44 M-18 24 H18 M0 44 L-14 66 M0 44 L14 66"/></g>
+  <text class="actor" x="95" y="390" text-anchor="middle">Doctor</text>
+  <g transform="translate(95,520)"><circle class="head" cx="0" cy="0" r="12"/><path class="stick" d="M0 12 V44 M-18 24 H18 M0 44 L-14 66 M0 44 L14 66"/></g>
+  <text class="actor" x="95" y="610" text-anchor="middle">Patient</text>
+
+  <!-- Actors: right -->
+  <g transform="translate(905,95)"><circle class="head" cx="0" cy="0" r="12"/><path class="stick" d="M0 12 V44 M-18 24 H18 M0 44 L-14 66 M0 44 L14 66"/></g>
+  <text class="actor" x="905" y="185" text-anchor="middle">Lab Technician</text>
+  <g transform="translate(905,320)"><circle class="head" cx="0" cy="0" r="12"/><path class="stick" d="M0 12 V44 M-18 24 H18 M0 44 L-14 66 M0 44 L14 66"/></g>
+  <text class="actor" x="905" y="410" text-anchor="middle">Pathologist</text>
+  <g transform="translate(905,520)"><circle class="head" cx="0" cy="0" r="12"/><path class="stick" d="M0 12 V44 M-18 24 H18 M0 44 L-14 66 M0 44 L14 66"/></g>
+  <text class="actor" x="905" y="610" text-anchor="middle">Admin</text>
+  <g transform="translate(500,650)"><circle class="head" cx="0" cy="0" r="9"/><path class="stick" d="M0 9 V30 M-13 17 H13 M0 30 L-10 46 M0 30 L10 46"/></g>
+
+  <!-- Use cases: left column (x=300) -->
+  <ellipse class="uce" cx="300" cy="80" rx="95" ry="20"/><text class="uc" x="300" y="84" text-anchor="middle">Register patient</text>
+  <ellipse class="uce" cx="300" cy="125" rx="95" ry="20"/><text class="uc" x="300" y="129" text-anchor="middle">Book / issue queue token</text>
+  <ellipse class="uce" cx="300" cy="170" rx="95" ry="20"/><text class="uc" x="300" y="174" text-anchor="middle">Take payment, discount</text>
+  <ellipse class="uce" cx="300" cy="260" rx="95" ry="20"/><text class="uc" x="300" y="264" text-anchor="middle">Consult and prescribe</text>
+  <ellipse class="uce" cx="300" cy="305" rx="95" ry="20"/><text class="uc" x="300" y="309" text-anchor="middle">Order lab tests</text>
+  <ellipse class="ucr" cx="300" cy="350" rx="95" ry="20"/><text class="uc" x="300" y="354" text-anchor="middle">Acknowledge critical result</text>
+  <ellipse class="uce" cx="300" cy="395" rx="95" ry="20"/><text class="uc" x="300" y="399" text-anchor="middle">View record and trends</text>
+  <ellipse class="uce" cx="300" cy="490" rx="95" ry="20"/><text class="uc" x="300" y="494" text-anchor="middle">Book appointment</text>
+  <ellipse class="uce" cx="300" cy="535" rx="95" ry="20"/><text class="uc" x="300" y="539" text-anchor="middle">Read report, download PDF</text>
+  <ellipse class="uce" cx="300" cy="580" rx="95" ry="20"/><text class="uc" x="300" y="584" text-anchor="middle">View bills and prescriptions</text>
+
+  <!-- Use cases: right column (x=700) -->
+  <ellipse class="uce" cx="700" cy="80" rx="95" ry="20"/><text class="uc" x="700" y="84" text-anchor="middle">Collect sample</text>
+  <ellipse class="uce" cx="700" cy="125" rx="95" ry="20"/><text class="uc" x="700" y="129" text-anchor="middle">Receive or reject sample</text>
+  <ellipse class="uce" cx="700" cy="170" rx="95" ry="20"/><text class="uc" x="700" y="174" text-anchor="middle">Enter test results</text>
+  <ellipse class="uce" cx="700" cy="215" rx="95" ry="20"/><text class="uc" x="700" y="219" text-anchor="middle">Dispatch report</text>
+  <ellipse class="uce" cx="700" cy="260" rx="95" ry="20"/><text class="uc" x="700" y="264" text-anchor="middle">Record stock movement</text>
+  <ellipse class="ucr" cx="700" cy="330" rx="95" ry="20"/><text class="uc" x="700" y="334" text-anchor="middle">Verify result</text>
+  <ellipse class="uce" cx="700" cy="375" rx="95" ry="20"/><text class="uc" x="700" y="379" text-anchor="middle">Return for retest</text>
+  <ellipse class="uce" cx="700" cy="470" rx="95" ry="20"/><text class="uc" x="700" y="474" text-anchor="middle">View insights and turnaround</text>
+  <ellipse class="uce" cx="700" cy="515" rx="95" ry="20"/><text class="uc" x="700" y="519" text-anchor="middle">Manage staff accounts</text>
+  <ellipse class="uce" cx="700" cy="560" rx="95" ry="20"/><text class="uc" x="700" y="564" text-anchor="middle">Manage test catalog, inventory</text>
+  <ellipse class="uce" cx="700" cy="605" rx="95" ry="20"/><text class="uc" x="700" y="609" text-anchor="middle">Review record access log</text>
+
+  <!-- Centre: shared use cases -->
+  <ellipse class="ucr" cx="500" cy="440" rx="82" ry="20"/><text class="uc" x="500" y="444" text-anchor="middle">Generate report</text>
+  <ellipse class="uce" cx="500" cy="190" rx="78" ry="20"/><text class="uc" x="500" y="194" text-anchor="middle">Sign in</text>
+  <ellipse class="uce" cx="500" cy="605" rx="82" ry="20"/><text class="uc" x="500" y="609" text-anchor="middle">Verify report by QR</text>
+
+  <!-- Associations -->
+  <path class="assoc" d="M113 120 L205 80 M113 125 L205 125 M113 130 L205 170"/>
+  <path class="assoc" d="M113 325 L205 260 M113 330 L205 305 M113 335 L205 350 M113 340 L205 395"/>
+  <path class="assoc" d="M113 545 L205 490 M113 550 L205 535 M113 555 L205 580"/>
+  <path class="assoc" d="M887 120 L795 80 M887 123 L795 125 M887 126 L795 170 M887 129 L795 215 M887 132 L795 260"/>
+  <path class="assoc" d="M887 345 L795 330 M887 350 L795 375"/>
+  <path class="assoc" d="M887 545 L795 470 M887 548 L795 515 M887 551 L795 560 M887 554 L795 605"/>
+  <path class="assoc" d="M500 640 V625"/>
+
+  <!-- include / extend -->
+  <path class="inc" d="M610 336 L578 430"/><polygon points="578,430 576,418 586,421" fill="#b42318"/>
+  <text class="lbl" x="606" y="392">&#171;include&#187;</text>
+  <path class="inc" d="M455 456 L385 344"/><polygon points="385,344 395,350 386,355" fill="#b42318"/>
+  <text class="lbl" x="378" y="408">&#171;extend&#187;</text>
+  <text class="lbl" x="350" y="422">(if critical)</text>
+
+  <text class="uc" x="500" y="232" text-anchor="middle" fill="#5c5954">every role signs in first</text>
+  <text class="actor" x="545" y="690">Anyone with the printout</text>
+</svg>
